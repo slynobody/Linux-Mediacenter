@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<!-- 	<nr>14</nr>	# Numerierung für Einzelupdate -->
+<settings> 
+    <category label="Allgemein">
+    	<setting label="Debug: Plugin-Logging einschalten" type="bool" id="pref_info_debug" default="false"/>
+   	<setting label="neues Update beim Start des Plugins anzeigen" type="bool" id="pref_info_update" default="false"/>
+           <setting type="sep"/>
+    	<setting label="3Sat Mediathek verwenden" type="bool" id="pref_use_3sat" default="false"/>
+    	<setting label="Kinderprogramme verwenden" type="bool" id="pref_use_childprg" default="false"/>
+     	<setting label="TagesschauXL verwenden" type="bool" id="pref_use_XL" default="false"/>
+      	<setting label="Phoenix verwenden" type="bool" id="pref_use_phoenix" default="false"/>
+      	<setting label="Arte-Mediathek verwenden" type="bool" id="pref_use_arte" default="false"/>
+      	<setting label="MediathekViewWeb-Suche verwenden" type="bool" id="pref_use_mvw" default="false"/>
+    <setting type="sep"/>
+   	<setting label="TV-Live-Sender: aktuelle Sendung zeigen - dauert länger" type="bool" id="pref_use_epg" default="false"/>
+   	<setting label="Inhaltstext zu Video im Voraus laden - kann sehr lange dauern!" type="bool" id="pref_load_summary" default="false"/>
+	<setting type="sep"/>
+	<setting label="TV-Live / Videos: Sofortstart statt Auflösungen und Download" type="bool" id="pref_video_direct" default="true"/>
+ 	<setting label="Untertitel: falls vorhanden, im Player einschalten" type="bool" id="pref_UT_ON" default="false"/>
+	<setting label="Gebärdensprache: Quelle verwenden falls vorhanden" type="bool" id="pref_DGS_ON" default="false"/>
+  </category>Startlist
+
+ <category label="Audiothek-/Podcast">
+  	<setting label="Audiothek-/Podcast-Erweiterung verwenden" type="bool" id="pref_use_podcast" default="true"/>
+	<setting label="Sammeldownloads für Podcastliste erlauben" type="bool" id="pref_dl_podlist" default="false"/> 
+ 	<setting label="Sammeldownloads-Liste zur Auswahl vorlegen" type="bool" id="pref_check_podlist" default="true"/> 
+ 	<setting label="Sammeldownloads: Serienkennzeichungen am Titelanfang platzieren" type="bool" id="pref_check_episode" default="true"/> 
+</category>
+ 
+ <category label="Download Einstellungen">
+ 	<setting label="Downloads freischalten (auch im Kontextmenü möglich)" type="bool" id="pref_use_downloads" default="false"/>
+  	<setting label="alle verfuegbaren Video-Qualitaeten anbieten" type="bool" id="pref_show_qualities" default="true"/>
+  	<setting label="Auswahl Arte-Streams für Downloads" type="select" id="pref_arte_streams" default="Deutsch" values="Deutsch|UT Deutsch|Deutsch (Hörgeschädigte)|Deutsch - UT französisch|Originalfassung - UT französisch|Französisch|UT Französisch|Französisch (Hörfilm)|Französisch (Hörgeschädigte)|Polnisch|UT Polnisch|Polnisch (Hörgeschädigte)|Italienisch|UT Italienisch|Italienisch (Hörgeschädigte)|Spanisch|UT Spanisch|Spanisch (Hörgeschädigte)"/>
+  	<setting label="Untertitel mit herunterladen" type="bool" id="pref_load_subtitles" default="false"/>
+ 	<setting label="Dateinamen aus dem Titel erzeugen (statt Download_{Datum}_{Uhrzeit})" type="bool" id="pref_generate_filenames" default="true"/>
+	<setting label="Downloadverzeichnis (auch für Recording TV-Live)" type="folder" option="writeable" id="pref_download_path" default=""/>
+	<setting label="Downloads verschieben in dieses Verzeichnis" type="folder" source="" id="pref_VideoDest_path" default=""/>
+ 	<setting label="Fortschrittsbalken beim Download anzeigen" type="bool" id="pref_use_pgbar" default="false"/>
+ 	<setting label="verbleibende Downloads anzeigen" type="bool" id="pref_dl_cnt" default="false"/>
+ 	<setting label="Zeige Download-Dialog zu Größe, Zieldatei und Untertitel" type="bool" id="pref_dl_showinfo" default="true"/>
+	<setting type="sep"/>
+ 	<setting label="Abgleich Videotitel mit Medienbibliothek" type="bool" id="pref_exist_inlib" default="false"/>
+ 
+</category>
+ 
+ <category label="Recording TV-Live">
+ 	<setting label="Recording TV-Live verwenden (ffmpeg erforderlich)" type="bool" id="pref_LiveRecord" default="true"/>
+ 	<setting label="Dauer der Aufnahme manuell eingeben" type="bool" id="pref_LiveRecord_input" default="false"/>
+	<setting label="Dauer der Aufnahme" type="select" values="00:05:00 = 5 Minuten|00:15:00 = 15 Minuten|00:30:00 = 30 Minuten|01:00:00 = 1 Stunde|01:30:00 = 1:30 Stunden|01:45:00 = 1:45 Stunden|02:00:00 = 2 Stunden|04:00:00 = 4 Stunden|12:00:00 = 12 Stunden|00:00:30 = 30 Sekunden" default="00:00:30 = 30 Sekunden" id="pref_LiveRecord_duration"/> 
+	<setting label="ffmpeg-Parameter (3x %s: Url, Aufnahmedauer, Dateiname)" type="text" id="pref_LiveRecord_ffmpegCall" default="/usr/bin/ffmpeg -i %s -c copy -t %s %s -nostdin"/>
+    <setting type="sep"/>
+ 	<setting label="Aufnehmen mit EPG (EPG Sender einzeln, EPG-Suche)" type="bool" id="pref_epgRecord" default="false"/>
+	<setting label="Aufnehmen mit EPG: Vorlauf" type="select" values="00:00:00 = 0 Minuten|00:05:00 = 5 Minuten|00:15:00 = 15 Minuten|00:30:00 = 30 Minuten" default="00:00:00 = 0 Minuten" id="pref_pre_rec"/> 
+	<setting label="Aufnehmen mit EPG: Nachlauf" type="select" values="00:00:00 = 0 Minuten|00:05:00 = 5 Minuten|00:15:00 = 15 Minuten|00:30:00 = 30 Minuten" default="00:00:00 = 0 Minuten" id="pref_post_rec"/> 
+	<setting label="Aufnehmen mit EPG: max. Größe der Aufnahmeliste (Anzahl)" type="select" values="10|25|50|100" default="10" id="pref_max_reclist"/> 
+    <setting type="sep"/>
+ 	<setting label="EPG im Hintergrund laden (Intervall siehe Addon-Cache)" type="bool" id="pref_epgpreload" default="false"/>
+</category> 
+
+ <category label="Addon-Cache: Haltezeit (Tage)">
+	<setting label="Dict (div. Variablen)" type="select" values="1|10|30|100" default="30" id="pref_DICT_store_days"/>
+	<setting label="Untertitel" type="select" values="1|10|30|100" default="30" id="pref_UT_store_days"/>
+	<setting label="Bildersammlungen (Slide Shows)" type="select" values="1|10|30|100" default="30" id="pref_SLIDES_store_days"/>
+	<setting label="Inhaltstexte (im Voraus geladen)" type="select" values="5|10|30|100" default="30" id="pref_TEXTE_store_days"/>
+	<setting label="ARD- und ZDF-TV-Livestream-Quellen" type="select" values="0|1|5|10|20|60|100" default="20" id="pref_tv_store_days"/>
+	<setting label="EPG: Intervall für die Aktualisierung" type="select" values="12 Std.|1 Tag|5 Tage|10 Tage" default="12 Std." id="pref_epg_intervall"/>
+</category> 
+
+ <category label="Favoriten / Merkliste / strm-Dateien">
+ 	<setting label="ARDundZDF-Favoriten im Hauptmenü einblenden" type="bool" id="pref_showFavs" default="false"/>
+ 	<setting label="ARDundZDF-Merkliste verwenden (getrennt von Favoriten)" type="bool" id="pref_watchlist" default="true"/>
+	<setting label="Begleitinfos für Favoriten und Merkliste verwenden - falls verfügbar" type="bool" id="pref_FavsInfo" default="true"/>
+ 	<setting label="Info-Button ausblenden" type="bool" id="pref_FavsInfoMenueButton" default="false"/>
+   	<setting label="Ordner für Merkliste verwenden" type="bool" id="pref_merkordner" default="false"/>
+  	<setting label="Ordner im Titel kennzeichnen" type="bool" id="pref_WatchFolderInTitle" default="false"/>
+ 	<setting label="Sortierung der Merkliste" type="select" values="aufsteigend|absteigend|keine" default="aufsteigend" id="pref_merksort"/>
+   <setting type="sep"/>
+  	<setting label="externe (zentrale) Merkliste verwenden" type="bool" id="pref_merkextern" default="false"/>
+	<setting label="Pfad zur externen Merkliste" type="file" source="" id="pref_MerkDest_path" default=""/>
+  	<setting label="interne Merkliste mit externer synchronisieren" type="bool" id="pref_merksync" default="false"/>
+    <setting type="sep"/>
+  	<setting label="strm-Bündel für Videolisten erzeugen (strm, nfo, jpeg)" type="bool" id="pref_strm" default="false"/>
+  	<setting label="Für jedes strm-Bündel ein Unterverzeichnis anlegen" type="bool" id="pref_strm_uz" default="false"/>
+	<setting label="strm-Verzeichnis für Filme" type="folder" option="writeable" id="pref_strm_film_path" default=""/>
+	<setting label="strm-Verzeichnis für Serien" type="folder" option="writeable" id="pref_strm_series_path" default=""/>
+  	<setting label="Gesehene strm-Videos in Listen ausblenden" type="bool" id="pref_skip_played_strm" default="false"/>
+</category> 
+
+ <category label="Beiträge filtern, markieren">
+ 	<setting label="Ausschluss-Filter verwenden (Beiträge von ARD und ZDF)" type="bool" id="pref_usefilter" default="false"/>
+	<setting label="Info: die Filter-Einstellungen befinden sich im Menü Infos + Tools" type="text" id="filterinfo" enable="false"/>  
+  	<setting label="Titel ganzer Sendungen markieren (nur ARD und ZDF)" type="bool" id="pref_mark_full_shows" default="false"/>
+	<setting label="Verzeichnis für Kennzeichnungstabellen" type="folder" source="" id="pref_fullshows_path" default=""/>
+	<setting label="Info: Namen der Tabellen: full_shows_ARD, full_shows_ZDF" type="text" id="full_shows_info" enable="false"/>  
+</category>
+ 
+ <category label="Modul-Einstellungen" >
+   	<setting label="gesamtes Addon: Videoformat bei Sofortstart" type="select" id="pref_direct_format" default="HLS (adaptiv)"
+		values="HLS (adaptiv)|MP4, Webm, VP8/Vorbis, VP9/Opus"/> 
+	<setting label="gesamtes Addon: Videoqualität bei Sofortstart" type="select" id="pref_direct_quality" default="auto (nur HLS)"
+  		values="auto (nur HLS)|320x180|640x360|720x400|960x540|1280x720|1920x1080|3840x2160" />
+   	<setting label="gesamtes Addon: inputstream.adaptive nutzen, falls verfügbar" type="bool" id="pref_inputstream" default="true"/>
+    <setting label="inputstream.adaptive: Stream-Uhrzeit einblenden" type="bool" id="pref_streamtime" default="false"/>
+ <setting type="sep"/>
+  	<setting label="gesamtes Addon: Verzicht auf Homebuttons" type="bool" id="pref_nohome" default="false"/>
+  	<setting label="gesamtes Addon: Sortierung ermöglichen" type="bool" id="pref_sort_label" default="false"/>
+    <setting label="gesamtes Addon: Zuletzt-gesehen-Liste verwenden" type="bool" id="pref_startlist" default="false"/>
+    <setting label="gesamtes Addon: Video-Playlist verwenden" type="bool" id="pref_playlist" default="false"/>
+   <setting type="sep"/>
+  	<setting label="Modul Video-Playlist: Abgleich mit Zuletzt-gesehen-Liste" type="bool" id="pref_check_with_startlist" default="false"/>
+  	<setting label="Modul Video-Playlist: gesehene Beiträge löschen ab" type="select" id="pref_delete_viewed" default="75%"
+		values="25%|50%|75%|100%"/>
+	<setting label="Zuletzt-gesehen-Liste: max. Anzahl" type="select" values="50|100|200|500" default="100" id="pref_max_videos_startlist"/>
+     <setting label="Modul ARD Neu: Mehr-Beiträge zeigen (thematisch ähnliche)" type="bool" id="pref_more" default="true"/>
+    <setting type="sep"/>
+   	<setting label="Bildersammlungen: Bildinfos als Wasserzeichen" type="bool" id="pref_watermarks" default="false"/>
+   	<setting label="Bildersammlungen: Fontgröße Wasserzeichen" type="select" id="pref_fontsize" default="auto"
+   		values="auto|10|12|13|14|15|16|17|18|19|20|30|40"/>
+    <setting type="sep"/>
+  	<setting label="Slideshow für Musik-Player: " type="select" id="pref_musicslideshow" default="Keine"
+   		values="Keine|Kodi <Bild-Steuerung>|Addon <Player-Steuerung und Musikinfos>"/>
+	<setting label="Slideshow für Musik-Player: Verzeichnis wählen" type="folder" source="" id="pref_slides_path" default=""/>
+	<setting label="Slideshow für Musik-Player: Anzeigedauer in Sekunden" type="select" id="pref_slides_time" default="10" values="5|10|15|20|30|60|120|240|600"/>
+    <setting type="sep"/>
+  	<setting label="Setze Inhaltstyp: TV-Shows, Movies, Videos u.a." type="select" id="pref_content_type" default=""
+		values="ARDundZDF-Standard|TV-Shows (tvshows)|Filme (movies)|Videos (videos)|Serienfolgen (episodes)|Musikvideos (musicvideos)|Bilder (images)|Spiele (games)"/>
+</category></settings>
+
+
+
+
+

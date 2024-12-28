@@ -1,12 +1,9 @@
 <settings>
-    <setting id="show_profilename" type="bool">false</setting>
     <setting id="homemenunomusicbutton" type="bool">false</setting>
-    <setting id="homemenunotvshowbutton" type="bool">true</setting>
-    <setting id="homemenunovideosbutton" type="bool">false</setting>
     <setting id="autoscroll" type="bool">false</setting>
     <setting id="show_musicvideoposter" type="bool">false</setting>
-    <setting id="movieset_onclick_playfrombeginning" type="bool">false</setting>
-    <setting id="movieset_onclick_playnext" type="bool">false</setting>
+    <setting id="homemenunotvshowbutton" type="bool">true</setting>
+    <setting id="show_profilename" type="bool">false</setting>
     <setting id="movieset_onclick_queue" type="bool">false</setting>
     <setting id="tvshow_onclick_browse" type="bool">false</setting>
     <setting id="tvshow_onclick_continuewatching" type="bool">false</setting>
@@ -38,6 +35,9 @@
     <setting id="show_profileavatar" type="bool">false</setting>
     <setting id="movieset_onclick_continuewatching" type="bool">true</setting>
     <setting id="homemenunofavbutton" type="bool">false</setting>
+    <setting id="movieset_onclick_playfrombeginning" type="bool">false</setting>
+    <setting id="movieset_onclick_playnext" type="bool">false</setting>
+    <setting id="homemenunovideosbutton" type="bool">false</setting>
     <setting id="WeatherFanart.path" type="string"></setting>
     <setting id="HomeFanart.ext" type="string"></setting>
     <setting id="MovieGenreFanart.path" type="string"></setting>

@@ -29,7 +29,7 @@
     <setting id="locale.use24hourclock" default="true">regional</setting>
     <setting id="locale.temperatureunit" default="true">regional</setting>
     <setting id="locale.speedunit" default="true">regional</setting>
-    <setting id="screensaver.mode">screensaver.xbmc.builtin.dim</setting>
+    <setting id="screensaver.mode">screensaver.shadertoy</setting>
     <setting id="screensaver.time" default="true">3</setting>
     <setting id="screensaver.disableforaudio" default="true">true</setting>
     <setting id="screensaver.usedimonpause" default="true">true</setting>
@@ -313,10 +313,10 @@
     <setting id="videoscreen.blankdisplays">true</setting>
     <setting id="videoscreen.delayrefreshchange" default="true">0</setting>
     <setting id="videoscreen.10bitsurfaces" default="true">0</setting>
-    <setting id="videoscreen.dither" default="true">false</setting>
+    <setting id="videoscreen.dither">true</setting>
     <setting id="videoscreen.ditherdepth" default="true">8</setting>
-    <setting id="videoscreen.cmsenabled">true</setting>
-    <setting id="videoscreen.cmsmode" default="true">0</setting>
+    <setting id="videoscreen.cmsenabled" default="true">false</setting>
+    <setting id="videoscreen.cmsmode">1</setting>
     <setting id="videoscreen.cms3dlut" default="true" />
     <setting id="videoscreen.displayprofile" default="true" />
     <setting id="videoscreen.cmswhitepoint" default="true">0</setting>
@@ -335,11 +335,11 @@
     <setting id="videoscreen.stereoscopicmode" default="true">0</setting>
     <setting id="videoscreen.preferedstereoscopicmode" default="true">100</setting>
     <setting id="videoscreen.noofbuffers" default="true">3</setting>
-    <setting id="audiooutput.audiodevice">PULSE:Default</setting>
+    <setting id="audiooutput.audiodevice">PIPEWIRE:Default|Default Output Device (PIPEWIRE)</setting>
     <setting id="audiooutput.channels">10</setting>
     <setting id="audiooutput.config" default="true">2</setting>
     <setting id="audiooutput.volumesteps" default="true">90</setting>
-    <setting id="audiooutput.maintainoriginalvolume" default="true">true</setting>
+    <setting id="audiooutput.maintainoriginalvolume">false</setting>
     <setting id="audiooutput.stereoupmix" default="true">false</setting>
     <setting id="audiooutput.processquality">50</setting>
     <setting id="audiooutput.atempothreshold" default="true">2</setting>
@@ -376,10 +376,10 @@
     <setting id="powermanagement.shutdownstate" default="true">0</setting>
     <setting id="powermanagement.waitfornetwork" default="true">0</setting>
     <setting id="powermanagement.wakeonaccess" default="true">false</setting>
-    <setting id="general.addonupdates">1</setting>
+    <setting id="general.addonupdates">2</setting>
     <setting id="general.addonnotifications" default="true">false</setting>
     <setting id="addons.unknownsources">true</setting>
-    <setting id="addons.updatemode" default="true">0</setting>
+    <setting id="addons.updatemode">1</setting>
     <setting id="debug.showloginfo" default="true">false</setting>
     <setting id="debug.extralogging" default="true">false</setting>
     <setting id="debug.setextraloglevel" default="true" />
@@ -509,7 +509,7 @@
             <level>0</level>
             <showhigherlevels>true</showhigherlevels>
         </eventlog>
-        <systemtotaluptime>89</systemtotaluptime>
+        <systemtotaluptime>104</systemtotaluptime>
     </general>
     <resolutions />
     <defaultvideosettings>

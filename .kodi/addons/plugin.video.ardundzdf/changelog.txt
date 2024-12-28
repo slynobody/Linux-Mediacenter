@@ -1,0 +1,1126 @@
+--------------	
+CHANGE HISTORY	
+			Kodi-Addon-ARDundZDF -  (vormals Plugin für den Plexmediaserver)
+			Releases: https://github.com/rols1/Kodi-Addon-ARDundZDF/releases/latest
+			Nachfolger von Plex-Plugin-ARDMediathek2016
+--------------		
+			Kodi-Forum, Support:
+			https://www.kodinerds.net/index.php/Thread/64244-RELEASE-Kodi-Addon-ARDundZDF
+			statt Handbuch: https://github.com/rols1/Kodi-Addon-ARDundZDF/wiki
+			max_col 97	
+--------------
+
+22.12.2024	5.1.6
+			Main_3Sat (Modul my3Sat): unerlaubte Zeichen aus Live-Titel entfernt,
+			repl_json_chars(title).
+
+			Abspielen geteilter Medienlinks: Request github-issue#40  (Links eingefügt
+			durch Yatse, Kore o.ä.). Umsetzung von 2 Schnittstellen (SearchARDundZDFnew
+			und router) und der Verteilerfunktion get_streams_from_link. Auswertung
+			kodiert für ARD, ZDF, 3sat, arte (ARDnew- > ARDStartSingle, ZDF ->
+			ZDF_getApiStreams, 3sat -> SingleBeitrag, arte -> SingleVideo, PlayVideo).
+			SingleVideo (arte): ergänzende Param für Call von get_streams_from_link.
+			get_summary_pre (util): Anpassung an Ermittlung Inhaltstexte via Kontext-
+			Menü (ShowSumm -> EPG.py), einschl. Abfangen fehlendes maturitytRating.
+			
+			SingleBeitrag (Modul my3Sat): Inhaltstext aus Webquelle ergänzt, falls 
+			Param summ noch leer.
+			Search (Modul my3Sat): Abfangen von Medienlinks (nur in SearchARDundZDFnew
+			erlaubt).
+			ARDStartSingle (ARDnew): Inhaltstext aus Api-Quelle ergänzt, falls umfang-
+			reicher als vorher in der Liste ermittelt.
+			
+			Ausschluss-Filter (Haupt-PRG): Zähler und Notification ergänzt in  
+			ZDF_PageMenu, ZDF_RubrikSingle, ZDF_FlatListEpisodes.
+			Ausschluss-Filter (ARDnew): Zähler und Notification ergänzt in
+			get_json_content, ARDVerpasst_get_json, ARD_FlatListEpisodes.
+			ZDF_getApiStreams: Austausch mit Inhaltstext der Webseite falls größer als
+			Inhaltstext in der json-Liste.
+
+08.12.2024	5.1.5
+			AudioPodcastDeSingle (Audiothek): Hochkommata entfernt repl_json_chars(Plot).
+			Modul my3Sat: Umstellung HBBTV-Api - neue Funktionen Search, PageMenu,
+			CoverSingle, CoverElems, sid_to_title, my3sat_content. Hybridfunktion
+			SendungenAZ. Umstellung Auswertung profile_url in SingleBeitrag auf json-
+			keys (vorherige Stringsuche nach "mainVideoContent" unsicher).
+			get_summary_pre (util): Anpassung für my3Sat (im Voraus laden).			
+
+22.11.2024	5.1.4
+			time_translate (util): Aktualisierung Sommerzeit-Tabelle (Austausch 2021
+			-> 2025).
+			Audio_get_homescreen: Url-Slash-Ergänzung bei Rubrik-Url's (relevant bei
+			Menü NAVIGATION (Farben-Icons).
+			ARDnew: erweitert mit den Bereichen arte, funk, 3sat und KiKA (KiKA, funk  
+			ohne Verpasst wie im Web) - alle eingebunden in die Senderwahl, neue Icon 
+			ard-kika, ard-funk, Anpassung Senderwahl, Main_NEW (Ausschluss Verpasst
+			für KiKA und funk)), ARDSender[].
+			get_json_content (ARDnew): Notification ergänzt (keine Videos bei AZ von 
+			KiKA und funk möglich).
+			repl_json_chars (util): einige html-utf8-Icons ergänzt (Symbole Popcorn, TV 
+			usw.).
+			changelog.txt : aus Platzgründen geteilt - bis 18.12.2022 V4.5.7 auf Github 
+			und Entwickler-PC verfügbar.
+			ARDSearchnew: Blanks im Suchstring wieder durch + ersetzt replace(' ', '+'),
+			schnellere Serverantwort.
+			update_single (EPG.py): Anpassung für Windows an wechselnde Slashes in Datei-
+			pfaden in SINGLELIST (Bsp. siehe Kopfdoku).
+			AudioPodcastDeSearch (Audiothek): Ergänzung Mehr-Seiten bei Suchergebnissen,
+			unerwünschte Zeichen aus Inhaltstext entfernen (unescape Plot).
+			ARDSportStart (sportschau.de WDR): Anpassung an Änderungen des WDR am 
+			Hamburger-Menü (Navigation), Aufteilung der Startseite in Navigation und
+			Liste der Videos/Audios.
+			get_next_url (arte): Ermittlung Anzahl der Beiträge auf re.search umgestellt
+			(stringextract hier unsicher).
+			getRedirect (util): page="" vorbelegt für nicht abgefangene HTTP-Error.
+			Kategorien (arte): Pfade hartkodiert, da Ermittlung via Kat_ID (SCSI, DIS,
+			HIS usw.) bei 4 Sprachen fehlschlägt (en, es, pl, it). Ergänzung katlinks
+			in arte_lang.json).
+
+03.11.2024	5.1.3
+			EPG_Search, EPG_Search2: Leerzeichenbehandlung ("+" -> " ") für Suche in 
+			EPG.
+			Podcast-Erweiterung podcast.de: neue Funktionen AudioPodcastDe*, 
+			Anpassungen in Main, AudioStart, AudioPlayMP3, DownloadExtern, DownloadsList,
+			VideoTools (suffix .m4a für Podcasts ergänzt), transl_umlaute (u2014),
+			transl_json (u0160, 0161).
+			home (util), Main, Main_ZDFfunk: Menübuttons für FUNK gelöscht (obsolet).
+			Audiothek: sportschau-Url angepasst (HTTP Error 308 für PY2 nicht zu
+			korrigieren), neues ARD-Schema ../urn:ard:page:../. Dict-ID-Anpassung an
+			Schema (Audio_get_cluster_rubrik).
+			getRedirect (util): für PYTHON3 bei Redirect-Errors Umstellung auf httplib2,
+			unveränderte Url-Rückgabe bei PYTHON2.
+
+13.10.2024	5.1.2
+			my3Sat: unescape(tag) in get_lazyload, unescape(tag) in SendungenAZ
+			valid_title_chars (util): Zeichen & durch Zeichen + ersetzt.
+			SingleVideo (arte): Ausfall api/opa/v3-Link, Ersatz durch hbbtvv2-Link in
+			(path2), Umbenennung Funktion get_streams_api_opa -> get_streams_hbbtvv2
+			(neue Auswertung der MP4-Quellen). 
+			ARDSportMedia: ID-Austausch TagesschauXL -> ARD für Aufruf AudioPlayMP3.
+			Parseplaylist: RBB Brandenburg aus der Liste für Einzelauflösungen entfernt
+			(jetzt Mehrkanalstream).
+			get_summary_pre (util): Reduzierung der Cachedatei auf Inhaltstext, Kennung
+			"V5.1.2_summ:" vorangestellt zur Unterscheidung altes/neues Format, Param 
+			page entfernt (obsolet).
+			addDir (util): Kontexmenü "Inhaltstext für Video zeigen" (fparams_ShowSumm),
+			Zielmodul EPG.py ("ShowSumm" in sys.argv), PY2-Anpassung.
+			zusätzliches xbmcgui.ListItem (li2) für eigene Kontextmenüs in addDir:
+			get_json_content (ARDnew), 	ZDF_PageMenu, ZDF_Rubriken, ZDF_RubrikSingle,
+			ZDF_Verpasst, ZDF_FlatListEpisodes, tivi_Verpasst (childs), Start (3sat),
+			Sendereihe_Sendungen (3sat), ARDVerpasst_get_json.
+			EPG-Modul: Auswertung Kontextmenü-Inhaltstext ShowSumm" in str(sys.argv) für
+			ARD, ZDF, 3sat, KiKA, Anpassung PY2.
+
+
+22.09.2024	5.1.1
+			ARDStart (ARDnew): Unterdrückung json-Key ctaLabel (Links zur Anmeldung im
+			Webbrowser).
+			ARD sportschau.de (WDR): Aktualisierung Großevents, Menütitel fett auf der
+			Startseite (ARDSportStart) einschl. unescape(title).
+			get_page (util): autom. Anpassung für alte ZDF-api-Adressen (relevant für
+			Merkliste).
+			AudioSenderPrograms (Audiothek): Linefeed in Key "synopsis" entfernt (stage1).
+			Audio_get_cluster_single (Audiothek): Ausschluss der mp3-Beiträge vom Typ items
+			von RadioPlaylist.m3u, Linefeed in tag entfernt.
+			Audio_get_items_single (Audiothek): div. Anpassungen für PY2 (py2_encode).
+			Main_KIKA (childs): query auf "Kinderhörspiele" (ö statt oe) geändert, um auch 
+			die umfangreichen Episoden zu erfassen.
+			my_jsondump (util): replacing umgestellt auf json.dumps (utf8-codiert für PY2).
+			Settings-Defaults geändert: ARD- und ZDF-TV-Livestream-Quellen -> 20 Tage (vorher
+			10), Dateinamen aus dem Titel erzeugen -> true (vorher false).
+
+18.08.2024	5.1.0
+			Auswertung ARD Sportschau.de (WDR): neues Funktionsziel ARDSportMedia für 
+			Großevents in ARDSportWDR (ohne Cluster), Startseite: neue Funktion
+			ARDSportStart s.u., obsolete Funktion ARDSportCluster entfernt.
+			ARDSportMedia: neu - Extrakt sämtlicher Playerdaten (data-v=), Auswertung
+			in TagesschauXL.get_content_json, doppelte Stream-Url unterdrückt.
+			get_page (util): compressed-Behandlung für Stufe 2 (page2) - relevant für 
+			json-Daten. Decoding für Stufe1 und 2 an das Funktionsende verlegt. Rücknahme 
+			return bei http-Error aus V4.7.8 (nicht mehr benötigt für VideoEvent-Streams).
+			PlayVideo (util): import sqlite3 entfernt - obsolet
+			EPG-Suche (Haupt-PRG): Such-Button im Menü TV-Livestreams, neue Funktion
+			EPG_Search, einschl. Aufnahmeoption (Kontextmenü), Wiki aktualisiert.
+			EPG (Modul EPG): Ausgabe str(page) auskommentiert (codec-Error python2.*).
+			Modul epgRecord: Löschoption für abgelaufene Jobs ergänzt (Button in JobListe,
+			neue Funktion JobRemoveExp).
+			url_check: Rückgabe bei lokaler Video-Url korrigiert (Url statt True). 					
+
+04.08.2024	5.0.9
+			ZDF_Search: Anpassung ZDF_Search_PATH an geänderte ZDF-Parameter.
+			Main_NEW (ARDnew): Verzicht auf fehlende Variable summ für Suche-Button
+			(verhinderte Öffnen des ARD-Menüs).
+			get_json_content (ARDnew): Codec-Error gefixt mit py2_encode(page) bei
+			Funktionsstart.
+			ARDStartRubrik (ARDnew): Ausschluß nicht auswertbarer Olympia-Seiten auf 
+			sportschau.de.
+			ARDPagination (ARDnew): quotierte Doppelpunkte in api-Url behandelt (http
+			400-Error). Anlass: Error HTTP 400 bei Mehr-Seiten in phoenix.
+			url_check (util): Rückgabe der (Redirect-)Url im Erfolgsfall, sonst False
+			wie bisher. Anpassungen in PlayVideo, PlayAudio.
+			get_page (util): Archivierung veraltete Kopfdoku, Berücksichtigung http-Error
+			307 für Redirects,
+			Addon-Wicki: Hinweis auf Proxy-Nutzung ergänzt und Verlinkung  mit Beitrag
+			@forrester # 3.735 vom 03.08.2024 
+			get_VideoAudio, get_content_json (TagesschauXL): Anpassung an geänderte 
+			eingebettete Playerdaten für Investigativ, Faktenfinder, Podcasts und Audios.
+
+25.07.2024 5.0.8
+			ZDF-Bereich: Umstellung auf neue api-Adresse zdf-cdn.live.cellular.de ->
+			zdf-prod-futura.zdf.de, Backportierung ZDF_VerpasstWoche und ZDF_Verpasst
+			nach vorheriger Umstellung auf api.zdf.de, Anpassungen in SearchARDundZDFnew,
+			ZDFtivi, ZDF_Verpasst_Filter.
+			ARDSportWDR: Funktionsziel von ARDSportMedia auf ARDSportCluster geändert
+			(s. V5.0.7).
+						
+22.07.2024 5.0.7
+			EPG_Sender, EPG_ShowAll: spez. Sender ohne Link in livesenderTV.xml aus den
+			Sender-Listen entfernt, z.B. liga3.
+			get_page (util): http-Header bei Stufe page2 hinzugefügt - ssl-Error bei 
+			Windows10 und ARD-Links möglich (wie in url_check V5.0.5)
+			update_single (EPG): Doppelzählung Module im Githubrepo unterbunden.
+			ARDSportLiga3: raw-String statt unicode in re.search (my_day = re.search..),
+			übersehen in Anpassungen für V.5.0.4.
+			ARDSportWDR: Event-Button OLYMPIA 2024 ergänzt (Funktionsziel zunächst 
+			ARDSportMedia statt ARDSportCluster wg. fehlender Cluster), Anpassung in
+			ARDSportMedia.
+			get_foruminfo (tools): Anpassung an geänderten Text im Startpost.
+			SearchARDundZDFnew: Anpassung für Einzelsuchen (ARD oder ZDF) zur Vermeidung
+			Addon-Crashes bei Videoabbruch i.V.m. Sofortstart.
+			ZDF_getApiStreams: zdf-cdn-api bei vielen Url's nicht mehr akzeptiert, 
+			Alternative profile_url mit api.zdf.de hinzugefügt einschl. neuer Funktion 
+			get_form_streams_oldapi.			
+
+07.07.2024 5.0.6
+			Haupt-PRG: Prüfung Existenz Cache-Datei ard_streamlinks ergänzt (führte
+			bei Fehlen zum Startabbruch des Addons).
+			get_json_content (ARDnew): Verzicht auf Dekodierung von Param. page (str
+			und py2_decode) - führte bei PY2 zu utf-Errors.
+			ARDSportWDR: Event-Button Tour de France 2024 hinzugefügt, Anpassungen an
+			WDR-Änderungen in ARDSportgetPlayer und ARDSportMedia.
+			TagesschauXL: Hauptmenü erweitert mit "tagesschau in Einfacher Sprache",
+			"Regionale Nachrichten", neues Icon tagesschau_einfach, tagesschau_regional.
+			get_VideoAudio (TagesschauXL): leeren Player-Inhalt abgefangen (leer für
+			Navigationsmenü im Web).
+			TV-Livestreams: Deutsche Welle (EN) umgestellt (iptv -> livesenderTV.xml,
+			iptv-Quelle funktioniert nicht mehr).
+			get_json_content (ARDnew): Logausgabe für page als string (slice-Error bei
+			Kodi Omega).
+				
+23.06.2024 5.0.5	
+			ARDSportMediaPlayer (ARD Sportschau WDR:  Anpassung an veränderter Position
+			des Beitrags-Titels.
+			get_next_url (arte): Berücksichtigung von http-Links bei Vervollständigung.
+			ARDSportLiga3: Notification bei Tabelle ohne Spiele (Sommerpause).
+			settings.xml: Umbenennung in Kategorie Addon-Cache (Löschfrist -> Haltezeit).
+			TV-Livestreams Hauptmenü: Hinweis auf einstellbare Haltezeit im Cache.
+			ARDAudioEventStreams: zusätzl. Button Audio-Livestreams der Sportschau (wie
+			Menü ARDSportWDR). Anpassung ARDSportLive (Ausfilterung Videobeiträge).
+			ARDSportWDR: Event-Button UEFA EURO 2024 ergänzt.
+			get_ARD_LiveEPG (util): Anpassung für neues Uhrzeitformat (Sommerzeit schon
+			enthalten) - relevant für Setting Stream-Uhrzeit, Debug-Log: ValueError("time 
+			data %r does not match format %r". 
+			Cache TV-Livestream-Quellen: Thread-Lösung für die Aktualisierung - Check +
+			Auslösung im Haupt-PRG, zusätz. Funktion EPG.thread_getstreamlinks.
+			url_check (util): zweite Check-Stufe mit ssl.create_default_context verwendet
+			(s. kodinerds-Forum 17.06.2024 ff).
+			SenderLiveListe: utf-Behandlung für tagline.
+
+26.05.2024 5.0.4
+			AudioStartLive: Fix Variable für RadioPlaylist-Button PlayList statt
+			streamList.
+			Audio_get_cluster_single: Playlist-Erweiterung für Livestreams wie Sender-
+			links in AudioStartLive.
+			AudioPlayMP3: Erweiterung für Livestreams - Download als m3u-Datei (wie 
+			AudioStartLive).
+			Download- und Aufnahme-Tools: Integration von m3u-Dateien - Anpassung in
+			DownloadsList und VideoTools.
+			Haupt-PRG + Module: Fix "SyntaxWarning: invalid escape sequence" - Verwendung
+			raw-String statt unicode in allen re.search-Statements, Bsp.: (u'\((.*?)\) ->
+			(r'\((.*?)\).
+			ARDStartSingle: Umstellung auf api-Web-Quellen für alle Streams - Abzweig
+			Livestreams angepasst (direkt -> PlayVideo), weitere Anpassungen in s.u.
+			Funktion ARDStartVideoWebUTget entfernt (subtitle-Extrakt in ARDStartSingle).
+			XLGetVideoLists (TagesschauXL): entfernt - seit 01.05.2023 nicht genutzt.
+			ARDStartVideoMP4get, ARDStartVideoHBBTVget: Auswertung Bitraten entfernt
+			(nicht mehr genutzt) - Anpassung StreamsShow (Haupt-PRG).
+			ARDStartVideoHBBTVget: dash-Streams ausgenommen (./tagesschau_1.mpd läuft
+			nicht).
+			ARDStartVideoHLSget: Einzelauflösungen via Parseplaylist vorerst deaktiviert
+			(unübersichtl. Liste), Anpassung PlayVideo_Direct (Beibehaltung des 1. Links
+			als Default-URL.
+			ARD_get_strmStream: Nutzung Web-api-Quellen - Angleichung an ARDStartSingle.
+			HBBTV- und MP4-Listen: Bitraten-Auswertung entfernt - Anpassung in Haupt-
+			PRG und den Modulen.
+			Codec-Fixes (relevant für PYTHON2): py2_decode(tag) in AudioStartLive 
+			(Audiothek), py2_decode(page) in get_json_content (ARDnew).
+			thread_getepg (EPG Nachladen im Hintergrund): Nutzung concurrent.futures für 
+			Python ab V3.2 - wegen möglicher Klemmer vorerst deaktivert.
+			leer-Rückgabe in EPG - Kodi-Problem: ohne Wert verwendet addDir vorige EPG_ID
+			im Kontext-Menü. Anpassung SenderLiveListe (Ersatz leeren EPG_ID-Wert durch 
+			"dummy").
+			Haupt-PRG, Verz. ../resources/images: obsolete Icons pod-favoriten, pod-meist,
+			pod-feature, pod-neu, pod-refugee, pod-rubriken, pod-tatort entfernt (obsolet).
+			
+12.05.2024 5.0.3
+			ZDF-Funktion International gelöscht. Api-Aufruf in Main_ZDF->ZDF_RubrikSingle.
+			ZDF-Startseite: Menüs ergänzt: "Livestreams im Ausland", "Terra X plus Schule"
+			(vorher skipped in "Alles auf einen Blick"), Anpassungen in ZDF_PageMenu.
+			get_live_data (arte): Untertitel für Sendungshinweis ergänzt.
+			ARD-Videos-Untertitel: Hinweis auf ARDundZDF-Addon und S3-S6-Styles in Impf- 
+			datei UT_Styles_ARD ergänzt, PlayVideo (util): Player().showSubtitles ersetzt
+			durch Player().showSubtitles(sub_list[0]), da bei Sofortstart Kodi manchmal
+			die UT-Datei des Servers statt der lokalen vtt-Datei verwendet.
+			Audiothek Livestreams: Download Senderlinks als einzelne Playlist ermöglicht.
+			ARDVerpasst_get_json: für Sender ARD-Alle sender in path ersetzt durch
+			channel_id.
+			Rubriken (my3Sat): "&amp;" aus Titel entfernt (unescape).
+			Merkliste: Refresh der Liste unabhängig von pref_merkordner - Anpassung in
+			ShowFavs, zusätzl. Debug-Statements in merkliste.py.
+
+28.04.2024 5.0.2
+			AudioSearch: Webaufrufe integriert (editorialCollections), Nutzung von
+			Audio_get_webslice.
+			Audio_get_webslice: Suchmarke für mode="web" angepasst ('<body/>' -> '<body').
+			LiveRecord (util): direkte Settings-Ergänzung (url, duration, dest_file) durch
+			cmd-Ergänzung ersetzt, Ausfilterung spezieller Sender (Audio-Event-Streams,
+			umschaltbare Streamquellen für 3. Bundesliga).
+			Audio_get_sendung_api: Ausschluss icecastssl-Urls von Downloads.
+			check_setting (util): für Parameter pref_LiveRecord_ffmpegCall zusätzl. Anzahl-
+			Check.
+			PlayVideo (util): showSubtitles(False) für Kodi-Player nur noch, falls auch
+			Subtitle vorliegen.
+			ARDStartRegion: Urls für Rubrik Region/Heimat Hessen ersetzt  (Seite + Bild).
+			ARDVerpasstContent, ARDVerpasst_get_json: Programliste für ARD-Alle ermöglicht.
+			Downloads: zusätzl. Setting zum Abschalten des Info-Dialogs zu  Größe, Zieldatei
+			und Untertitel - Anpassung in settings.xml und thread_getfile.
+			ARDStartSingle (ARDnew): Hinweis auf ev. Serie in Mehr-Test integriert. Wiki zu
+			Mehr-Beiträgen aktualisiert.
+			Merkliste (Modul merkliste bei Call vom Haupt-PRG): ignore_this_network_error()
+			mit Fehlermeldung "Merkliste fehlt / ist nicht geladen" ersetzt durch exit(). 
+
+13.04.2024 5.0.1
+			Suche in Audiothek: Verwendung des Web-api zur Angleichung der Ergebnisse,
+			Anpassung AudioSearch (Param. base), AudioSearch_cluster (pageProps, totalCount,
+			api_url -> search_url), Audio_get_search_cluster (Audio_get_nexturl entfällt),
+			neue Funktion my_jsondump.
+			SendungenAZ (my3Sat): unescape Param. rubrik.
+			get_streams_api_opa (arte): Escapezeichen in Url-HBBTV-Quellen bei api/opa/v3
+			entfernt.
+			ARDStartSingle: Umstellung Untertitel auf vtt-Format (statt xml), bei Fehlen
+			von UT Suche in alternativer Web-api-Quelle (frühzeitig verfügbar, relevant 
+			für Nachrichten), neue Funktion ARDStartVideoWebUTget.
+			sub_path_conv (util): aktuelle ARD-vtt-Datei mit W3-Style-Definitionen ergänzt
+			(Injektion UT_Styles_ARD).
+			build_Streamlists_buttons: repl_json_chars(title_org), um sort_error wegen
+			#-Zeichen in StreamsShow zu vermeiden.						 
+
+31.03.2024 5.0.0
+			ZDF_PageMenu: CacheTime für DictID (30 min), um Aktualisierung bei Favoriten
+			und Merkliste sicherzustellen, ergänzt mit url i.V.m. jsonpath zum Nachladen 
+			von Startseiten (ZDF, ZDFtivi, ZDF-funk) durch ZDF_Rubriken, Anpassung 
+			ZDF_Start (url=path), global HEADERS.
+			ZDF_Rubriken:  CacheTime für DictID (30 min), url i.V.m. jsonpath=Fallback 
+			bei Ausfall Dict (DictID), Param path -> jsonpath umbenannt, global HEADERS.
+			router: Dialoge für fehlende Funktionen und Module (z.B. bei alten Favoriten-
+			/Merklisteneinträgen).
+			ARDStartVideoHLSget (ARDnew): Param href vorbelegt (Absicherung gegen leere
+			Url in StreamArray).
+			GetContent (arte): in Mehr-Beiträgen json-keys für ID=Beitrag_Liste nach arte-
+			Änderung angepasst.
+			Modul Merkliste: für mydict_error (exception) nicht funktionierenden Dialog 
+			ersetzt durch notification.
+			ARDStartRubrik: router-inkompatible Zeichen in Info-Text ersetzt - relevant
+			beim Hinzufügen von Serien zur Merkliste. 
+			PlayVideo (util): if not live-Statement für Video-Startlist eingefügt - für
+			Aufrufe von ARDSportLiga3 relevant.
+			Zuletzt-gesehen-Liste: "gesehen bis .." in Info-Text ergänzt bei Videoabbruch.
+			url_check (util): Berücksichtigung leere Url bei Dialog.
+			Audio_get_homescreen: neuer Buttontitel NAVIGATION für Rubriken nach Highlights
+			(ARD-Änderung).
+			AudioSearch_cluster, Audio_get_search_cluster (Audiothek): Anpassungen an api-
+			Änderungen, Anlehnung der Ausgaben an Webseite, Korrektur falscher Anzahl in
+			api-Quelle (numberOfElements geringer möglich als tatsächliche Menge.
+			Audio_get_items_single: Url-Auswertung für Sammlungen (Themen) ergänzt. 
+			Audio_get_sendung: Auswertung numberOfElements für nexturl korrigiert (Meta-
+			Bereich statt 1. node).
+
+17.03.2024 4.9.9
+			Modul childs: neue Funktion tivi_Verpasst -  Anpassung Main_TIVI, Nutzung
+			ZDF_VerpasstWoche, ZDF_get_content, neues Icon zdftivi-cal.png, Menü 
+			tivi_ZDFchen verlinkt mit ZDF_RubrikSingle (analog Direkt-Calls ZDF).
+			ZDF_Start: Direkt-Calls gefixed/geordnet: Startseite, ZDFtivi, ZDFchen, funk,
+			gelöscht: Rubriken, Sportstudio, Barrierearm, ZDFinternational.
+			Main_ZDF: gelöschte Calls aus ZDF_Start verlinkt mit ZDF_RubrikSingle.
+			Audio_get_items_single, AudioSearch_cluster: Absicherung gegen leere web_url.
+			Audio_get_nexturl: Fix invalid-literal-error bis limit-Wert in nexturl via
+			re.search (betroffen: Modul childs, Menü Hörspaß für Kinder), new_offset
+			begrenzt auf elements.
+			ZDF_Rubriken: tag="Folgeseiten" für Ziel ZDF_RubrikSingle (vorher"Video").
+			ZDF_Teletext: Dialog bei leerer Seite, Bsp. 777 (Untertitel).
+			Audio_get_homescreen (Audio_step1): Auswertung umgestellt auf json (Webjson),
+			Stage-Button integriert, Bilder ergänzt (wo verfügbar).
+			Audio_get_homescreen (Audio_step2): fehlenden ersten Beitrag ergänzt, graphql-
+			Auswertung umgestellt auf json, alte Zielfunktion Audio_get_sendung_api für 
+			Rubriken geändert auf Audio_get_cluster_rubrik (Auswertung Web-json).
+			Audio_get_sendung: python2-encoding-Fix py2_encode(summ_par).
+			Zuletzt-gesehen-Liste: Fehlermeldung für nicht vorhandene Liste startlist in
+			AddonStartlist ergänzt, in PlayVideo Abgleich max. Länge auf Basis 0 korrigiert, 
+			zusätzl. Debugstatements ab prepare_resume, Absicherung gegen Live-Streams vor 
+			monitor_resume geändert (if not live).
+			get_json_content (Modul ARDnew): leere Serienliste abgefangen (try/except).
+			XL_BilderClusterSingle (TagesschauXL): Begrenzung auf 1 Bilderblock bei quoted-
+			json-Inhalten, Begrenzung Infotext auf 1 Zeile (Wiederholungsvermeidung).
+			Bilder3satSingle (my3Sat): Ersetzung "amp;" -> "" in Bildquelle.
+
+03.03.2024 4.9.8
+			livesenderTV.xml: SWR Rheinland-Pfalz aus IPTV-Quelle jnk22 ergänzt.
+			get_foruminfo (Modul tools): Anpassung an Forum-Update
+			refresh_streamlinks (Modul util): Logausgabe der TV-Quellen ergänzt
+			(skip_log=False).
+			ZDF_Rubriken: Einrückung hinter Ausschluss-Filter beseitigt (Folgecode war
+			nur wirksam mit Filter-Setting). 
+			PlayVideo (Modul util): Berücksichtigung Dash-Streams (*.mpd) bei Direktiven
+			für das inputstreamaddon.
+			MVWSearch (Modul yt): Merkliste-Button für Suchergebnisse hinzugefügt
+			(Startindex 1).
+			Watch_items (Modul merkliste): Fett-/Farbe aus gespeichertem Titel mittels
+			cleanmark entfernt in actions rename und folder.
+			get_summary_pre (Modul util): Sonderfälle für ARDnew behandelt ('\\n\\n' ->
+			" | ", '\\n' -> ". ", '\\r\\n\\r\\n' -> " | ").
+			Main: Hinweis Einzelupdate in Button Addon-Update.
+
+18.02.2024 4.9.7
+			thread_getpic (util): Anpassung an akt. python-Pillow-Version (draw.textsize
+			entfernt), Tests OK in Windows11 (Kodi Omega) und Linux (Kodi Nexus, Leia).
+			TV-Livestreams 3. Bundesliga: Berücksichtigung von 1-3 Sendern (bisher 1-2),
+			Anpassungen in ARDSportLiga3 + ARDSportgetEventlist, HTML-Escapezeichen in
+			Spieltag-Nr. entfernt.
+			Audio_get_items_single (Audiothek): Hochkommata in Bildtext entfernt.
+			PlayVideo: Encodierung beim Abgleich der Video-Url mit Zuletzt-gesehen-Liste
+			ergänzt (relevant für python < 3.0).
+			ShowFavs: Icons für Notification für merkliste/Favoriten angepasst.
+
+04.02.2024 4.9.6
+			Main_XL (TagesschauXL): Hinw. auf geringe Videoqualität 480x270 (Investigativ,
+			Faktenfinder).
+			XL_BilderClusterSingle (TagesschauXL): Auswertung Slider-Bilder ergänzt. 
+			time_translate (util): Sommerzeit 2024 ergänzt.
+			XL_SearchContent (TagesschauXL): Nutzung make_mark (util) für Fett-Markierung 
+			der Suchbegriffe.
+			Bildergalerien: Löschen leerer Bildverz. ergänzt - Aktualisierung my3Sat, 
+			TagesschauXL, Haupt-PRG. Neue Funktion DelEmptyDirs (util).
+			Haupt-PRG: Bereinigung Thumbscache ARDNeu_Startpage ergänzt (Setting Slide
+			Shows). 
+			AddonInfos: Größe der Logdatei ergänzt, einschl. Kennzeichnung ab 1 GB.
+			ARDRubriken: fehlendes LF-Zeichen ergänzt ("%s\Bild: %s" -> "%s\nBild: %s").
+			TV-Livestreams -> Regional: Abgleich bei IPTV-Quellen mit "<tvg-name>" statt
+			"<hrefsender>".
+			TV-Livestreams -> Überregional: 2 eingestellte Sender Deutsche Welle aus
+			livesenderTV.xml entfernt, verbleibend: "Deutsche Welle (EN)".
+			Rubriken (my3Sat): fehlendes Container-Merkmal (..is-white, ..is-dark) für 
+			weitere Inhalte ergänzt, get_title erweitert, neue Funktion del_footer.
+			m3satSourcesHBBTV (Haupt-PRG): bei Fehlen von HBBTV-Quellen Dialog ersetzt 
+			durch notification.
+			my3Sat: Bereinigung Cache für SophoraTeaser ergänzt (Setting Inhaltstexte).
+			ZDF_Start (Haupt-PRG): Aufruf tivi_ZDFchen-Seite korrigiert.
+			Modul phoenix: nicht mehr benötigtes Setting "..nur Beiträge mit Videos.." 
+			entfernt, dto. Wiki (Settings Module).
+			Ausschluss-Filter (Beiträge von ARD und ZDF): verlorenen Code wiederhergestellt,
+			Anpassung get_json_content  + ARDVerpasst_get_json (ARDnew), ZDF_PageMenu, 
+			ZDF_Rubriken, ZDF_RubrikSingle, ZDF_Verpasst. Zusätz. Notification für context-
+			Umschaltung in FilterToolsWork (tools).
+			get_next_url (arte): Wegfall api-internal-Call, neuen Call für Web-json-Quellen
+			angepasst ("/api/emac/" -> "www.arte.tv/api/rproxy/emac/").
+
+21.01.2024 4.9.5
+			ARDStartSingle: Ausfilterung .ts-Link bei Streamquellen (Link o. Zertifikat).
+			AddonStartlist: sub_path, seekPos und video_dur in Param-Liste ergänzt, Anpas-
+			sung STARTLIST in PlayVideo und monitor_resume, Ausschluss von Livestreams,
+			Anpassung Modul playlist (items_add_rm: start_item.split begrenzt).
+			ShowSeekPos (util): Stop des ARD-Livestream-Monitors bei Playerende ergänzt.
+			seconds_translate (util): Sendungsdauer an Kodi angepasst (Format 00:00:00 
+			statt vorher 00:00), Anpassung time_to_minutes.
+			AudioSenderPrograms (Audiothek): Auswertung Kategorie im 1. id-Block (2. Block
+			fehlt nach ARD-Änderung). 
+			Audiothek: Erweiterung der api-Url mit "&order=descending", Anpassung in
+			Audio_get_sendung, Audio_get_sendung_api, Audio_get_search_cluster, 
+			Audio_get_cluster_single, Audio_get_homescreen.
+			GetContent (arte): Fix gegen Rekursion bei Seiten mit "Alle Videos", Ergänzung
+			arte_lang.json, Param ignore_pid in ArteCluster (ArteStart_2).
+			Modul TagesschauXL: Nutzung des Moduls ARDnew für die tagesschau-Menüs, 
+			einschl. tagesthemen und Bericht aus Berlin, Param live=true für Webplayer-
+			Streams bei eingeschalteter Zuletzt-gesehen-Liste.
+			TV-Livestreams: Umstellung Deutsche Welle auf IPTV-Links (in ARD-Mediathek
+			nicht mehr verfügbar), nur EN-Version funktionsfähig.			
+
+07.01.2024 4.9.4
+			PlayVideo_Direct (Modul util): Absicherung Default_Url bei nur 1 Element in
+			HLS-List.
+			ARDStart (ARDnew): fehlenden Param func für Call zu ARDStartRubrik ergänzt
+			(mehrere Menüs öffneten nicht).
+			log_update (Modul strm): fehlende Begrenzung des strm-Logs auf MAX_LOGLINES
+			Zeilen ergänzt.
+			TV-Livestreams -> Privat -> QVC: Aktualisierung der Videoquellen für die 3
+			QVC-Sender, ServusTV entfernt (nicht mehr offen erreichbar) - Anpassung 
+			livesenderTV.xml. 
+			TV-Livestreams -> Regional -> MDR: Sender Sachsen-Anhalt und Thüringen aus 
+			IPTV-Quelle ergänzt, Anpassung livesenderTV.xml.
+			SenderLiveSearch: IPTV-Suche um 2. github-Quelle ergänzt.
+			Main: Wegfall des Menüs "Download- und Aufnahme-Tools" im Hauptmenü (Zwilling
+			seit 2022 in Infos+Tools).
+			Modul Arte: quotierte Slashes in stream_hbbtv entfernt (MP4- und HBBTV-Quellen 
+			der Videos fehlten). 
+			ShowSeekPos (Modul util): control-Test auskommentiert (vorerst nicht relevant).
+			ZDF_getStrmList: Austausch os.path.isdir -> os.path.exists (strmpath), Abbruch-
+			Dialog bei strmpath-Problem.
+			Modul util: neue Funktion get_sqlite_Cursor (DB-Connect zu MyVideos*.db), 
+			Nutzung durch show_strm_element.
+
+24.12.2023 4.9.3
+			ZDF_RubrikSingle: Fix Erkennung von Navigations-Menüs (Suche in jsonObject
+			statt in page).
+			Audio_get_cluster_rubrik + Audio_get_cluster_single (Audiothek): Maßnahme
+			gegen gelöschten Dict-Inhalt (zusätzl. Param url).
+			ARDSportLiga3: 6-Monatsvergleich der Datumsangaben ohne Jahr + ggfls. 
+			Jahreskorrektur.
+			img_preload (ARD): Sonderbehandlung für quotierte Doppelpunkte  (wie
+			ARDRubriken in V4.9.2).
+			ARDRubriken: ev. fehlendes Icon aus 1. Teaser holen
+			ARD: "Unsere Region" aus Startseite verlagert zu Main_NEW (so erreichbar
+			für jeden eingestellten Sender, bisher nur ARD-Alle), Auswertung regio_kat 
+			mit spez. Inhalten verschoben nach ARDStartRegion, Katalog an api-Url's 
+			angepasst + manuell erweitert, z.B.: MDR+, MDR Sport, neues Icon 
+			ard-unsereRegion.
+
+10.12.2023 4.9.2
+			Infos+Tools: "Merklisten-Ordner bearbeiten" hinzugefügt - Anpassungen in
+			InfoAndFilter und Modul Merkliste.
+			Modul merkliste: Abbruchdialog aktualisiert (MyDialog).
+			Main: Austausch "Kodi's" -> "Kodis" in tagline ("Kodi's" erzeugt JSON-
+			DecodeError in Modul merkliste).
+			ZDFSourcesHBBTV: Check auf fehlende Streams (Fix list-index-error).
+			ZDF_RubrikSingle: Auswertung Navigationsmenü (ZDF-Sportstudio) einschl.
+			Berücksichtigung livestreamsTeaser und scheduledLivestreamsTeaser, neue
+			Funktion ZDF_get_navi.
+			ARD verpasst: defekten api-Link durch programm-api.ard.de ersetzt, neue
+			Funktion ARDVerpasst_get_json,  Anpassungen in ARDVerpasst (Zeitformate), 
+			ARDVerpasstContent (Dialog, Auswahl timeSlots).
+			ARDStartRubrik: Sonderbehandlung für quotierte Doppelpunkte in Rubrik-Url 
+			-> replace("%3A", ":").
+			ARDRubriken: Titel-Fix -> repl_json_chars(title).
+			EPG_rec (Modul EPG): fehlerhaften EPG-Datensatz abgefangen (Länge > 7,
+			Auftreten bei abweichender lokaler Zeitynchronisation).
+
+26.11.2023 4.9.1
+			Merkliste:  Sortieroption key=str.lower für Ordner entfernt (Problem in
+			PYY2). 
+			EPG (Modul EPG): Abgleich Datentyp geändert von str(type(page)) auf 
+			'<!DOCTYPE html>' in page (komp. mit PY2). 
+			thread_getepg: Ende-Notification mit Anzahl der Abrufe ergänzt. Delay
+			von 500 auf 250 millisec verringert.
+			Kika_Rubriken (childs): py2_encode für addDir-Parameter (komp. mit PY2).
+			Kika_get_singleItem (childs): py2_encode für return-Parameter (komp. mit 
+			PY2).
+			Tivi_AZ (childs): element -> button für addDir-Parameter.
+			Main: Hinweis auf ARD-Classic-Version entfernt, Hinweis auf Teletext in
+			ARD- und ZDF-Button hinzugefügt.
+			DownloadTools: Button Podcast-Favoritenliste entfernt obsolet), dto. Verweise
+			im restl. Addon.
+			SingleVideo (Modul arte): Check zusätzliche UHD-Quellen in api_opa und api_V2 -
+			neg., wie bisher nur HLS-Quellen.
+			EPG: Nachlade-Intervall von 12 Std. geändert auf Option  "12 Std. | 1 Tag | 
+			5 Tage | 10 Tage" - Anpassung settings.xml, Haupt-PRG (Zeit-Abgleich und
+			Initialisierung thread_getepg), Nutzung EPGCacheTime EPG-Modul).
+
+19.11.2023 4.9.0
+			thread_getepg (Modul EPG): EPG-Abruf unterdrückt bei fehlender ID.
+			Kika_Subchannel (Modul childs): Eintrag ohne Url abgefangen.
+			MausLive (Modul childs): unescape für Sendungstitel.
+			Merkliste: Unterdrückung Kontextmenüeintrag "Hinzufügen" beim Listen der
+			Merkliste selbst.
+			Merkliste: seltenes -Zeichen ersetzt (&#8211; -> &#45; optisch identischer
+			Gedankenstrich), Anpassungen in Watch_items (actions del, rename, folder.
+			Merkliste: wegen unterschiedl. Leerz.  bei gleichen Namen Vergleich mit 
+			name.strip() == iname.strip().
+			get_summary_pre (util): Merkmal Auswertung Beschreibung geändert ->
+			item-description. Text bei "description content" zu kurz.
+			Audiothek: Titel für funk-Podcasts aktualisiert, Anpassung AudioStart 
+			und AudioSenderPrograms (title.startswith).
+			Audio_get_items_single (Audiothek): Fix img-Suche ('},' -> ',') und Platz-
+			halter für leere img-Suche.
+			AudioSenderPrograms (Audiothek): Fix Hochkommata im Titel ('\\"' -> '*').
+			Audio_get_sendung_api (Audiothek): Ausschluss Mehr-Button bei nur 1 Beitrag.
+			Podcast-Favoritenliste: entfernt (obsolet) - Code entfernt in: AudioStart,
+			PodFavoriten + PodFolder + PodAddFavs (Modul Podcontent), Datei podcast-
+			favorits.txt gelöscht, Github-Wiki aktualisiert.
+			ClearUpThumbnails (tools): Dialog-Titel ergänzt: Dateien älter als x Tage.
+			Modul TagesschauXL.py: Suche an ARD-Änderungen angepasst (XL_Search und
+			XL_SearchContent erneuert), img-Auswahl auf urlS umgestellt (mehr Ergebnisse
+			als urlM).
+
+05.11.2023 4.8.9
+			get_ARD_LiveEPG (util): Auswertung currentStartDate statt startDate (falls
+			vorhanden).
+			EPG-Modul: neues Konzept mit Ablage des 2-dim-EPG-Array im Dict (weitere
+			Infos s. Kopfdoku in EPG), neue Funktion get_data_web, Anpassungen in
+			EPG_ShowSingle, SenderLiveListe, EPG_ShowSingle, EPG_ShowAll, 1-sec-Delay
+			auf 1/2 sec verkürzt.
+			thread_getepg (EPG): Löschen der Cache-Dateien unabhängig vom Alter.
+			ShowFavs: try/except-Block für neue Sortierroutine (Addoncrash bei
+			leerer Liste).
+			livesenderTV.xml: hrefsender-Titel aktualisiert für "Rundfunk Berlin 
+			Brandenburg" und "Rundfunk Berlin"
+			get_epg (Modul 3sat): Umstellung auf Nutzung EPG-Cache (Live-Daten nicht
+			mehr auf DreiSat_BASE).
+			EPG (Modul EPG): entf. Hochkommata in Beschreibung (router-kompatibel).
+			InfoAndFilter: Infotext "Nach Abgleich werden .." entfernt (obsolet)
+			get_foruminfo (Modul tools): Hochkommata in Infotext entfernt.
+			DownloadsList: Sortierung nach Datum, Infotext mit Aufnahmedatum ergänzt. 
+			SenderLiveListe: Verhinderung EPG-Aufruf bei fehlender EPG_ID.
+			TV-Livestreams: Austausch Welt_N24-Live iptv -> welt.personalstream.tv-
+			Stream, Anpassung livesenderTV.xml.
+
+29.10.2023 4.8.8
+			ARDSportLiga3: Python2-Anpassung (py2_encode für ard_streamlinks, sender1,
+			sender2, ohne Bearbeitung der Umlaute).
+			ZDF-HBBTV: Kennzeichnung DGS-Streams - Anpassung ZDFSourcesHBBTV
+			test_downloads: Verhinderung Downloads bei Livestreams (Bsp. Audiothek:
+			liveradio.swr.de/../play.aac).
+			Audiothek: Login-Banner ausgefiltert im Menü Entdecken.
+			EPG via Kontextmenü (Modul EPG): unvollständige Daten und Exceptions 
+			abgefangen (index-error).
+			ZDF_PageMenu: Menü 'Mehr zu funk' ausgeblendet (-> skip_list), Links
+			verweisen auf www.funk.net/ und presse.funk.net/ (nicht mehr unterstützt).
+			Infos + Tools: zusätzl. Button "Refresh: Addon-Cache für TV-Livestream-Quellen",
+			neue Funktion refresh_streamlinks(util), Anpassungen in get_*streamlinks neues
+			Icon tv-livestreams_grey.png
+			EPG: Prüfung Codeverbesserung (Ablage xml-Format vs. 2-Dim-Array) - negativ,
+			relativ lange Ladedauer wg. 12-Tage-EPG für Recording. Wicki aktualisiert
+			(Seite 01 Zif.5 und 5.1, Seite 04 Zif. 9).
+			EPG_ShowSingle: akt. Datum in Info-Text eingefügt.
+
+22.10.2023 4.8.7
+			time_translate (util): Mitnutzung durch ShowSeekPos (add_hour_only=True).
+			Sendungsnavigation im Zeitpuffer bei ARD-Livestreams (util): neue Funktionen
+			KeyListener und get_ARD_LiveEPG, Anpassung ShowSeekPos, Wiki aktualisiert.
+			ZDF_get_content: Verfügbarkeitswarnung ergänzt, wo Datum für time_translate
+			fehlt (Beiträge "Letzte Chance"), Dauer aus obj["infoline"]["title"] ergänzt,
+			wo obj["length"] fehlt, typ=="video" ergänzt (length als Krit. für Video kann
+			fehlen (joschi77 vom 15.10.)
+			ZDF_RubrikSingle: Auswertung Teaser ergänzt (type=teaserContent).
+			ZDF_Search: Umwandlung der Umlaute im Suchpfad wieder entfernt (Umlaute führten
+			bis V3.8.8 zum Url-Error, s. 13.06.), quote(py2_encode(query)) für PYTHON2.
+			SenderLiveListe (TV-Livestreams): Verknüpfung 3. Ligaspiele mit Live-/Event-
+			Streams (Forum Weri), neue Funktionen ARDSportLiga3 und ARDSportgetEventlist,
+			neuer channel in livesenderTV.xml.
+			time_translate (util): "Noch %s Stunden!" -> "NOCH %s Stunden!", Warnspanne von
+			6 auf 7 vergrößert (Nutzung durch ARDSportLiga3).
+			SearchARDundZDFnew (ARDnew): Auswertung Suchergebnis '0' statt ''.
+			
+08.10.2023 4.8.6
+			AudioStartLive (Audiothek): py2_decode(Plot) - relevant für PYTHON2.
+			time_translate (Modul util): re.search-Code für Verfügbarkeitswarnung ver-
+			bessert (CodeQL-alert: Inefficient regular expression).
+			ARDStart (ARDnew): Cache auf Startseite begrenzt (Überschneidung mit Menüs
+			RETRO und Entdecken möglich).
+			ShowFavs: Notification bei fehlenden Inhalten (Favoriten/Merkliste).
+			Main: im Infotext des Buttons Merkliste Setting-Hinweis hinzugefügt, falls
+			externe Merkliste gewählt. 
+			addDir (util): li.setInfo für Kodi V20 (Nexus) ersetzt durch li.getVideoInfoTag 
+			(Trigger KODI_MAJOR, Zusatz-Infos in addDir).
+			ARDSportWDR: Basketball-WM aus Startseite entfernt.
+			arte-Modul: Anpassungen an api-Version 4 (error für V3) in EPG_Today (Link)
+			und GetContent (json-key).
+			ZDF: Auswertung recommendation-Inhalte ergänzt - Anpassungen in ZDF_RubrikSingle
+			(ohne Cache, DictID leer), ZDF_PageMenu (DictID auf urlkey-Basis), ZDF_Rubriken
+			(stream=url).
+			ZDF_PageMenu: application/json gegen IncompleteRead-error.
+			Main_TIVI (Modul childs): auskommentierten Code entfernt (Suche, Sendungen der
+			letzten 7 Tage).	
+			get_ARDstreamlinks (util): Liste ard_streamlinks mit linkid ergänzt (Verwendung
+			für programm-api.ard).
+			get_page (util): json-Behandlung entfernt (obsolet, json.loads durch Aufrufer),
+			Call-Anpassung in AudioStartLive, ZDF_FlatListEpisodes,	m3satSourcesHBBTV,
+			ZDFSourcesHBBTV, get_ZDFstreamlinks, get_ARDstreamlinks, SearchARDundZDFnew,
+			ARDSearchnew, SingleVideo (arte).
+
+24.09.2023 4.8.5
+			ARD Senderwahl: überarbeitet, um Überschreiben der Senderwahl durch Return-Menü
+			von Kodi zu vermeiden - neue Funktion ARD_CurSender_set, Anpassungen in ARDnew, 
+			ardundzdf, util.
+			arte_Search (Modul arte): Anpassung api-Link (emac/v3 -> emac/v4), key-Anpassung
+			für ID "SEARCH" in GetContent, Anpassung api-Link und ID ('SEARCH_NEXT') für
+			Folgesuchen.
+			Modul phoenix: Anpassung an Änderungen bei ARD Senderwahl in phoenix_Start,
+			Verpasst und phoenix_AZ. 
+			Modul ARDnew: Anpassung an zusätzl. Parameter CurSender in ARDStart, ARDVerpasst,
+			SendungenAZ bei Calls aus phoenix.
+			PlayVideo (Modul util): Liste gestarteter Videos umbenannt: startlist ->
+			started_videos wg. Namensgleichheit mit Setting pref_startlist.
+			Merkliste: Sortieroption pref_merksort ("aufsteigend|absteigend|keine") ergänzt.
+			Parseplaylist (Ermittlung der Einzelauflösungen): Dialog für url_check unter-
+			drückt wegen der Nutzung durch strm-Threads)
+			Maus Zoom Kindernachrichten (Modul childs): Notification bei fehlenden Inhalten.
+			transl_json (Modul util) ergänzt: u200e (Left-to-Right Mark) -> " " (Blank).
+			Maus_Audiobooks (Modul childs): Sendedatum und "Verfügbar bis" ergänzt.
+			ARDAudioEventStreams: Audiostreams aus der Champions League ergänzt.
+			ARDStart (ARDnew): Login-Promo -> skip_list (Login weiterhin nicht unterstützt).
+			ARDStartRegion (ARDnew): api-Link für Region-Inhalte aktualisiert.
+			ARD Audio Event Streams: Notification in ARDSportNetcastAudios bei fehlenden 
+			Inhalten, Button für Spiele im DFB-Pokal hinzugefügt.
+
+10.09.2023 4.8.4
+			Modul Updater: globale Variable BACKPUP_DIR entfernt (obsolet).
+			ARD_Teletext: in ARD_Teletext_get_cline Erfassung mehrz. EPG-Texte ergänzt
+			(cline["li"]), Vorbelegung txtRight in ARD_Teletext_extract in clines-Loop.
+			Tivi_AZ_Sendungen (Modul childs): Notification bei fehlenden Inhalten.
+			Main_childs: "Geschichten für Kinder von 3 bis 6" aus Info entfernt - nicht
+			mehr vorhanden.
+			ARDSportWDR + ARDSportWDRArchiv: Bereinigung der EventButtons.
+			SendungenAZ (ARDnew): Leerbutton am Listenanfang entfernt.
+			ShowFavs (Merkliste): Sortierung der Liste nach merkname oder name (abhhängig
+			vom gesetzten Filter).
+			addDir (util): Param sortlabel für Merkliste entfernt (obsolet).
+
+27.08.2023 4.8.3
+			ARD sportschau.de (WDR): Anpassung der Audio-Netcast-Auswertung an WDR-
+			Änderungen - ARDSportSingleBlock -> ARDSportNetcastAudios und Nutzung von
+			ARDSportgetPlayer + ARDSportMediaPlayer, Aktualisierung Aufruf-Buttons
+			ARDSportWDR: Event-Buttons für Leichtathletik-WM, Radsport:Deutschland Tour,
+			Hockey-EM 2023 und Basketball-WM aktualisiert/hinzugefügt. 
+			ARDAudioEventStreams: Button "ARD Audio Event Streams" entfernt.
+			ARDSportLive: Anpassung Leia/Krypton - py2_encode für title und Plot.
+			livesenderTV.xml: Abschnitt "ARD Audio Event Streams" entfernt. 
+			ARDSportMediaPlayer: 2-Std-Versatz korrigiert (add_hour=False).
+			time_translate (util): Terminwarnung "Noch x Tage" ergänzt um Stunden 
+			"Noch %s Stunden" bei akt. Tag.
+			ARD_Teletext: erneuert - umgestellt auf HBBTV-Quellen.			
+
+20.08.2023 4.8.2
+			unescape (util): '&deg;' -> '°' ergänzt für Teletext ARD.
+			Kikaninchen_Videos: html-Auswertung auf Kika-api/v1 umgestellt,
+			Anpassungen: Kikaninchen_Videos (Step1 + Step2), Kika_SingleBeitrag,
+			unescape (util), Watchdog_ZDF_Childs.
+			ARDnew: Austausch webpwa-api-Call gegen neuen api-Call, Anpassungen und
+			Optimierungen (img_load) in ARDStart (s. Infos dort, einschl. Cache) und 
+			SenderLiveResolution.
+			ARD_Teletext (ARDnew) + ZDF_Teletext: für falsche Seitenzahlen Hinweis und
+			Korrektur (-> Seite 100) ergänzt.
+			get_content_json (TagesschauXL): Inhalt av_content ergänzt, falls title 
+			leer.
+			ARDSportMedia: html-Behandl. -> unescape(label).
+
+13.08.2023 4.8.1
+			ZDF_Live: utf-Behandlung für Texte (MyDialog, fparams) - relevant für
+			Kodi Leia.
+			Kikaninchen_Videos: mediatyp=video entfernt (rekurs. Aufruf, verhindert 
+			Sofortstarts in Kikaninchen_Videos).
+			ZDF-Erweiterung: Teletext (teletext.zdf.de), neue Funktionen ZDF_Teletext,
+			ZDF_Teletext_Table + ZDF_Teletext_setPage, Icons: icon-next, icon-previos, 
+			teletext_zdf.
+			ARD-Erweiterung (Modul ARDnew): Teletext (ard-text.de/index.php), neue 
+			Funktionen ARD_Teletext, ARD_Teletext_Table, Icon: teletext_ard.
+
+30.07.2023 4.8.0
+			ZDF_Live: abweichendes Format der Videoquellen berücksichtigt (key:formitaeten
+			außerhalb key:cluster/epgCluster), Fett-Markierung aus Titel entfernt für
+			Abgleich epgCluster-key ["title"].
+			gen_alpha (KiKA-Podcasts Modul childs): Copyright aus titel entfernt.
+			Kikaninchen_Videos (childs): bei Fehlen einer Videoquelle Test der Variante 
+			avCustom.xml in Kikaninchen_VideoSingle.
+			Kikaninchen_Videos: für einige Links 3. Durchlauf erforderlich - für addDir 
+			das Ziel Kikaninchen_VideoSingle ersetzt durch Kikaninchen_Videos.
+			ARDSportTabellen: Vereinslogo ergänzt, Pfad zum Tabellen-Archiv korrigiert
+			(path -> path_org), Tabellenjahr für Archivtabellen ergänzt (Infotext).
+			ARD sportschau.de (WDR): Auswertung json-Daten vereinheitlicht )'data-v="'-
+			Blöcke) - neu: ARDSportgetPlayer, ARDSportMediaPlayer.
+
+23.07.2023 4.7.9
+			Sofortstart: vor Sortierung Stream_List in PlayVideo_Direct das Element mit
+			Auflösung "** auto **" entfernt, um sort_error zu verhindern (falls einzelne
+			Auflösung im Setting gewählt). Dto. in Parseplaylist bei Audiostreams die
+			Auflösung 0x0 eingefügt. 
+			ZDF-Livestreams: Erkennung + Kenzeichnung von zeitlich begrenzten Livestreams
+			(Events) - Anpassung in ZDF_get_content (label=Livestream, tag: Verfügbarkeit),
+			ZDF_Live (clusterLive_error), ZDF_PageMenu (Abgleich entry["type"] -> Abgleich 
+			typ).
+			livesenderTV.xml: Zusatz "Olympia" bei den ARD-Eventstreams "WDR Spezial"
+			entfernt (obsolet).
+			ARDSportWDR: Button "ARD Event Streams" hinzugefügt (-> SenderLiveListe).
+
+16.07.2023 4.7.8
+			Parseplaylist: url_check der master-m3u8-Auswertung vorangestellt (rel. für
+			VideoEvent-Streams).
+			get_json_content (ARDnew): Anpassung Sek.-Format für Kennz. ganzer Sendungen
+			(seconds_translate).
+			get_page (util): vorzeitiger Ausstieg, falls in Stufe 1 (get_page1) ein HTTP
+			Error auftaucht (rel. für VideoEvent-Streams).
+			PlayVideo (util): play_time und video_dur vorbelegt für Rückgabe bei url_check
+			=False.
+			PlayVideo (util): zusätzl. Param. live als Kennung für Livestreams (relevant
+			für ThreadShowSeekPos), Anpassungen: arte_Live, SenderLiveResolution, 
+			Parseplaylist, PlayButtonM3u8, WDRstream + ARDSportVideo (WDR-Livestreams), 
+			Live (my3Sat), phoenix_Live, XL_Live, ZDF_Live.
+			ShowSeekPos (util): Test auf Verfügbarkeit des Players bereits vor showSubtitles
+			in PlayVideo, 2 Sync-Checks in waitForAbort-Schleife eingefügt, WRD-Lokalzeit-
+			Streams nicht zugelassen (live="" in WDRstream  + ARDSportVideo).		
+
+25.06.2023 4.7.7
+			ShowSeekPos (util): neu - blendet nach Verschieben der Pufferposition von
+			inputstream.adaptive die passende Uhrzeit per Notification ein (Aufruf in
+			PlayVideo). Neues Setting: "Stream-Uhrzeit" (pref_streamtime, default true). 
+			arte-Modul: Ersatz der durch phoenix-Erneuerung gelöschten Funktionen
+			getOnline + time_state im Modul util.
+			livesenderTV.xml: Streamlink für Lausitzwelle aktualisiert.
+			ARDSportWDR: Bild Menü Moderation aktualisiert.
+			get_live_data (phoenix): icon leer vorbelegt (erforderl. bei Senderausfall).
+
+18.06.2023 4.7.6
+			TV-Livestreams Regional Lokalzeit: return nach Sofortstart für Verbleib
+			in akt. Liste.
+			ARDSportVideo (Regional Lokalzeit Samstag): doppelten Homebutton entfernt. 
+			Notification-Problem LibreElec 11.0.1: nach Neuinstallation verschwunden.
+			ZDF_PageMenu, ZDF_get_content: Info-Text von valid_title_chars verschont im
+			Menü ZDF-International Arabic.
+			get_foruminfo (tools): Datum ergänzt mit letztem Eintrag.
+			ShowFavs: Fett-/Farb-Markierung aus Titel entfernt, um Positiosverschieb. zu
+			vermeiden (cleanmark). 
+			PlayVideo: Rekursionscheck gelöst vom Status pref_nohome und Wirksamkeit auf
+			10 sec beschränkt. 
+			Watch_items (merkliste): cleanmark für IName bei action==del (Gegenstück zu
+			cleanmark in ShowFavs).
+			Issue-Info: Rekursion von Videos aus MVW-Suchergebnis in der Merkliste (Call
+			aus Modul yt). Videos aus den anderen Suchmenüs zeigen zwar beim direkten
+			Abspielen Rekursion, nicht aber in der Merkliste. Beide abgefangen in PlayVideo,
+			s. Rekurs_check.
+			Modul phoenix: wegen der weggefallenen Youtube-Unterstützung Umstellung auf
+			ARD-Mediathek - Anpassungen: phoenix_Search -> ARDSearchnew, ARDStartRubrik,
+			ARDStartRegion, ARDStart, SenderLiveResolution, SendungenAZ, ARDRubriken,
+			SendungenAZ_ARDnew, Watchdog_Plex-2. 
+			show_single_bandwith: entfernt - obsolet.
+			Icons: Platzbedarf reduziert (Indizierung auf Farbzahl-Minima), erneuert:
+			icon-downl-dir und icon-downl. Obsolete Icons entfernt.
+			Main_childs (Kinderprogramme): neues Menü "Hörspaß für Kinder", Link ->
+			ARD-Audiothek.
+
+04.06.2023 4.7.5
+			ARDSportWDR: Menübutton Bundesligatabellen hinzugefügt, neue Funktionen 
+			ARDSportTabellen, ARDSportTabellenArchiv und ARDSportTabellenTeam.
+			ARDSportMedia: Test Bilder auf fehlende Extension / Ergänzung mit .png.
+			ARDSportMediaPlayer: Vorbelegung Param verf="" ergänzt.
+			PlayVideo_Direct (util): Check Länge HBBTV_List vor Verkettung mit Stream_List.
+			Kikaninchen_VideoSingle: avCustom.xml-Url and Kika-Änderung angepasst, Behandl.
+			title + summ mit valid_title_chars.
+			TV-Livestreams Regional Lokalzeit: Anpassung an Änderungen der WDR-Webseite in 
+			list_WDRstreamlinks, WDRstream und ARDSportVideo.
+
+28.05.2023 4.7.4
+			Audio_get_homescreen (Audiothek): personalisierte Inhalte ausgeblendet
+			("..für dich" in title).
+			get_summary_pre (util): descr: Linefeed ersetzt durch "|" + Endbehandl.
+			mit valid_title_chars.
+			Get_content (Haupt-PRG + arte): Endbehandl. summ mit valid_title_chars.
+			valid_title_chars (util): aktualisiert, Berücksichtigung github-pull-request 
+			#28 (Semikolon-Problem mit PY2 in Funktion router).
+			SingleVideo (arte): Dialog-Zusatz "Mehr Streamauswahl ohne Sofortstart" bei
+			leeren Streamlisten, Anpassung arte_lang.json.
+			Anzeige laufender Downloads (Haupt-PRG): Leichencheck für Lockdatei DL_CHECK.
+			Module funk, zdfMobile: entfernt wie angekündigt, Bereinigung settings.xml +
+			Icons. Hauptmenü angepasst, Verweise in ShowFavs entfernt, Anpassung in
+			Watchdog_Plex-2, README + Wiki aktualisiert.
+			
+21.05.2023 4.7.3
+			ZDF_PageMenu: Link zu KiKANiNCHEN realisiert (Typ "externalUrl" im
+			Menü Kinderprogramme -> ZDFtivi -> ZDFchen).
+			ZDF_PageMenu:  "url" alternativ für leeren "stream" verwendet (Bsp. 
+			ZDFtivi -> KiKA live). 
+			ZDF_PageMenu: Berücksichtigung PromoTeaser (Web: ganze Breite) - mit
+			url -> ZDF_RubrikSingle.
+			ZDF_RubrikSingle: Notification für Beiträge ohne Videos (0 Cluster,
+			0 Teaser).
+			ZDF_get_content: fehlende "headline" abgefangen.
+			GetContent (arte): "duration" ergänzend für Einstufung mehrfach=True
+			herangezogen ("isCollection" nicht verlässlich).
+			build_Streamlists_buttons: UHD-Kennzeichnung der Streamlisten an 
+			Änderungen des ZDF-Codes (V4.7.0) angepasst.
+			ZDF_getApiStreams: Aufnahme UHD-Streams in Download-Liste ergänzt 
+			(bisher in build_Streamlists).
+			SingleBeitrag (3sat), build_Streamlists, m3satSourcesHBBTV: Anpassung
+			an geänderte Auswertung der ZDF-Videoquellen.
+			Streamlisten (neue Reihenfolge im Titel: Auflösung | Bitrate) - geändert: 
+			ARDnew (ARDStartVideoHBBTVget, ARDStartVideoMP4get, ARD_get_strmStream, 
+			ARDStartSingle), Parseplaylist, StreamsShow, ZDF_getApiStreams, 
+			build_Streamlists, form_HBBTV_Streams.
+			Streamlisten (Sortierung MP4_List + HBBTV_List nach Auflösung statt Bitrate:
+			Anpassung in StreamsShow + PlayVideo_Direct, arte (get_streams_api_v2 +
+			get_streams_api_opa).
+			repl_json_chars(tag) ergänzt in: ZDF_PageMenu, ZDF_RubrikSingle,
+			ZDF_Rubriken, ZDF_Verpasst.
+			get_page(util): py2_encode(page) für JsonPage (für Kodi Leia erford.).
+			Kategorien (arte): Anpassung Suchmuster für PYTHON2.
+
+14.05.2023 4.7.2
+			ZDF-Videos: Zusatz Senderbez. (entry["channel"]) in ZDF_PageMenu,
+			ZDF_Rubriken und ZDF_RubrikSingle.
+			get_summary_pre (util): Auswertung erweitert (ZDF: tag b-post-content,
+			Anpassung ZDF_get_content, ARD: CR+LF entfernt).
+			ZDF_PageMenu: zusätzl. Param. urlkey zur Kompensation eines fehlenden
+			jsonObject (referenziert durch DictID), Aussteuerung Typ "livevideo"
+			-> ZDF_Live.
+			ZDF_RubrikSingle: Objektzähler bei leeren/fehlenden Objekten erhöht
+			(für DictID und urlkey)
+			Watch_items (merkliste): Änderung Dialogtext "diesen Eintrag .." ->
+			"neuen Eintrag ..".
+			GetJsonByPath (util): leeres/falsches jsonObject abgefangen.
+
+07.05.2023 4.7.1
+			get_json_content( ARD): Filterabgleich gefixt (Dict -> string).
+			ZDF_Rubriken: Fix Parameterbez. für ZDF_getApiStreams in walk_entries
+			(url -> path).
+			XL_Search (TagesschauXL): Suche an ARD-Änderungen angepasst (json-Quellen,
+			html-Quellen nicht mehr auswertbar).
+			TagesschauXL: Bildgalerien ergänzt - Button in Main_XL, neue Funktionen
+			XL_BilderCluster, XL_BilderClusterSingle und XL_BilderShow.
+			get_content_json (TagesschauXL): fehlende Endungen bei Bild-Links mit ".webp"
+			ergänzt.
+			ZDF_Rubriken: Titel mit "Highlights" ergänzt bei Clustertyp videoCarousel.
+			ZDF_RubrikSingle: Bez. für CacheTime korrigiert (ZDF_CacheTime_AZ), relevant
+			für Aufruf aus Startseite.
+			Main_ZDF: fehlende ID für Menü ZDFinternational ergänzt.
+			ZDF_getApiStreams: Prüfung Listen nach Auswertung der Videoquellen auf 
+			HBBTV_List erweitert (kann fsk16-Beiträge außerhalb der geschützten Zeiten 
+			enthalten). 
+			ZDF_FlatListEpisodes, ZDF_FlatListRec, ZDF_getStrmList: Anpassungen an json-
+			Quellen im ZDF-Code, Fixes in Listenauswertung (Liste direkt laden statt 
+			Übersicht, Abgleich brandId statt Abgleich Serientitel).
+			do_sync (strm): Anpassung an ZDF_FlatListEpisodes (strings -> json).
+			Modul funk: im Setting vorerst deaktiviert, README aktualisiert.
+			home (util): Status-Infos im Home-Menü zu Sofortstart + Downloads ergänzt 
+			(Tag summary).			
+
+30.04.2023 4.7.0
+			ARDPagination: get_page_content -> get_json_content (übersehen in V4.6.9).
+			get_json_content (ARD): key-Auswahl für "teasers" aktualisiert.
+			full_shows: fehlenden Return-Flag zum Funktionsstart gesetzt.
+			ARDStartRubrik (ARD): Cache für Startseite entfernt (obsolet - api-Call).
+			time_translate (util): Info verbleibende Tage (<= 6) bis Sendungsdatum
+			ergänzt, Anpassung ARDnew (get_json_content ARD_FlatListRec), Haupt-PRG
+			(ARDSportMediaPlayer, ZDF_get_teaserDetails, ZDF_get_content), 3sat (Start,
+			Sendereihe_Sendungen, get_teaserElement, get_zdfplayer_content, SingleBeitrag).
+			get_page (util): Rückgabe new_url bei Exeption auf leer geändert (Reuse
+			praktisch ausgeschlossen). 
+			GetJsonByPath (util): Rückabe mit error-Text.
+			Audiothek: skip personenbezogene Beiträge (leer) in Audio_get_homescreen,
+			globale Var AUDIOSENDER entfernt - obsolet.
+			ZDF-Mediathek: komplett überarbeitet (Umstellung zdf.de -> zdf-cdn), einschl.
+			Serien-Erkennung.
+			ZDF-tivi: Sendereihe ZDFchen hinzugefügt.
+			TagesschauXL: Menüs der Livestreams an ARD-Änderungen angepasst (json-Quellen
+			-> ../livestreams/index.html), dto. Auswertung zu Tagesschau-Menüs + Tages-
+			themen. Wegfall Menüs: Nachtmagazin, Sendungsarchiv, #kurzerklaert, Weitere
+			Themen.
+
+16.04.2023 4.6.9
+			Audio_get_items_single (Audiothek): Fix img-Auswertung (fehlte: '"').
+			get_page_content (ARD): neues Blockmerkmal nach ARD-Änderung (images).
+			seconds_translate (util): str(seconds) ergänzt für json-Werte.
+			ARDnew: Auswertung umgestellt (get_page_content -> get_json_content) für
+			ARDSearchnew, ARDStartRubrik, ARDRubriken, SendungenAZ_ARDnew, ARDStart,
+			ARDStartRegion, MainNEW, ARDVerpasstContent, ARDStartSingle.
+			menu_hub (TagesschauXL): get_page_content -> get_json_content
+			get_foruminfo (tools): Anpassung Forum-Hinweis an Forum-Update. 
+			get_summary_pre (util): Code für ARDClassic entfernt (obsolet).
+			ARDSportWDR: Event NORDISCHE SKI-WM -> "Event-Archiv.
+			ARDSportMediaPlayer (ARDSportWDR): Datum Stream-Verfügbarkeit in Player-
+			Daten ergänzt (weggefallen in html-Quellen). 
+
+09.04.2023 4.6.8
+			get_forms (funk): Anpassung int/float für Bandbreite , Sortierung via
+			lambda-Funktion, Abgleich für Sofortststart umgestellt auf Auflösung 
+			(bandw unsicher in Kodi Leia).
+			get_streams_api_opa (arte): Filterung audioLabel "Deutsch" bei Sofortstart,
+			Blockbegrenzung formitaeten erweitert (creationDate), um alle Streams zu
+			erfassen.
+			get_ArtePage (arte): Ausgabe page_start, page_end verkleinert.
+			get_page_content (ARD): Subrubrik "Übersicht" in Listen entfernt 
+			(rekursiv für akt. Seite), Ordner-Icon für fehlende Icons ergänzt,
+			Auswertung summ in get_summary_pre begrenzt (mehrfach==False).
+			ARDStart (ARD): Wechsel Web-Call -> api-Call (embedded json identisch), 
+			Funktionen ARDRetro + ARDSportneu entfernt, Anpassungen in Main_NEW,
+			Verkleinerung pageSize auf 1 für img_preload.
+			ARDRubriken: Anzahl Subrubriken-1 (get_page_content: Wegfall "Übersicht").
+
+02.04.2023 4.6.7
+			time_translate (util): Startdatum Sommerzeit 2023 von 27 auf 26 korrigiert,
+			2020 + 2021 aus Tabelle entfernt.
+			Audio_get_sendung (Audiothek): tag-Info in Plot für MP3-Beiträge ergänzt.
+			ARD Audiothek: Podcast-Favoriten aktualisiert (Datei podcast-favorits.txt).
+			Audio_get_search_cluster (Audiothek): Web-Link durch api-Link ersetzt,
+			einschl. korrekter node_id, Auswertung der Rubriken via Web-Link über
+			Audio_get_cluster_rubrik.
+			get_teaserElement (my3Sat + Haupt-PRG): Unterverz. SophoraTeaser in TEXTSTORE
+			für Loader-Beiträge genutzt (Performance).
+			Haupt-PRG: künftige Skin-Anpassung via Liste - Anpassung settings.xml
+			(pref_content_type_tvshows -> pref_content_type).
+			arte_lang.json: Begriff Startseite ergänzt (in Abgrenzung zu "einschließlich
+			Startseite").
+			thread_getfile: Monitor-Abbruch ergänzt via os.remove(DL_CHECK) bei Download-
+			Exceptions (Bsp.: HTTP Error 403). 
+			test_downloads: Router-kompatible Behandl. für title_org ("\n" -> "||").
+			SingleBeitrag (phoenix): Youtube nicht mehr zugänglich - Auswertung vorerst 
+			abgestellt, Info-Texte geändert, Browser-Link eingeblendet, Suchbutton 
+			beibehalten.
+			Modul funk: Funktionsaufrufe repl_json_chars -> valid_title_chars (Ersetzung
+			Sonderzeichen = Fass ohne Boden).
+
+26.03.2023 4.6.6
+			KikaninchenFilme (Modul child): Quelle geändert ../filme-122.html -> 
+			../filme-122.json (mit html nur noch 1 film erreichbar), Anpassung mit
+			alternativer m3u8-Url in Kikaninchen_VideoSingle (<adaptiveHttp..Url>).
+			Kika_Start (Modul child): quote(title) für + in Titel (Bsp. PUR+) und
+			repl_json_chars für Titel, Verkettung mit Folgeblock bei Subchanneln und
+			identischer structureBrand-ID.
+			Suche in ARD-Audiothek: Umstellung Web -> json nach ARD-Änderungen - 
+			Anpassungen in AudioSearch, AudioSearch_cluster, Audio_get_search_cluster,
+			Audio_get_webslice, Audio_get_items_single.
+			
+19.03.2023 4.6.5
+			Audio_get_homescreen (Audiothek): Listeneinträge ohne Titel übersprungen
+			(z.B. in Entdecken -> Exklusive Podcasts).
+			LiveRecord (Modul util): popen-Rückmeldung "None args" für LibreElec 11 
+			ergänzt.
+			arte-Modul: Erweiterung für unterstützte Sprachen - neue Funktion L, neue
+			Icons arte_Mediathek, arte_lang + arte_live, Anpassungen: Modulkopf, Main_arte,
+			arte_Search, Kategorien, ArteCluster, home (util), update_single (Modul EPG),
+			neue Datei ../resources/arte_lang.json, Anpassungen der wichtigsten Fehler-
+			meldungen, Hinweis auf plugin.video.tyl0re.arte im Haupt-PRG entfernt.
+
+05.02.2023 4.6.4
+			SingleBeitrag (phoenix): Button ARDundZDF-Suche bei Youtube-Videos ergänzt,
+			Leitthema-Stil geändert (fett statt rot).
+			DownloadExtern (util): Länge Zielpfad berücksichtigt für max. Länge in
+			make_filenames.
+			yt_get (Modul yt): Info-Text mit Hinweis zur Downloadsperre ergänzt.
+			SearchARDundZDFnew:	ARD-Suchpfad an ARDSearchnew angepasst (page.ardmediathek
+			-> api.ardmediathek).
+			ARDSearchnew: Blankbehandlung für Merkliste (' ' -> '+') entfernt.
+			Audio_get_items_single (Audiothek): Text "Bild: " in Param attr ergänzt.
+			Audiothek: Download Livestreams unterdrückt in AudioPlayMP3, Warnhinweis in
+			AudioStart entfernt.
+			ArteCluster (arte): Button "Programme in UHD-Qualität" in Startseite ergänzt.		
+
+26.02.2023 4.6.3
+			ARDStart (ARDnew): "Regionales"-Menü mit passenden Icons ergänzt.
+			GetContent (phoenix): Notification bei leerer Auswertung.
+			Streamlisten: Auflösung mit "kbit" ergänzt in form_HBBTV_Streams, 
+			ARDStartVideoMP4get, ARDStartVideoHBBTVget, build_Streamlists,
+			ZDF_getApiStreams, Kika_VideoMP4get.
+			ARD_get_strmStream: mit json-Auswertung angepasst für ARDStartVideoHLSget
+			und ARDStartVideoMP4get.
+			XLGetSourcesPlayer, XLGetVideoLists (TagesschauXL): wie ARD_get_strmStream.
+			SendungenAZ (Modul my3sat): Titel-Auswertung an href-Link gebunden nach
+			3sat-Änderung.
+			SendungenAZ_ARDnew (ARDnew): quotierte Marks entfernt (führten zu leeren
+			Titeln).
+			ARDSearchnew (ARDnew): api-Suche umgestellt page-gateway/widgets  -> 
+			search-system/mediathek, um Videos von Sendereihen zu erfassen (Bsp. 
+			"2 für 300").
+			seconds_translate (util): Ausschluss Basis 1000 (Bsp. 864.0) - nötig
+			für umgestellte ARD-api-Suche.
+			ARDSportMedia (ARD Sportschau.de): html-Tags in summary entfernt.
+			Verz. resources/lib/: Datei util.pyc gelöscht (Herkunft unklar).
+			JobStop (epgRecord): int-error abgefangen bei leerer Prozess-ID pid.
+			ZDFSourcesHBBTV: Auswertung Qualität "q5" für UHD-Streams (Forumhinweis
+			@bazi98) - Anpassung form_HBBTV_Streams und add_UHD_Streams.
+			StreamsShow: Austausch 'Bitrate unbekannt' -> 'Bitrate ?' und für 
+			Auflösung 'unbekannt' -> '?'.
+			m3satSourcesHBBTV: Auswertung UHD-Streams vorbereitet ("h265_aac_mp4_*".
+			Settings: 3840x2160 bei "Videoqualität bei Sofortstart" hinzugefügt.
+			livesenderTV.xml: fehlende Web-Icons in "ARD Audio Event Streams" durch
+			Addon-Icons ersetzt.
+			decode_url (util): line.replace(u'%C4%87', u'Ä') ergänzt.
+			ARDSportWDR: Event + Archiv aktualisiert (Handball-WM -> SKI-WM).
+
+19.02.2023 4.6.2
+			adjust_line (updater): Fix invalid literal for int() with base 10: '19.'
+			arte-Modul: Anfang- und Ende-Markierungen embedded json-code aktualisiert
+			(get_ArtePage), json-keys in ArteCluster aktualisiert.
+			TagesschauXL: Umzug der Webseite (tagesschau.de -> ardmediathek.de), Url
+			aktualisiert (api-Call), Anpassung menu_hub (Nutzung ARDnew.get_page_content).
+			ARDStart (ARDnew): Fix quote marks in Titel (repl_json_chars(title)), Fix 
+			Titel und Path in regio_check + addDir-Button ergänzt.
+			Modul EPG: Laden des Moduls util abhängig sys.argv (leeres textviewer-Fenster
+			bei try/except-Variante), unescape für sname (Sendungstitel).
+			addDir ((util): py2_encode(EPG_ID) für Auswertung in Modul EPG.
+			Modul ARDnew: HBBTV-Quellen ergänzt, Umstellung MP4- + HLS-Quellen -> json, 
+			Anpassungen ARDStartSingle, ARDStartVideoHLSget, ARDStartVideoHBBTVget,
+			einschl. UHD-Erkennung.
+			
+
+12.02.2023 4.6.1
+			GetContent (Modul arte): '\n'-Ersetzung in summary (router-kompatibel).
+			build_Streamlists_buttons: UHD-Kennzeichnung im Titel der HLS-Liste für
+			Arte ergänzt.
+			time_translate (Modul util): Ergänzung Tabelle summer_time mit Sommerzeit
+			2023 (rel. ab 27.03.). 
+			Settings "Modul-Einstellungen": Text "Inhaltstyp TV-Shows" ergänzt mit 
+			"zeigt Abspielstatus für Videos".
+			PlayVideo(Modul util): seek für ARD-Livestream bei Nutzung des inputstream-
+			Addons entfernt (Zeit-Puffer wird bei Leia, Matrix, Nexus korrekt gesetzt). 
+			README, Wiki: aktualisiert (kodinerds-Links, Bilder).
+			Modul EPG: flexiblere Importanweisung für util-Modul (Haupt-PRG/Kontextmenü),
+			notwendig für Kontext-Option "EPG".
+			Menü TV-Livestreams: ergänzt mit Kontext-Option "EPG", Anpassungen in addDir
+			(util) und Modul EPG.
+			Modul my3sat: HBBTV-Quellen ergänzt - Anpassungen SingleBeitrag (Param weburl
+			für build_Streamlists -> m3satSourcesHBBTV), neue Funktionen m3satSourcesHBBTV
+			und form_HBBTV_Streams, Nutzung add_UHD_Streams (bisher keine gefunden).
+			SingleBeitrag (my3sat): Ermittlung videodat_url aktualisiert (Lokalisierung,
+			ngplayer_2_3 -> ngplayer_2_4).
+			get_pagination (ARDnew): Sicherung 'null' ergänzt.
+			ARDStart (ARDnew): Ergänzung für regionale Inhalte nach Katalog (Sender, Titel,
+			Url).
+
+31.01.2023 4.6.0
+			build_Streamlists_buttons: UHD-Kennz. im Titel bei UHD-Streams in den 
+			Stream-Listen.
+			Anpassung für Kodi 10 Nexus (alle Module): Aufruf check_AddonXml-Call 
+			"..version="3.0.0" ersetzt durch "..version="3.", Modul updater: Nexus in
+			adjust_line ergänzt (addon id, python-Version).
+			Main_NEW (ARDnew): Status CurSender angepasst für Kodi Nexus ->
+			(up_low(str(CurSender))).
+			util: fehlenden Abgleich für Anpassung an Kodi 10 Nexus ergänzt.
+			get_streams_api_v2 (Modul arte): Ergänzung HLS-Liste mit UHD-Streams.
+
+22.01.2023 4.5.9
+			Audio_get_webslice (Audiothek): json-Extraktion wie get_ArtePage (channel-
+			Data fehlten).
+			Arte-Modul: Erweiterung mit EPG  für Heute - neue Funktion EPG_Today, Anpas-
+			sung Main_arte und GetContent.
+			build_Streamlists: UHD-Streams für Testbetrieb ergänzt - neue Funktion
+			add_UHD_Streams.
+			url_check (Modul util): Fehler-Dialog optional für add_UHD_Streams.
+
+16.01.2023 4.5.8
+			Kika_Series: Berücksichtigung broadcastSeries (bisher nur videoSubchannel),
+			Berücksichtigung fehlende Subchannels.
+			Kika_get_singleItem + Kika_Rubriken: skip mainNavigation.
+			update_single (Modul EPG): Fix Vorbelegung für komplette Liste, Fix Abbruch
+			nach Dialog "eigene Auswahl oder Liste?" (verhinderte kompletten Abgleich).
+			Kika_Rubriken: Notification bei fehlendendem Video (z.B interactiveContent).
+			InfoAndFilter: Anzeige akt. Info-Stand im Button Einzelupdate + neue Funktion
+			tools.get_foruminfo, Anzeige akt. Füllstand im Button "Kodis Thumbnails-
+			Ordner bereinigen".
+			ARDSportWDR (sportschau.de): Event-Button "Handball-WM 2023 in Polen und 
+			Schweden" ergänzt, "Fußball WM 2022 in Katar" -> ARDSportWDRArchiv verlagert.
+			Arte-Modul: abweichende eingebettete json-Variante - Umstellung Auswertung 
+			auf json (statt strings), Anpassungen in get_ArtePage, Beitrag_Liste, ArteMehr,
+			get_img, ArteCluster, GetContent, Kategorien, arte_Search, get_next_url und
+			SingleVideo.
+			get_page (Modul util): redirect-Ausgabe auf 100 Zeichen beschränkt (vorher o. 
+			Begrenzung).
+			
+************ Debug-Log bis 18.12.2022 V4.5.7 auf Github und Entwickler-PC verfügbar
+
+

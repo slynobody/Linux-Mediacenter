@@ -1,0 +1,311 @@
+{
+    "strings": {
+        "numeration": "<nr>3</nr>",
+        "msgstr": [
+            {
+                "de": "Weitere Beiträge",
+                "fr": "Plus d'articles",
+                "en": "More articles",
+                "es": "Más aportes",
+                "pl": "Więcej wpłat",
+                "it": "Ulteriori contributi"
+            },
+            {
+                "de": "Folgebeiträge",
+                "fr": "Contributions consécutives",
+                "en": "Follow-up contributions",
+                "es": "Artículos complementarios",
+                "pl": "Artykuły związane z kontynuacją",
+                "it": "Articoli di seguito"
+            },
+            {
+                "de": "Verfügbar",
+                "fr": "Disponible",
+                "en": "Available",
+                "es": "Disponible",
+                "pl": "Dostępność",
+                "it": "Disponibile"
+            },
+            {
+                "de": "LIVE",
+                "fr": "Direct",
+                "en": "LIVE",
+                "es": "LIVE",
+                "pl": "LIVE",
+                "it": "LIVE"
+            },
+            {
+                "de": "Arte TV-Programm heute",
+                "fr": "Arte Programme TV aujourd'hui",
+                "en": "Arte TV program today",
+                "es": "Programa Arte TV de hoy",
+                "pl": "Program Arte TV już dziś",
+                "it": "Programma TV Arte oggi"
+            },
+            {
+                "de": "Kategorien",
+                "fr": "Catégories",
+                "en": "Categories",
+                "es": "Categorías",
+                "pl": "Kategorie",
+                "it": "Categorie"
+            },
+            {
+                "de": "Startseite",
+                "fr": "Page d'accueil",
+                "en": "Home page",
+                "es": "Página de inicio",
+                "pl": "Strona główna w zestawie",
+                "it": "Pagina iniziale inclusa"
+            },
+            {
+                "de": "einschließlich Startseite",
+                "fr": "y compris la page d'accueil",
+                "en": "Including home page",
+                "es": "Página de inicio incluida",
+                "pl": "Strona główna",
+                "it": "Pagina iniziale"
+            },
+            {
+                "de": "Suche in",
+                "fr": "Recherche dans",
+                "en": "Search in",
+                "es": "Buscar en",
+                "pl": "Szukaj w",
+                "it": "Ricerca in"
+            },
+            {
+                "de": "Bandbreite und Auflösung automatisch",
+                "fr": "Largeur de bande et résolution automatiques",
+                "en": "Bandwidth and resolution automatically",
+                "es": "Ancho de banda y resolución automáticamente",
+                "pl": "Szerokość pasma i rozdzielczość automatycznie",
+                "it": "Larghezza di banda e risoluzione automatiche"
+            },
+            {
+                "de": "LAUFENDE SENDUNG",
+                "fr": "ÉMISSION EN COURS",
+                "en": "CURRENT BROADCAST",
+                "es": "PROGRAMA ACTUAL",
+                "pl": "AKTUALNY PROGRAM",
+                "it": "PROGRAMMA ATTUALE"
+            },
+            {
+                "de": "Dauer",
+                "fr": "Durée",
+                "en": "Duration",
+                "es": "Duración",
+                "pl": "Czas trwania",
+                "it": "Durata"
+            },
+            {
+                "de": "weiter zu Seite",
+                "fr": "aller à la page",
+                "en": "continue to page",
+                "es": "continuar en la página",
+                "pl": "przejdź do strony",
+                "it": "continua a pagina"
+            },
+            {
+                "de": "Dokus und Reportagen",
+                "fr": "Documentaires et reportages",
+                "en": "Documentaries and reports",
+                "es": "Documentales y reportajes",
+                "pl": "Filmy dokumentalne i reportaże",
+                "it": "Documentari e rapporti"
+            },
+            {
+                "de": "Kino",
+                "fr": "Cinéma",
+                "en": "Cinema",
+                "es": "Cine",
+                "pl": "Kino",
+                "it": "Cinema"
+            },
+            {
+                "de": "Fernsehfilme und Serien",
+                "fr": "Séries et fictions",
+                "en": "TV movies and series",
+                "es": "Películas y series de televisión",
+                "pl": "Filmy i seriale TV",
+                "it": "Film e serie televisive"
+            },
+            {
+                "de": "Aktuelles und Gesellschaft",
+                "fr": "Info et société",
+                "en": "News and society",
+                "es": "Noticias y sociedad",
+                "pl": "Wiadomości i społeczeństwo",
+                "it": "Notizie e società"
+            },
+            {
+                "de": "Kultur und Pop",
+                "fr": "Culture et pop",
+                "en": "Culture and pop",
+                "es": "Cultura y pop",
+                "pl": "Kultura i pop",
+                "it": "Cultura e pop"
+            },
+            {
+                "de": "ARTE Concert",
+                "fr": "ARTE Concert",
+                "en": "ARTE Concert",
+                "es": "Concierto ARTE",
+                "pl": "Koncert ARTE",
+                "it": "Concerto ARTE"
+            },
+            {
+                "de": "Wissenschaft",
+                "fr": "Sciences",
+                "en": "Science",
+                "es": "Ciencia",
+                "pl": "Nauka",
+                "it": "Scienza"
+            },
+            {
+                "de": "Entdeckung der Welt",
+                "fr": "Voyages et découvertes",
+                "en": "Discovery of the world",
+                "es": "Descubrimiento del mundo",
+                "pl": "Odkrycie świata",
+                "it": "Scoperta del mondo"
+            },
+            {
+                "de": "Geschichte",
+                "fr": "Histoire",
+                "en": "History",
+                "es": "Historia",
+                "pl": "Historia",
+                "it": "La storia"
+            },
+            {
+                "de": "Neueste Videos",
+                "fr": "Dernières vidéos",
+                "en": "Latest videos",
+                "es": "Últimos vídeos",
+                "pl": "Najnowsze filmy",
+                "it": "Ultimi video"
+            },
+            {
+                "de": "Zurück zum Hauptmenü",
+                "fr": "Retour au menu principal",
+                "en": "Back to main menu",
+                "es": "Volver al menú principal",
+                "pl": "Powrót do menu głównego",
+                "it": "Torna al menu principale"
+            },
+            {
+                "de": "von",
+                "fr": "de",
+                "en": "from",
+                "es": "de",
+                "pl": "od",
+                "it": "da"
+            },
+            {
+                "de": "bis",
+                "fr": "à",
+                "en": "to",
+                "es": "a",
+                "pl": "do",
+                "it": "a"
+            },
+            {
+                "de": "LIVE nicht verfügbar für",
+                "fr": "LIVE non disponible pour",
+                "en": "LIVE not available for",
+                "es": "LIVE no disponible para",
+                "pl": "LIVE nie jest dostępny dla",
+                "it": "LIVE non disponibile per"
+            },
+            {
+                "de": "Programmabruf fehlgeschlagen",
+                "fr": "Échec de la récupération du programme",
+                "en": "Program fetch failed",
+                "es": "Error en la recuperación del programa",
+                "pl": "Pobieranie programu nie powiodło się",
+                "it": "Recupero del programma non riuscito"
+            },
+            {
+                "de": "Fehler in Suche",
+                "fr": "Erreur dans la recherche",
+                "en": "Error in search",
+                "es": "Error en la búsqueda",
+                "pl": "Błąd w wyszukiwaniu",
+                "it": "Errore nella ricerca"
+            },
+            {
+                "de": "leider keine Treffer zu",
+                "fr": "malheureusement aucun résultat pour",
+                "en": "unfortunately no hits for",
+                "es": "desafortunadamente no hay resultados para",
+                "pl": "niestety brak trafień dla",
+                "it": "purtroppo nessun riscontro per"
+            },
+            {
+                "de": "Fehler in SingleVideo",
+                "fr": "Erreur dans SingleVideo",
+                "en": "Error in SingleVideo",
+                "es": "Error en SingleVideo",
+                "pl": "Błąd w SingleVideo",
+                "it": "Errore in SingleVideo"
+            },
+            {
+                "de": "Streams leider (noch) nicht verfügbar.",
+                "fr": "Streams malheureusement pas (encore) disponibles.",
+                "en": "Streams unfortunately not (yet) available.",
+                "es": "Lamentablemente (aún) no hay streams disponibles.",
+                "pl": "Strumienie niestety nie są (jeszcze) dostępne.",
+                "it": "I flussi purtroppo non sono (ancora) disponibili."
+            },
+            {
+                "de": "nicht verfügbar",
+                "fr": "non disponibl",
+                "en": "not available!",
+                "es": "no disponible",
+                "pl": "niedostępny",
+                "it": "non disponibile"
+            },
+            {
+                "de": "Mehr Streamauswahl ohne Sofortstart!",
+                "fr": "Plus de choix de flux sans démarrage immédiat !",
+                "en": "More stream selection without instant <Sofortstart>!",
+                "es": "Más selección de flujos sin <Sofortstart>",
+                "pl": "Większy wybór strumieni bez <Sofortstart>!",
+                "it": "Più selezione di flussi senza avvio <Sofortstart>!"
+            },
+            {
+                "de": "Rekursion",
+                "fr": "Récursion",
+                "en": "Recursion",
+                "es": "Recursión",
+                "pl": "Rekursja",
+                "it": "Ricorsione"
+            },
+            {
+                "de": "zurück zur Liste",
+                "fr": "retour à la liste",
+                "en": "back to list",
+                "es": "volver a la lista",
+                "pl": "powrót do listy",
+                "it": "torna all'elenco"
+            },
+            {
+                "de": "",
+                "fr": "",
+                "en": "",
+                "es": "",
+                "pl": "",
+                "it": ""
+            }
+        ]
+    },
+    "katlinks": {
+        "de": "dokumentationen-und-reportagen/|kino/|fernsehfilme-und-serien/|aktuelles-und-gesellschaft/|kultur-und-pop/|arte-concert/|wissenschaft/|entdeckung-der-welt/|geschichte/",
+        "fr": "documentaires-et-reportages/|cinema/|series-et-fictions/|info-et-societe/|culture-et-pop/|arte-concert/|sciences/|voyages-et-decouvertes/|histoire/",
+        "en": "politics-and-society/|cinema/|series/|dummy|culture/|arte-concert/|sciences/|discovery/|history/",
+        "es": "politica-y-sociedad/|cine/|series-y-ficciones/|dummy|cultura-y-pop/|arte-concert/|ciencias/|viajes-y-naturaleza/|istoria/",
+        "pl": "polityka-i-spoleczenstwo/|kino/|seriale-i-filmy-fabularne/|dummy|kultura/|arte-concert/|nauka/|odkrycia/|historia/",
+        "it": "politica-e-societa/|cinema/|serie-e-fiction/|dummy|cultura/|arte-concert/|scienze/|viaggi-e-scoperte/|storia/"
+    }
+}

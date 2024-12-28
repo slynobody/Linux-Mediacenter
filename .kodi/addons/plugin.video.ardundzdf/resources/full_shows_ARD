@@ -1,0 +1,34 @@
+# full_shows_ARD - editierbare Kennzeichnungstabelle für ganze ARD-Sendungen (ARD Neu)
+# 	Format: Sendungstitel|Mindestdauer in Minuten
+#	Bsp.: Report Mainz|21
+#	pro Sendung 1 Eintrag je Zeile
+#	Kommentarzeilen mit einem # am Anfang werden überlesen
+#
+#
+# Das Addon sucht die Datei in dem im Setting festgelegten Verzeichnis. Falls diese
+#	fehlt wird die Default-Datei geladen.
+# Der Name der Datei muss full_shows_ARD lauten.
+#
+# Das Addon kennzeichnet den Sendungstitel in Listen rot, wenn Titel plus Seiten-Titel
+#	und Sendungsdauer der Vorgabe in dieser Tabelle entsprechen.
+#	
+#-----------------------------------------------
+#
+quer mit|40
+Querbeet|40
+extra 3|25
+Kontrovers|29
+Kontraste|28
+Monitor|30
+StudioM|55
+Panorama|28
+Report München|21
+Report Mainz|21
+Exakt|28
+Rundschau|15
+Visite|55
+Grünwald|40
+Hart aber fair|60
+Anne Will|50
+maybrit illner|59
+maischberger|60

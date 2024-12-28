@@ -1,5 +1,5 @@
 <settings version="2">
-    <setting id="preset" default="true">0</setting>
+    <setting id="preset">25</setting>
     <setting id="ownshader" default="true">false</setting>
     <setting id="shader" default="true" />
     <setting id="texture0" default="true" />

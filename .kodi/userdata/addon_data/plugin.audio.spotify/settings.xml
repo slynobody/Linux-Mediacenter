@@ -1,0 +1,11 @@
+<settings version="2">
+    <setting id="my_recently_played_playlist_name" default="true">My Recently Played</setting>
+    <setting id="gap_between_playlist_tracks" default="true">0</setting>
+    <setting id="use_spotify_normalization">true</setting>
+    <setting id="categoryDefaultView" default="true" />
+    <setting id="playlistDefaultView" default="true" />
+    <setting id="artistDefaultView" default="true" />
+    <setting id="albumDefaultView" default="true" />
+    <setting id="songDefaultView" default="true" />
+    <setting id="appendArtistToTitle" default="true">false</setting>
+</settings>

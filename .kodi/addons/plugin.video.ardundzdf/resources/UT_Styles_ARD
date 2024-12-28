@@ -1,0 +1,67 @@
+WEBVTT
+NOTE <nr>2</nr>	# Numerierung für Einzelupdate
+
+STYLE
+::cue(.textWhite) {
+ color: white;
+}
+
+STYLE
+::cue(.textBlack) {
+ color: black;
+}
+
+STYLE
+::cue(.textRed) {
+ color: red;
+}
+
+STYLE
+::cue(.textGreen) {
+ color: green;
+}
+
+STYLE
+::cue(.textYellow) {
+ color: yellow;
+}
+
+STYLE
+::cue(.textMagenta) {
+ color: magenta;
+}
+
+STYLE
+::cue(.textBlue) {
+ color: blue;
+}
+
+STYLE
+::cue(.textCyan) {
+ color: cyan;
+}
+
+STYLE
+::cue(.S3) {
+ color: cyan;
+}
+
+STYLE
+::cue(.S4) {
+ color: white;
+}
+
+STYLE
+::cue(.S5) {
+ color: yellow;
+}
+
+STYLE
+::cue(.S6) {
+ color: blue;
+}
+
+0
+00:00:00.000 --> 00:00:04.000 align:middle
+<c.textWhite>STYLE-Definitionen durch</c>
+<c.textWhite>Kodi-Addon-ARDundZDF</c>
