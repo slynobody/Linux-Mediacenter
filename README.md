@@ -1,4 +1,4 @@
-# SteamOS* Mediacenter ('kodi', preconfigured for streaming / privacy)
+# Mediacenter for Steam-Deck / Linux ('kodi', preconfigured for streaming / privacy)
 
 <img src="/kodi.png"/>
 
