@@ -10,7 +10,7 @@ cp -R ./.kodi /home/deck
 sudo steamos-readonly enable
 echo "---------------------------------
 echo "want surround on your headphones? also install https://github.com/slynobody/SteamOS-surround
-echo "-----------------------------------------------------------------------------------------------------------------------"
-echo "if  you plan to use netflix, please !also install firefox through the App-Store! (needed to get credentials)"
-echo "-----------------------------------------------------------------------------------------------------------------------"
+echo "-----------------------------------------------------------------------------------------------------------------------------------------------------------------"
+echo " want netflix? -> 1) install Brave (stable) through Discover / App-Store (flat, systemwide; needed to get credentials); 2) ./netflix.sh 3) import profile in kodi"
+echo "-----------------------------_____________--------------------------------________________--------------------------------______________----_____________--------"
 
