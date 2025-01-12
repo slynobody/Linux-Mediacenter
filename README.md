@@ -32,8 +32,11 @@
 > 
 > chown -R $USER:$USER .kodi
 
+## it does not work with flatpak installation?!
+> mv /home/deck/.kodi ~/.var/app/tv.kodi.Kodi/data/
+
 ## how do i get resolutions beyond 720p?
-in gamemode go to properties and set another resolution there.
+gamemode: properties: set another resolution there.
 
 ## how do i use netflix?
 to get secure access to 1080p-streaming you need to login once through a browser to get a credential-file as well as a code. use 'netflix.sh' for this.
