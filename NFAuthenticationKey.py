@@ -35,7 +35,7 @@ except ImportError:
 IS_MACOS = platform.system().lower() == 'darwin'
 
 # Script configuration
-BROWSER_PATH = '/var/lib/flatpak/app/com.brave.Browser/x86_64/stable/b93e55dc329e9559d38fbaec574ce5c2da1fc6b2b4dece279374e6fb6765425b/files/brave/brave'
+BROWSER_PATH = '/opt/brave.com/brave-nightly/brave'
 DEBUG_PORT = 9222
 LOCALHOST_ADDRESS = '127.0.0.1'
 URL = 'https://www.netflix.com/login'
