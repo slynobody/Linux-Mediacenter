@@ -493,6 +493,7 @@ class __MyYtDlpVideo__(__MyVideo__):
             duration=info["duration"],
             url=(info.get("url") or None),
             manifestType=(info.get("manifestType") or None),
+            language=(info.get("language") or None),
             **kwargs
         )
 
@@ -569,6 +570,7 @@ class MyPlaylist(dict):
                 videos = [
                     MyPlaylistVideo(video)
                     for video in islice(self.__entries__, limit)
+                    if (video.get("channel_id") and video.get("channel"))
                 ]
                 if not videos:
                     self.__last__ = len(self.__videos__)

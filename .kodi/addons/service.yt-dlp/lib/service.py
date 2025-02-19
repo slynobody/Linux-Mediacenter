@@ -37,7 +37,8 @@ class YtDlpVideo(dict):
             timestamp=info.get("timestamp", 0),
             #headers=info.get("http_headers", {}),
             formats=info.get("formats", []),
-            subtitles=subtitles
+            subtitles=subtitles,
+            language=info.get("language", "")
         )
 
 
@@ -114,6 +115,7 @@ class YtDlpService(Service):
             (info := self.__extract__(url)) and
             (video := YtDlpVideo(info, captions=captions))
         ):
+            #self.logger.info(f"info: {info}")
             formats = video.pop("formats")
             subtitles = video.pop("subtitles")
             if (url := video["url"]):

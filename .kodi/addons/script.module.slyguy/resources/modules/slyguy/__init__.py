@@ -1,4 +1,6 @@
 import sys
+# fix for asyncio crashes
+sys.modules['_asyncio'] = None
 
 from slyguy.language import _
 from slyguy.log import log

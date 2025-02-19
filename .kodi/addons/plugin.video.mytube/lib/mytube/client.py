@@ -24,12 +24,15 @@ class MyClient(object):
     # video --------------------------------------------------------------------
 
     def video(self, sb=False, **kwargs):
+        #self.logger.info(f"video(sb={sb}, kwargs={kwargs})")
         if (video := self.__client__.video(**kwargs)):
             item = Video(video).makeItem(video["url"])
             if (item and sb and addonIsEnabled("service.sponsorblock")):
                 item.setProperty("SB:videoID", video["videoId"])
-            return (item, video["manifestType"])
-        return (None, None)
+            return (
+                (item, video["manifestType"]), {"language": video["language"]}
+            )
+        return ((None, None), {})
 
     # channel ------------------------------------------------------------------
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="plugin.video.mytube"
        name="MyTube"
-       version="3.2.7"
+       version="3.2.11"
        provider-name="lekma">
 
     <requires>

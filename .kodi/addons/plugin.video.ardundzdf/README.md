@@ -84,29 +84,29 @@ Funktionen:
 - Livestreams: Auflistung der verfügbaren Angebote an Bandbreiten + Auflösungen (falls verfügbar: Audio ohne Video)
 - Videoclips: Auflistung der verfügbaren Angebote an Qualitätstufen sowie zusätzlich verfügbarer Videoformate (Bsp. UHD) 
 
-#### Downloadoption (ab Version 2.6.8 ohne cURL/wget)
+#### [Downloadoption (ab Version 2.6.8 ohne cURL/wget)](https://github.com/rols1/Kodi-Addon-ARDundZDF/wiki/03.-Settings-Download)
 - Download von Videos im ARD-Bereich
 - Download von Videos im ZDF-Bereich
 - Download von Videos in den Modulen arte, 3Sat, TagesschauXL, phoenix, Kinderprogramme
 - Download von Podcasts - bei Podcast-Favoriten zusätzlich Sammeldownloads (angezeigte Liste der Beiträge)
 
-#### Addon-Tools
-- Addon-Infos mit Angaben zum System, Cache, zu Dateipfaden und Modulen
-- "Zuletzt gesehen"-Liste
-- Tools zum Bearbeiten von Ausschluss-Filtern (ARD, ZDF)
-- Bereinigung der Merkliste
-- Tools zum Bearbeiten von Suchwörtern (ARD, ZDF)
-- Tools zum Bearbeiten des Download-Verzeichnisses (Verzeichnisse festlegen, Verschieben, Löschen)
-- Tools zum Bearbeiten von strm-Listen für Serien (ARD, ZDF), einschl. autom. Überwachung im Hintergrund
-- Tools zum Bearbeiten der addon-internen Playlist
-- Kodis Thumbnails-Ordner bereinigen
-- Settings inputstream.adaptive-Addon öffnen (Bandbreite, Auflösung und weitere Einstellungen)
-- Einzelupdate für einzelne Dateien und Module im Addon - siehe auch Updates
+#### [Addon-Tools](https://github.com/rols1/Kodi-Addon-ARDundZDF/wiki/11.-Tools-Modul)
+- [Änderungsliste: Addon-Infos mit Angaben zum System, Cache, zu Dateipfaden und Modulen](https://github.com/rols1/Kodi-Addon-ARDundZDF/wiki/11.-Tools-Modul#1-%C3%A4nderungsliste)
+- ["Zuletzt gesehen"-Liste](https://github.com/rols1/Kodi-Addon-ARDundZDF/wiki/11.-Tools-Modul#3-zuletzt-gesehen)
+- [Tools zum Bearbeiten von Ausschluss-Filtern (ARD, ZDF)](https://github.com/rols1/Kodi-Addon-ARDundZDF/wiki/11.-Tools-Modul#4-filter-bearbeiten)
+- [Bereinigung der Merkliste](https://github.com/rols1/Kodi-Addon-ARDundZDF/wiki/11.-Tools-Modul#5-merkliste-bereinigen)
+- [Tools zum Bearbeiten von Suchwörtern (ARD, ZDF)](https://github.com/rols1/Kodi-Addon-ARDundZDF/wiki/11.-Tools-Modul#6-suchw%C3%B6rter-bearbeiten)
+- [Tools zum Bearbeiten des Download-Verzeichnisses (Verzeichnisse festlegen, Verschieben, Löschen)](https://github.com/rols1/Kodi-Addon-ARDundZDF/wiki/11.-Tools-Modul#7-download--und-aufnahme-tools)
+- [Tools zum Bearbeiten von strm-Listen für Serien (ARD, ZDF), einschl. autom. Überwachung im Hintergrund](https://github.com/rols1/Kodi-Addon-ARDundZDF/wiki/11.-Tools-Modul#8-strm-tools)
+- [Tools zum Bearbeiten der addon-internen Playlist](https://github.com/rols1/Kodi-Addon-ARDundZDF/wiki/11.-Tools-Modul#9-playlist-tools)
+- [Kodis Thumbnails-Ordner bereinigen](https://github.com/rols1/Kodi-Addon-ARDundZDF/wiki/11.-Tools-Modul#10-kodis-thumbnails-ordner-bereinigen)
+- [Settings inputstream.adaptive-Addon öffnen (Bandbreite, Auflösung und weitere Einstellungen)](https://github.com/rols1/Kodi-Addon-ARDundZDF/wiki/11.-Tools-Modul#11-settings-inputstreamadaptive-addon)
+- [Einzelupdate für einzelne Dateien und Module im Addon - siehe auch Updates](https://github.com/rols1/Kodi-Addon-ARDundZDF/wiki/11.-Tools-Modul#12-einzelupdate-einzelne-dateien-und-module)
 
-#### Favoriten, Merkliste, strm-Dateien
+#### [Favoriten, Merkliste, strm-Dateien](https://github.com/rols1/Kodi-Addon-ARDundZDF/wiki/06.-Settings-Favoriten---Merkliste)
 - Kodi-Favoriten lassen sich einblenden und im Addon aufrufen
-- interne Merkliste mit Ordnerverwaltung und Filterfunktion - optional: netzwerkweit mit lokaler Synchronisation
-- strm-Dateien für einzelne Videos und Serien (einschl. Serienüberwachung für die meisten ARD- und ZDF-Serien)
+- [interne Merkliste mit Ordnerverwaltung und Filterfunktion](https://github.com/rols1/Kodi-Addon-ARDundZDF/wiki/06.-Settings-Favoriten---Merkliste#2-ardundzdf-merkliste-verwenden-getrennt-von-favoriten) - optional: netzwerkweit mit lokaler Synchronisation
+- [strm-Dateien für einzelne Videos und Serien](https://github.com/rols1/Kodi-Addon-ARDundZDF/wiki/09.-strm-Modul) (einschl. Serienüberwachung für die meisten ARD- und ZDF-Serien)
 
 #### Updates
 - entweder mit dem integrierten <b>Updatemodul (autom. Anpassung an Kodi-Version)</b> oder via <b>kodinerds-Repo</b>
@@ -120,10 +120,10 @@ Funktionen:
 - TagesschauXL (https://www.tagesschau.de/ und https://www.ardmediathek.de/tagesschau24)
 - phoenix (https://www.phoenix.de/ und https://www.ardmediathek.de/phoenix)
 - Arte-Kategorien
-- "Zuletzt gesehen"-Funktion (im Tools-Menü)
-- Video-Playlist einschl. Archiv-Funktion (im Tools-Menü)
-- strm-Modul, einschließlich Serien-Überwachung
-- Suche im Datenbestand von MediathekView (s. Credits)
+- [Zuletzt gesehen-Funktion](https://github.com/rols1/Kodi-Addon-ARDundZDF/wiki/11.-Tools-Modul#3-zuletzt-gesehen) (im Tools-Menü)
+- [Video-Playlist](https://github.com/rols1/Kodi-Addon-ARDundZDF/wiki/10.-PLAYLIST-Modul) einschl. Archiv-Funktion (im Tools-Menü)
+- [strm-Modul](https://github.com/rols1/Kodi-Addon-ARDundZDF/wiki/09.-strm-Modul), einschließlich Serien-Überwachung
+- [Suche im Datenbestand von MediathekView](https://github.com/rols1/Kodi-Addon-ARDundZDF/wiki/01.-Settings---Allgemein#10-mediathekviewweb-suche-verwenden) (s. Credits)
 
 
 INSTALLATION:

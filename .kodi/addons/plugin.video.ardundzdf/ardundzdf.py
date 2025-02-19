@@ -44,21 +44,23 @@ from datetime import timedelta
 import json				# json -> Textstrings
 import string
 import importlib		# dyn. Laden zur Laufzeit, s. router
+from threading import Thread
 
 
 # ständige Addonmodule - Rest dyn. in router
 import resources.lib.updater as updater	
 from resources.lib.util import *
 import resources.lib.EPG as EPG
+import resources.lib.tools as tools
 import resources.lib.epgRecord as epgRecord
 	
 																		
 # +++++ ARDundZDF - Addon Kodi-Version, migriert von der Plexmediaserver-Version +++++
 
 # VERSION -> addon.xml aktualisieren
-# 	<nr>226</nr>										# Numerierung für Einzelupdate
-VERSION = '5.1.6'
-VDATE = '22.12.2024'
+# 	<nr>229</nr>										# Numerierung für Einzelupdate
+VERSION = '5.1.8'
+VDATE = '05.02.2025'
 
 
 # (c) 2019 by Roland Scholz, rols1@gmx.de
@@ -258,13 +260,12 @@ if SETTINGS.getSetting('pref_epgpreload') == 'true':		# EPG im Hintergrund laden
 			os.remove(EPGACTIVE)
 			is_activ=False
 	if is_activ == False:									# EPG-Daten veraltet, neu holen
-		from threading import Thread
 		bg_thread = Thread(target=EPG.thread_getepg, args=(EPGACTIVE, DICTSTORE, PLAYLIST))
 		bg_thread.start()				
 
 tci = int(SETTINGS.getSetting('pref_tv_store_days'))		# TV-Livestream-Quellen aktualisieren
 if tci >= 5:												# Thread nicht bei 0 od. 1 aktivieren
-	ID = "ard_streamlinks"									# stellvertretend auch für zdf + iptv
+	ID = "ard_streamlinks"									# ard stellvertretend für zdf + iptv
 	dictfile = os.path.join(DICTSTORE, ID)
 	if os.path.exists(dictfile):
 		mtime = os.path.getmtime(dictfile)
@@ -278,12 +279,18 @@ if tci >= 5:												# Thread nicht bei 0 od. 1 aktivieren
 		if cache_diff <= 43200:									# Refresh bereits 12 Std. vor Ablauf möglich
 			PLog("CacheLimit_reached: %d" % int(now-CacheLimit))			
 			bg_thread = Thread(target=EPG.thread_getstreamlinks, args=())
-			bg_thread.start()				
+			bg_thread.start()
+			
+tci = int(SETTINGS.getSetting('pref_thumbnail_days'))		# Kodi-Thumbnails-Ordner bereinigen
+if tci > 0:													# Thread nicht bei 0 aktivieren
+	PLog("clear_thumbnailcache: tci %d" % tci)
+	nogui="1"	
+	bg_thread = Thread(target=tools.ClearUpThumbnails, args=(nogui))
+	bg_thread.start()				
 								
 if SETTINGS.getSetting('pref_dl_cnt') == 'true':			# laufende Downloads anzeigen
 	if os.path.exists(DL_CHECK) == False:					# Lock beachten (Datei dl_check_alive)						
 		PLog("Haupt_PRG: get_active_dls")
-		from threading import Thread
 		bg_thread = Thread(target=epgRecord.get_active_dls, args=())
 		bg_thread.start()
 	else:													# Check Dateileiche
@@ -321,7 +328,6 @@ if os.path.exists(STRM_SYNCLIST):							# strm-Liste für Synchronisierung
 		open(STRM_CHECK, 'w').close()						# Lock strm_check_alive anlegen
 		PLog("Haupt_PRG: start_strm_sync")
 		import resources.lib.strm as strm
-		from threading import Thread
 		bg_thread = Thread(target=strm.strm_sync, args=())
 		bg_thread.start()	
 else:
@@ -577,7 +583,7 @@ def Main():
 		summ = "%s\n-%s" % (summ, "strm-Tools")
 	if SETTINGS.getSetting('pref_playlist') == 'true':
 		summ = "%s\n-%s\n-%s" % (summ, "PLAYLIST-Tools", "Settings inputstream.adaptive")
-	summ = "%s\n-%s" % (summ, "Kodis Thumbnails-Ordner bereinigen")
+	summ = "%s\n-%s" % (summ, "Kodi-Thumbnails-Ordner bereinigen")
 	summ = "%s\n\n%s" % (summ, u"[B]Einzelupdate[/B] (für einzelne Dateien des Addons)")
 	fparams="&fparams={}" 
 	addDir(li=li, label='Infos + Tools', action="dirList", dirID="InfoAndFilter", fanart=R(FANART), thumb=R(ICON_INFO), 
@@ -725,8 +731,11 @@ def InfoAndFilter():
 			
 	dz = get_dir_size(THUMBNAILS)							# Thumbnails-Ordner bereinigen
 	dz = "[B](%s)[/B]" % dz
-	title = u"Kodis Thumbnails-Ordner bereinigen %s" % dz	
-	tag = u'[B]Kodis Thumbnails-Ordner bereinigen[/B]'
+	title = u"Kodi-Thumbnails-Ordner bereinigen %s" % dz	
+	tag = u'[B]Kodi-Thumbnails-Ordner bereinigen[/B]'
+	tci = int(SETTINGS.getSetting('pref_thumbnail_days'))	# autom. Bereinigung aktiviert?
+	if tci > 0:
+		tag = "%s\nautom. Bereinigung aktiviert (Intervall: %d Tage)" % (tag, tci)
 	summ = u"Das Bereinigen schafft Platz, indem es ältere Bilder entfernt (Auswahl: Dateien älter als 1-100 Tage)."
 	summ = u"%s\nDadurch kann sich die Anzeige älterer Beiträge anfangs verzögern." % summ
 	summ = u"%s\n\nDer aktuelle Füllstand %s kann auch im Menü Addon-Infos eingesehen werden." % (summ, dz)
@@ -1658,10 +1667,17 @@ def AudioStartLive(title, sender='', streamUrl='', myhome='', img='', Plot=''): 
 	if page == '':	
 		msg2 = msg
 		MyDialog(msg1, msg2, '')	
-		return li
+		return 
 
-	LiveObjekts = blockextract('"organizationName"', page)				# Station: Livestreams + programSets
-	PLog(len(LiveObjekts))
+	try:
+		page = json.loads(page)											# 03.02.2025 string -> json
+		PLog(str(page)[:100])
+		LiveObjects = page["data"]["organizations"]["nodes"]			# Station: Livestreams + programSets
+	except Exception as exception:
+		LiveObjects=[]
+		PLog("SenderPrograms_error: " + str(exception))
+	PLog("LiveObjects: %d" % len(LiveObjects))
+
 	streamList=[]
 	now = datetime.datetime.now()										# für streamList
 	timemark = now.strftime("%d.%m.%Y")
@@ -1671,43 +1687,49 @@ def AudioStartLive(title, sender='', streamUrl='', myhome='', img='', Plot=''): 
 	play_line = '#EXTINF:-1 logo="%s" group-title="ARD_Radio", %s\n%s'													
 	
 	if sender == '':
-		for LiveObj in LiveObjekts:
-			liveStreams = stringextract('liveStreams":', 'programSets', LiveObj)
-			live_cnt = stringextract('numberOfElements":', ',', liveStreams)
-			streamUrl = stringextract('"streamUrl":"', '"', liveStreams)
-			if live_cnt == '0':		
-				continue
+		for LiveObj in LiveObjects:			
+			services = LiveObj["publicationServices"]["nodes"]
+			PLog(str(services)[:80])
+			for node in services:
+				liveStreams = node["liveStreams"]
+				live_cnt = node["liveStreams"]["numberOfElements"]
 				
-			img = stringextract('"image"', '"url1X1"', LiveObj)			# 18.02.2022 neues Format:
-			img = stringextract('"url":"', '"', img)	
-			img = img.replace('{width}', '640')							# fehlt manchmal
-			Plot = stringextract('"synopsis":"', '"', LiveObj)
-			Plot = repl_json_chars(py2_decode(Plot))
-					
-			title = stringextract('"sender":"', '"', liveStreams)		# Sender, z.B BAYERN 1	
-			sender = title
+				if live_cnt:											# null od. mehrere z.B. 5 für BAYERN 1	
+					streams = liveStreams["items"]
+					anstalt = node["title"]								# Sendeanstalt übergeordnet
+					Plot  = node["synopsis"]
+					if not Plot:										# none möglich
+						Plot=""
+					Plot = repl_json_chars(Plot)
+					img = node["image"]["url1X1"]
+					img = img.replace('{width}', '640')
+					for stream in streams:
+						PLog(str(stream)[:80])
+						streamUrl = stream["stream"]["streamUrl"]
+						sender = stream["stream"]["sender"]	
+						sender = sender.replace(" URL", "")				# bei den HR-Sendern angehängt
 			
-			add = "zum Livestream"
-			tag = "Weiter %s von: [B]%s[/B]" % (add, title)		
-															
-			PLog('3Satz:');
-			PLog(title); PLog(img); PLog(streamUrl); PLog(Plot);
-			title=py2_encode(title); sender=py2_encode(sender);
-			streamUrl=py2_encode(streamUrl); img=py2_encode(img)
-			Plot=py2_encode(Plot)
-			fparams="&fparams={'title': '%s', 'sender': '%s', 'streamUrl': '%s', 'myhome': '%s', 'img': '%s', 'Plot': '%s'}" %\
-				(quote(title), quote(sender), quote(streamUrl), myhome, quote(img), quote(Plot))	
-			addDir(li=li, label=sender, action="dirList", dirID="AudioStartLive", fanart=img, 
-				thumb=img, tagline=tag, summary=Plot, fparams=fparams)
-			
-			# Streamlinks: "Dateiname ** Titel Zeitmarke ** Streamlink" -> DownloadText
-			fname = make_filenames(title)
-			fname = py2_encode(fname)
-			streamList.append("%s.m3u**# %s | ARDundZDF %s**%s" % (fname,title, timemark, streamUrl))
-			
-			# play_line = '#EXTINF:-1 logo="%s" group-title="ARD_Radio", %s\n%s'													
-			extinf = play_line % (img, title, streamUrl)
-			PlayList.append(extinf)
+						add = "zum Livestream"
+						tag = "Weiter %s von: [B]%s[/B]" % (add, sender)		
+																		
+						PLog('3Satz:');
+						PLog(sender); PLog(streamUrl); PLog(img); PLog(Plot);
+						title=py2_encode(title); sender=py2_encode(sender);
+						streamUrl=py2_encode(streamUrl); img=py2_encode(img)
+						Plot=py2_encode(Plot)
+						fparams="&fparams={'title': '%s', 'sender': '%s', 'streamUrl': '%s', 'myhome': '%s', 'img': '%s', 'Plot': '%s'}" %\
+							(quote(title), quote(sender), quote(streamUrl), myhome, quote(img), quote(Plot))	
+						addDir(li=li, label=sender, action="dirList", dirID="AudioStartLive", fanart=img, 
+							thumb=img, tagline=tag, summary=Plot, fparams=fparams)
+						
+						# Streamlinks: "Dateiname ** Titel Zeitmarke ** Streamlink" -> DownloadText
+						fname = make_filenames(sender)
+						fname = py2_encode(fname)
+						streamList.append("%s.m3u**# %s | ARDundZDF %s**%s" % (fname,title, timemark, streamUrl))
+						
+						# play_line = '#EXTINF:-1 logo="%s" group-title="ARD_Radio", %s\n%s'													
+						extinf = play_line % (img, title, streamUrl)
+						PlayList.append(extinf)
 
 		streamList = py2_encode(streamList)								# Streamlist-Button
 		textKey  = "RadioStreamLinks"
@@ -1749,51 +1771,62 @@ def AudioStartLive(title, sender='', streamUrl='', myhome='', img='', Plot=''): 
 def AudioSenderPrograms(org=''): 
 	PLog('AudioSenderPrograms:')
 	PLog(org); 
-	CacheTime = 60*5													# 5 min.				
+	CacheTime = 3600													# 1 Std.
 
 	li = xbmcgui.ListItem()
 	li = home(li, ID='ARD Audiothek')									# Home-Button
+	fanart = R(ICON_MAIN_AUDIO)
 
 	path = "https://api.ardaudiothek.de/organizations"					# api=Webjson		
 	page = Dict("load", "AudioSender", CacheTime=CacheTime)
 	if page == False or page == '':										# Cache miss od. leer - vom Sender holen
 		page, msg = get_page(path=path)
 		Dict("store", "AudioSender", page)
-	msg1 = "Fehler in AudioStartLive:"
+	msg1 = "Fehler in AudioSenderPrograms:"
 	if page == '':	
 		msg2 = msg
 		MyDialog(msg1, msg2, '')	
-		return li
-		
-	LiveObjekts = blockextract('"brandingColor"', page)				# Station: Livestreams + programSets
-	PLog(len(LiveObjekts))
+		return
+
+	try:
+		page = json.loads(page)											# 03.02.2025 string -> json
+		PLog(str(page)[:100])
+		LiveObjects = page["data"]["organizations"]["nodes"]			# Station: Livestreams + programSets
+	except Exception as exception:
+		LiveObjects=[]
+		PLog("SenderPrograms_error: " + str(exception))
+	PLog("LiveObjects: %d" % len(LiveObjects))
 
 	#---------------------------------
 	if org == '':														# 1. Durchlauf: alle Einzelsender listen
 		PLog("stage1:")
-		for LiveObj in LiveObjekts:
-			PLog(LiveObj[:80])
-			liveStreams = stringextract('liveStreams":', 'programSets', LiveObj)
+		for LiveObj in LiveObjects:
+			PLog(str(LiveObj)[:80])
+			anstalt = LiveObj["name"]									# Sendeanstalt (Mutterhaus)
+
+			services = LiveObj["publicationServices"]["nodes"]
+			for node in services:
+				node_ok=True; tag=""
+				try:
+					if "title" in node:									# Sender, z.B BAYERN 1
+						title = node["title"]
+					else:
+						title = node["organizationName"]
+					img = node["image"]["url1X1"]
+					img = img.replace('{width}', '640')
+					if 	node["synopsis"]:								# null möglich		
+						tag =  node["synopsis"]
+				except Exception as exception:
+					node_ok=False
+					PLog("node_error: " + str(exception))
 				
-			live_cnt = stringextract('numberOfElements":', ',', liveStreams)
-			title = stringextract('"sender":"', '"', liveStreams)		# Sender, z.B BAYERN 1
-			if live_cnt == '0':											# ARD, funk
-				title = stringextract('"organizationName":"', '"', LiveObj)
-				synop = stringextract('"synopsis":"', '"', LiveObj)
-				synop = synop.replace("\\n", "")
-				if synop:
-					title = "%s: %s" % (title, synop[:70])
-				
-			img = stringextract('"image"', '"url1X1"', LiveObj)			# 18.02.2022 neues Format:
-			img = stringextract('"url":"', '"', img)	
-			img = img.replace('{width}', '640')							# fehlt manchmal
-			tag = "Weiter zu den Sendungen  von %s" % title 
-				
-			PLog("Sendername: " + org)									# org z.B. BAYERN 1 Franken
-			title=py2_encode(title)
-			fparams="&fparams={'org': '%s'}" % (quote(title))	
-			addDir(li=li, label=title, action="dirList", dirID="AudioSenderPrograms", fanart=img, 
-				thumb=img, tagline=tag, fparams=fparams)
+				if node_ok:
+					summ = "Weiter zu den Sendungen  von %s" % title 
+					PLog("Anstalt: %s | Sender: %s" % (anstalt, title))					
+					title=py2_encode(title)
+					fparams="&fparams={'org': '%s'}" % (quote(title))	
+					addDir(li=li, label=title, action="dirList", dirID="AudioSenderPrograms", fanart=fanart, 
+						thumb=img, tagline=tag, summary=summ, fparams=fparams)
 				
 		xbmcplugin.endOfDirectory(HANDLE, cacheToDisc=True)	
 
@@ -1801,35 +1834,40 @@ def AudioSenderPrograms(org=''):
 	
 	if org:															# 2. Durchlauf: programSets listen	
 		PLog("stage2: " + org)
-		for LiveObj in LiveObjekts:			
-			PLog(LiveObj[:80])
-			liveStreams = stringextract('liveStreams":', 'programSets', LiveObj)
-				
-			live_cnt = stringextract('numberOfElements":', ',', liveStreams)
-			title = stringextract('"sender":"', '"', liveStreams)		# Sender, z.B BAYERN 1
-			if live_cnt == '0':											# ARD, funk
-				title = stringextract('"organizationName":"', '"', LiveObj)
-				synop = stringextract('"synopsis":"', '"', LiveObj)
-				if synop:
-					title = "%s: %s" % (title, synop[:70])
-			PLog(org); PLog(title);	
-			PLog(title.find(org))
-			if title.startswith(org):
-				PLog("found_org: %s, title: %s" % (org, title))
-				break			
-
-		pos = LiveObj.find('"programSets"')
-		page = LiveObj[pos:]
-		page= page.replace('\\"', '*')	
-		PLog(page[:80])	
-		items = blockextract('"id":', page)								# 2. Block enthält editorialCategories 		
-		PLog(len(items))
-		cnt=0
-		for item in items:
-			cat =  stringextract('"title":"', '"', item)				# 19.01.2023 Kategorie wieder im 1. Block
-			cnt=cnt+1													#	statt im früheren 2. (fehlt jetzt)
+		loopend=False
+		for LiveObj in LiveObjects:
+			if loopend:
+				break
+			PLog(str(LiveObj)[:80])
+			anstalt = LiveObj["name"]									# Sendeanstalt (Mutterhaus)
+			services = LiveObj["publicationServices"]["nodes"]
+			programSets=[]
+			for node in services:
+				if "title" in node:										# Sender, z.B BAYERN 1
+					title = node["title"]
+				else:
+					title = node["organizationName"]
+				if title == org:
+					PLog("found_org: %s, title: %s" % (org, title))
+					programSets = node["programSets"]["nodes"]			# einzelne Sendungen (editorialCategories)
+					loopend=True
+					break
 			
-			web_url =  stringextract('"sharingUrl":"', '"', item)		
+		if len(programSets) == 0:										# sollte nicht vorkommen
+			PLog("programSets_error: org=%s" % org)
+			PLog(str(node)[:400])
+		
+		PLog("programSets: %d" % len(programSets))					
+		cnt=0		
+		for prg in programSets:
+			title = 	prg["title"]									# PRG, z.B. Blaue Couch
+			web_url =  	prg["sharingUrl"]
+			anz =  		prg["numberOfElements"]
+			if anz == '':
+				continue
+			img = 		prg["image"]["url1X1"]
+			img = img.replace('{width}', '640')
+			
 			PLog("web_url: " + web_url)
 			href_add = "?offset=0&limit=20"								# Liste der Sendungen aufsteigend sortiert
 			if web_url.endswith("/"):
@@ -1837,29 +1875,17 @@ def AudioSenderPrograms(org=''):
 			else:
 				url_id 	= web_url.split('/')[-1]
 			api_url = ARD_AUDIO_BASE + "programsets/%s/%s" % (url_id, href_add)
-			
-			title = stringextract('"title":"', '"', item)				# PRG, z.B. Blaue Couch
-			anz =  stringextract('"numberOfElements":', ',', item)
-			if anz == '':
-				continue
-
-			img = stringextract('"image"', '"url1X1"', item)			# 18.02.2022 neues Format
-			img = stringextract('"url":"', '"', item)	
-			img = img.replace('{width}', '640')
-			
-			
+						
 			PLog("prg: %s, url_id: %s" % (title, url_id))
-			tag = u"Folgeseiten | Anzahl: %s\nKategorie [B]%s[/B]" % (anz, cat) 
+			tag = u"Folgeseiten | Anzahl: %s\nKategorie [B]%s[/B]" % (anz, title) 
 			summ = u"zu den einzelnen Beiträgen:\n%s" % title 
 			
 			api_url=py2_encode(api_url); title=py2_encode(title)
 			fparams="&fparams={'url': '%s', 'title': '%s'}" % (quote(api_url), quote(title))
 			addDir(li=li, label=title, action="dirList", dirID="Audio_get_sendung_api", \
-				fanart=img, thumb=img, fparams=fparams, tagline=tag, summary=summ)						
-	
-	
-	xbmcplugin.endOfDirectory(HANDLE, cacheToDisc=True)	
+				fanart=img, thumb=img, fparams=fparams, tagline=tag, summary=summ)	
 
+	xbmcplugin.endOfDirectory(HANDLE, cacheToDisc=True)	
 
 #----------------------------------------------------------------
 # neu ab 26.08.2023
@@ -2114,6 +2140,8 @@ def AudioPodcastDeSearch(dest_url="", query="", next_url=""):
 					return ""
 				query = py2_encode(query)							# encode für quote
 				path = base % quote(query)
+			else:
+				path = base % quote(query)
 		
 		page, msg = get_page(path, do_safe=False)					# nach quote ohne do_safe 	
 		if page == '' or page.find("<title>Server Error</title>") > 0 or page.find("<h5>") < 0:	
@@ -2316,6 +2344,8 @@ def AudioPodcastDeSingle(url, title, thumb, Plot, artist=""):
 		tag = "%s %s" % (tag, vsize)
 		summ = Plot
 		mp3_url = url; img = thumb
+		PLog("Satz10:"); PLog(title); PLog(mp3_url); PLog(img); PLog(Plot);
+		
 		title=py2_encode(title); mp3_url=py2_encode(mp3_url);
 		img=py2_encode(img); Plot=py2_encode(Plot);	
 		fparams="&fparams={'url': '%s', 'title': '%s', 'thumb': '%s', 'Plot': '%s'}" % (quote(mp3_url), 
@@ -2325,7 +2355,8 @@ def AudioPodcastDeSingle(url, title, thumb, Plot, artist=""):
 		
 		title = "Zur Podcast-Reihe [B]%s[/B]" % artist				# Button -> Podcast-Reihe
 		tag = "%s und verwandten Themen" % title
-		fparams="&fparams={'query': '%s'}" % artist
+		itle=py2_encode(title);
+		fparams="&fparams={'query': '%s'}" % quote(artist)
 		addDir(li=li, label=title, action="dirList", dirID="AudioPodcastDeSearch", 
 			fanart=R('podcast-de.png'), thumb=R('ard-suche.png'), tagline=tag, fparams=fparams)
 	
@@ -2423,29 +2454,37 @@ def Audio_get_sendung(url, title, page=''):
 			return li
 	
 	if page.startswith('<!DOCTYPE html>'):
-		page = Audio_get_webslice(page, mode="json")				# json ausschneiden
-	elements = stringextract('"numberOfElements":', ',', page)		# für Mehr anzeigen 
-	PLog("elements: %s" % elements)
-		
-	pos = page.find("nodes")
-	PLog(pos)
-	if pos > 0:
-		page = page[pos:]
-		
-	page = page.replace('\\"', '*')
-	items = blockextract('"id":', page, '}]},{')					# bis nächste "id" (nicht trennsicher)
-	PLog(len(items))
+		page = Audio_get_webslice(page, mode="json")				# json ausschneiden	
+
+	try:
+		page = json.loads(page)
+		PLog(str(page)[:100])
+		if "editorialCollection" in page["data"]:
+			data = page["data"]["editorialCollection"]
+		if "programSet" in page["data"]:
+			data = page["data"]["programSet"]
+		elements  = data["numberOfElements"]
+		nodes  = data["items"]["nodes"]
+	except Exception as exception:
+		nodes=[]
+		PLog("get_sendung_error: " + str(exception))
+	PLog("elements: %s, nodes: %d" % (elements, len(nodes)))
 	
 	PLog("Mark0")
 	cnt=0; dl_cnt=0; downl_list=[]; skip_list=[]
-	for item in items:		
+	for item in nodes:		
 		mp3_url=''; web_url=''
-		if item.find("publishDate") < 0 and  item.find("publicationStart") < 0:
+		if str(item).find("publishDate") < 0 and  str(item).find("publicationStart") < 0:	# kein Beitrag
+			PLog("skip_no_pubDate: %s" % item[:80])
 			continue
-		mp3_url, web_url, attr, img, dur, title, summ, source, sender, pubDate = Audio_get_items_single(item)		
+		s=my_jsondump(item)
+		mp3_url, web_url, attr, img, dur, title, summ, source, sender, pubDate = Audio_get_items_single(str(s))		
 		if title in skip_list:										# mögl. bei programsets mit Einzelbeiträgen
 			continue
 		skip_list.append(title)
+		if mp3_url == "" and web_url == "":
+			PLog("skip_no_url: %s" % item[:80])
+			continue
 		
 		tag = "Dauer %s" % dur
 		if pubDate:
@@ -2623,7 +2662,7 @@ def Audio_get_nexturl(li, url_org, title_org, elements, cnt, myfunc):
 		PLog("url: " + url)	
 		PLog("elements: %s, offset: %s, new_offset: %d, limit: %d" % (elements, offset, new_offset, limit))
 
-		if new_offset < int(elements):
+		if new_offset+1 < int(elements):
 			tag = u"Mehr (ab Beitrag %d von %s)" % (new_offset+1, elements)
 			PLog(tag);
 			title_org=py2_encode(title_org); url=py2_encode(url);
@@ -2641,8 +2680,8 @@ def Audio_get_items_single(item, ID=''):
 	PLog(ID)
 	base = "https://www.ardaudiothek.de"
 	item = py2_encode(item); base = py2_encode(base)				# PY2
-	
 	item = item.replace('\\"', '*')
+
 	mp3_url=''; web_url=''; attr=''; img=''; dur=''; title=''; 
 	summ=''; source=''; sender=''; pubDate='';
 	
@@ -2666,9 +2705,10 @@ def Audio_get_items_single(item, ID=''):
 
 	attr = stringextract('"attribution":"', '"', item)				# Sender, CR usw.
 	if attr:
-		attr = "Bild: %s" % repl_json_chars(py2_decode(attr))					# ' möglich
+		attr = "Bild: %s" % repl_json_chars(py2_decode(attr))		# ' möglich
 
 	img = stringextract('"image":', ',', item)
+	PLog("img: " + img)
 	img = stringextract('"url":"', '"', img)
 	img = img.replace('{width}', '640')
 	img = img.replace('16x9', '1x1')								# 16x9 kann fehlen, z,B. bei Suche
@@ -3658,7 +3698,6 @@ def ARDSportBilder(title, path, img):
 				image += 1
 			
 	if background and len(path_url_list) > 0:				# Übergabe Url-Liste an Thread
-		from threading import Thread	# thread_getfile
 		textfile=''; pathtextfile=''; storetxt=''; url=img_src; 
 		fulldestpath=local_path; notice=True; destdir="Slide-Show-Cache"
 		now = datetime.datetime.now()
@@ -4502,15 +4541,15 @@ def ARDSportMonatstorSingle(title, path, img):
 	
 	base = "https://www.sportschau.de"
 	if path.endswith("/abstimmung"):
-		li = home(li, ID='ARD')						# Home-Button
+		li = home(li, ID='ARD')								# Home-Button
 		cnt = ARDSportMedia(li, title, page)
 	if path.endswith("/archiv"):	
-		items = blockextract('data-v="', page)		# Sliderboxen je Jahrzehnt	
+		items = blockextract('data-v="', page)				# Sliderboxen je Jahrzehnt	
 		PLog("archiv_or_statistikspieler")
 		PLog(len(items))
 		for item in items:
-			ARDSportSlider(li, item, skip_list=[], img='')		# -> json-extract
-	if path.endswith("/statistikspieler-sp-102.html"):
+			ARDSportSlider(li, item, skip_list=[], img='')	# -> json-extract
+	if path.endswith("/statistikspieler-sp-102.html"):		# die besten Torschützen
 		items = blockextract('class="teaser-xs__link"', page)			
 		PLog(len(items))
 		for item in items:
@@ -4915,7 +4954,7 @@ def ARDSportLive(title, skip_video=""):
 #----------------------------------------------------------------
 # holt Playerdaten bei data-v="..
 def ARDSportgetPlayer(item):
-	PLog("ARDSportgetPlayer:")
+	PLog("ARDSportgetPlayer:" + item[:60])
 
 	pos1=item.find('{'); pos2=item.rfind('}')
 	PLog(pos1); PLog(pos2)
@@ -5034,6 +5073,7 @@ def ARDSportMedia(li, title, page, path=""):
 #
 def ARDSportMediaPlayer(li, item_data): 
 	PLog('ARDSportMediaPlayer:')
+	PLog(item_data[:80])
 	
 	player=''; live=False; title='';  mp3_url=''; stream_url=''; 
 	img=''; verf=''; tag=''; summ=''; Plot=''; 
@@ -5259,9 +5299,9 @@ def ARDSportSliderSingle(url, title, thumb, Plot, firstblock=False):
 	mediatype=""
 	items=[]
 	if "/tor-des-monats/" in url:				# mehrere Beiträge "Tore des Monats"
-		items = blockextract('class="mediaplayer', page, '"MediaPlayer"')
+		items = blockextract(' data-v="', page, '"MediaPlayer"')
 		PLog("mediaplayer_items: %d" % len(items))
-		if len(items) == 0:						# Beiträge erst auf Folgeseiten
+		if len(items) == 0 or items[0].find('"MediaPlayer"') == -1:	 # Beiträge erst auf Folgeseiten
 			items = blockextract('<div class="teaser__media">', page)
 			PLog("teaserlink_items: %d" % len(items))
 			base = "https://www.sportschau.de"
@@ -5305,8 +5345,8 @@ def ARDSportSliderSingle(url, title, thumb, Plot, firstblock=False):
 					PLog(msg2)
 					return
 				PLog("firstblock: " + str(items[:1])[:60] )
-			if 'class="v-instance" data-v="' in page:
-				items = blockextract('class="v-instance" data-v="', page, '"MediaPlayer"')	# erster json-Bereich
+			if 'data-v="' in page:
+				items = blockextract('data-v="', page, '"MediaPlayer"')		# erster json-Bereich
 				PLog(len(items))
 				item = items[0]
 				data  = ARDSportgetPlayer(item)			# json-Inhalt
@@ -5324,7 +5364,7 @@ def ARDSportSliderSingle(url, title, thumb, Plot, firstblock=False):
 			return										# erford. für Abschluss		
 			
 	else:	
-		item = stringextract('class="v-instance" data-v="', '"MediaPlayer"', page)	# erster json-Bereich
+		item = stringextract('data-v="', '"MediaPlayer"', page)	# erster json-Bereich
 		items.append(item) 
 		
 	if len(items) == 0:									# z.B. Verweis auf https://www.zdf.de/live-tv
@@ -5674,7 +5714,6 @@ def DownloadExtern(url, title, dest_path, key_detailtxt, sub_path=''):
 									# Untertiteldatei hinzufügen:
 	PLog(dtyp); PLog(SETTINGS.getSetting('pref_load_subtitles'))
 	
-	from threading import Thread	# thread_getfile
 	path_url_list=''; timemark=''; notice=True
 	background_thread = Thread(target=thread_getfile, args=(textfile,pathtextfile,storetxt,url,fulldestpath,path_url_list,timemark,notice,sub_path,dtyp))
 	background_thread.start()		
@@ -8575,7 +8614,6 @@ def BilderDasErsteSingle(title, path):
 			
 	if background and len(path_url_list) > 0:				# Thread-Call mit Url- und Textliste
 		PLog("background: " + str(background))
-		from threading import Thread						# thread_getpic
 		folder = fname 
 		background_thread = Thread(target=thread_getpic,
 			args=(path_url_list, text_list, folder))
@@ -8721,6 +8759,7 @@ def ZDF_PageMenu(DictID,  jsonObject="", urlkey="", mark="", li="", homeID="", u
 	if SETTINGS.getSetting('pref_video_direct') == 'true':
 		mediatype='video'
 	PLog('mediatype: ' + mediatype); 
+	fcnt=0															# gefiltert-Zähler	
 	
 	PLog("stage" in jsonObject); PLog("teaser" in jsonObject); PLog("results" in jsonObject);		
 	if "stage" in jsonObject or "teaser" in jsonObject or "results" in jsonObject:
@@ -8739,7 +8778,6 @@ def ZDF_PageMenu(DictID,  jsonObject="", urlkey="", mark="", li="", homeID="", u
 			entryObject = jsonObject["results"]
 			PLog("results: %d" % len(entryObject))
 		
-		fcnt=0														# gefiltert-Zähler	
 		for entry in entryObject:
 			typ,title,tag,descr,img,url,stream,scms_id = ZDF_get_content(entry,mark=mark,validchars=validchars)
 			label=""
@@ -11338,7 +11376,6 @@ def ZDF_BildgalerieSingle(path, title, li=''):
 			
 	if background and len(path_url_list) > 0:				# Thread-Call mit Url- und Textliste
 		PLog("background: " + str(background))
-		from threading import Thread						# thread_getpic
 		folder = fname 
 		background_thread = Thread(target=thread_getpic,
 			args=(path_url_list, text_list, folder))
@@ -11689,7 +11726,7 @@ def router(paramstring):
 					medialink = params["medialink"][0]
 					get_streams_from_link(medialink)
 					PLog("router_exit")
-#					Main()
+					# Main()
 					return
 
 			if 'content_type' in params:

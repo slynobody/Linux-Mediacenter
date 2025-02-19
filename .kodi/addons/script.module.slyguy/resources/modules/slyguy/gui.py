@@ -223,11 +223,13 @@ class Item(object):
 
         if self.art:
             defaults = {
-                'poster': 'thumb',
                 'landscape': 'thumb',
                 'icon': 'thumb',
                 'banner': 'clearlogo',
             }
+
+            if info.get('mediatype') != 'episode':
+                defaults['poster'] = 'thumb'
 
             art = {}
             for key in self.art:
@@ -303,9 +305,11 @@ class Item(object):
             return url
 
         def redirect_url(url):
-            parse = urlparse(url.lower())
-            if parse.netloc in REDIRECT_HOSTS and is_http(url):
-                url = Session().head(url).headers.get('location') or url
+            while urlparse(url).netloc.lower() in REDIRECT_HOSTS and is_http(url):
+                new_url = Session().head(url).headers.get('location')
+                if not new_url:
+                    break
+                url = new_url
             return url
 
         license_url = None

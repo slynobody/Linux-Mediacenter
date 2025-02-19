@@ -26,11 +26,12 @@ class Item(Object):
 
     @classmethod
     def menus(cls, **kwargs):
+        addonId = getAddonId()
         return [
             (
                 maybeLocalize(label).format(**kwargs),
                 action.format(
-                    addonId=getAddonId(),
+                    addonId=addonId,
                     **{key: quote_plus(value) for key, value in kwargs.items()}
                 )
             )

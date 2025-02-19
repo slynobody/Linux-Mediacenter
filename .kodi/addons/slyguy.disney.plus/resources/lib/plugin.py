@@ -353,12 +353,16 @@ def _parse_series(row):
         art = _get_art(row),
         info = {
             'plot': _get_text(row, 'description', 'series'),
-            'year': row['releases'][0]['releaseYear'],
             'mediatype': 'tvshow',
             'trailer': plugin.url_for(play_trailer, series_id=row['encodedSeriesId']),
         },
         path = plugin.url_for(series, series_id=row['encodedSeriesId']),
     )
+
+    try:
+        item.info['year'] = row['releases'][0]['releaseYear']
+    except IndexError:
+        pass
 
     if not item.info['plot']:
         item.context.append((_.FULL_DETAILS, 'RunPlugin({})'.format(plugin.url_for(full_details, series_id=row['encodedSeriesId']))))
@@ -368,17 +372,23 @@ def _parse_series(row):
 def _parse_season(row, series):
     title = _(_.SEASON, number=row['seasonSequenceNumber'])
 
-    return plugin.Item(
+    item = plugin.Item(
         label = title,
         info  = {
             'plot': _get_text(row, 'description', 'season') or _get_text(series, 'description', 'series'),
-            'year': row['releases'][0]['releaseYear'],
             'season': row['seasonSequenceNumber'],
             'mediatype': 'season',
         },
         art   = _get_art(row) or _get_art(series),
         path  = plugin.url_for(season, season_id=row['seasonId'], title=title),
     )
+
+    try:
+        item.info['year'] = row['releases'][0]['releaseYear']
+    except IndexError:
+        pass
+
+    return item
 
 def _parse_video(row):
     item = plugin.Item(
@@ -434,6 +444,8 @@ def _get_art(row):
 
     def _first_image_url(d):
         for r1 in d:
+            if 'program' in d and r1 != 'program':
+                continue
             for r2 in d[r1]:
                 return d[r1][r2]['url']
 
@@ -449,6 +461,7 @@ def _get_art(row):
     banner_ratios = ['3.91', '3.00', '1.78']
 
     fanart_count = 0
+    episode = False
     for name in images or []:
         art_type = images[name]
 
@@ -475,8 +488,10 @@ def _get_art(row):
                 break
 
         if name in ('tile', 'thumbnail'):
-            if tr:
+            if tr and not episode:
                 art['thumb'] = _first_image_url(art_type[tr]) + thumbsize
+                if 'program' in art_type[tr]:
+                    episode = True
             if pr:
                 art['poster'] = _first_image_url(art_type[pr]) + thumbsize
 
@@ -495,6 +510,10 @@ def _get_art(row):
         elif name in ('title_treatment', 'logo'):
             if cr:
                 art['clearlogo'] = _first_image_url(art_type[cr]) + thumbsize
+
+    # poster overrides thumb for episodes, so skip for eps
+    if episode:
+        art.pop('poster', None)
 
     return art
 
@@ -647,6 +666,7 @@ def search(query, page, **kwargs):
 def play(family_id=None, content_id=None, **kwargs):
     return _play(family_id, content_id, **kwargs)
 
+
 def _play(family_id=None, content_id=None, **kwargs):
     if KODI_VERSION > 18:
         ver_required = '2.6.0'
@@ -722,14 +742,17 @@ def _play(family_id=None, content_id=None, **kwargs):
             if item.resume_from == -1:
                 return
 
-        elif milestones and settings.getBool('skip_intros', False):
-            intro_start = _get_milestone(milestones, 'intro_start')
-            intro_end = _get_milestone(milestones, 'intro_end')
+    if milestones and settings.getBool('skip_recaps', False):
+        recap_start = _get_milestone(milestones, 'recap_start')
+        recap_end = _get_milestone(milestones, 'recap_end')
+        if recap_end > recap_start:
+            item.play_skips.append({'from': recap_start, 'to': recap_end})
 
-            if intro_start <= 10 and intro_end > intro_start:
-                item.resume_from = intro_end
-            elif intro_start > 0 and intro_end > intro_start:
-                item.play_skips.append({'from': intro_start, 'to': intro_end})
+    if milestones and settings.getBool('skip_intros', False):
+        intro_start = _get_milestone(milestones, 'intro_start')
+        intro_end = _get_milestone(milestones, 'intro_end')
+        if intro_end > intro_start:
+            item.play_skips.append({'from': intro_start, 'to': intro_end})
 
     if milestones and settings.getBool('skip_credits', False):
         credits_start = _get_milestone(milestones, 'up_next')
@@ -762,6 +785,7 @@ def _play(family_id=None, content_id=None, **kwargs):
         }
 
     return item
+
 
 @plugin.route()
 @plugin.no_error_gui()
@@ -928,6 +952,7 @@ def _get_explore_art(row):
     if not row or 'artwork' not in row['visuals']:
         return {}
 
+    is_episode = 'episodeTitle' in row['visuals']
     images = row['visuals']['artwork']['standard']
     if 'tile' in row['visuals']['artwork']:
         images['hero_tile'] = row['visuals']['artwork']['tile']['background']
@@ -951,6 +976,11 @@ def _get_explore_art(row):
     poster_ratios = ['0.71', '0.75', '0.80']
     clear_ratios = ['2.00', '1.78', '3.32']
     banner_ratios = ['3.91', '3.00', '1.78']
+
+    if is_episode:
+        thumbs = ('thumbnail',)
+    else:
+        thumbs = ('thumbnail', 'tile')
 
     fanart_count = 0
     for name in images or []:
@@ -978,7 +1008,7 @@ def _get_explore_art(row):
                 cr = ratio
                 break
 
-        if name in ('tile', 'thumbnail'):
+        if name in thumbs:
             if tr:
                 art['thumb'] = _first_image_url(art_type[tr]) + thumbsize
             if pr:
@@ -1000,6 +1030,9 @@ def _get_explore_art(row):
             if cr:
                 art['clearlogo'] = _first_image_url(art_type[cr]) + thumbsize
 
+    if is_episode:
+        art.pop('poster', None)
+
     return art
 
 def _get_explore_play_path(**kwargs):
@@ -1008,6 +1041,18 @@ def _get_explore_play_path(**kwargs):
         kwargs['profile_id'] = profile_id
 
     return plugin.url_for(explore_play, **kwargs)
+
+
+def _get_explore_milestone(milestones, name, default=0):
+    if not milestones:
+        return default
+
+    for row in milestones:
+        if row['label'] == name:
+            return int(row['offsetMillis'] / 1000)
+
+    return default
+
 
 @plugin.route()
 @plugin.login_required()
@@ -1032,11 +1077,46 @@ def explore_play(page_id=None, resource_id=None, **kwargs):
         play_action = [x for x in data['actions'] if x['type'] == 'playback'][0]
         resource_id = play_action['resourceId']
 
+    #TODO: IMAX needs to be selected before explore_playback
     playback_data = api.explore_playback(resource_id, ia.wv_secure)
 
-    return plugin.Item(
+    item = plugin.Item(
         path = playback_data['stream']['sources'][0]['complete']['url'],
         inputstream = ia,
         headers = api.session.headers,
     )
+
+    milestones = playback_data['stream']['editorial']
+    item.play_next = {}
+    item.play_skips = []
+
+    if not kwargs.get(ROUTE_RESUME_TAG):
+        if settings.getBool('sync_playback', False) and NO_RESUME_TAG in kwargs and playback_data['playhead']['status'] == 'PlayheadFound':
+            item.resume_from = plugin.resume_from(playback_data['playhead']['position'])
+            if item.resume_from == -1:
+                return
+
+    if milestones and settings.getBool('skip_recaps', False):
+        recap_start = _get_explore_milestone(milestones, 'recap_start')
+        recap_end = _get_explore_milestone(milestones, 'recap_end')
+        if recap_end > recap_start:
+            item.play_skips.append({'from': recap_start, 'to': recap_end})
+
+    if milestones and settings.getBool('skip_intros', False):
+        intro_start = _get_explore_milestone(milestones, 'intro_start')
+        intro_end = _get_explore_milestone(milestones, 'intro_end')
+        if intro_end > intro_start:
+            item.play_skips.append({'from': intro_start, 'to': intro_end})
+
+    if milestones and settings.getBool('skip_credits', False):
+        credits_start = _get_explore_milestone(milestones, 'up_next')
+        tag_start = _get_explore_milestone(milestones, 'tag_start')
+        tag_end = _get_explore_milestone(milestones, 'tag_end')
+        item.play_skips.append({'from': credits_start, 'to': tag_start})
+        if tag_end:
+            item.play_skips.append({'from': tag_end, 'to': 0})
+
+    #TODO: Upnext
+    #TODO: sync_playback
+    return item
 ### END EXPLORE ###

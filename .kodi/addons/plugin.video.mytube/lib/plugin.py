@@ -58,17 +58,28 @@ class MyPlugin(Plugin):
     # play ---------------------------------------------------------------------
 
     def playItem(
-        self, item, manifestType, mimeType=None, headers=None, params=None
+        self,
+        item,
+        manifestType,
+        mimeType=None,
+        language=None,
+        headers=None,
+        params=None
     ):
         #self.logger.info(
         #    f"playItem(item={item}, manifestType={manifestType}, "
-        #    f"mimeType={mimeType}, headers={headers}, params={params})"
+        #    f"mimeType={mimeType}, language={language}, "
+        #    f"headers={headers}, params={params})"
         #)
         if item:
             if not Helper(manifestType).check_inputstream():
                 return False
             item.setProperty("inputstream", "inputstream.adaptive")
             item.setProperty("inputstream.adaptive.manifest_type", manifestType)
+            if language:
+                item.setProperty(
+                    "inputstream.adaptive.original_audio_language", language
+                )
             if headers and isinstance(headers, dict):
                 item.setProperty(
                     "inputstream.adaptive.manifest_headers", urlencode(headers)
@@ -82,11 +93,11 @@ class MyPlugin(Plugin):
 
     @action()
     def play(self, **kwargs):
-        return self.playItem(
-            *self.__client__.video(
-                sb=getSetting("features.sponsorblock", bool), **kwargs
-            )
+        #self.logger.info(f"play(kwargs={kwargs})")
+        args, kwargs = self.__client__.video(
+            sb=getSetting("features.sponsorblock", bool), **kwargs
         )
+        return self.playItem(*args, **kwargs)
 
     # channel ------------------------------------------------------------------
 
