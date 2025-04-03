@@ -1,16 +1,14 @@
 <favourites>
-    <favourite name="Crunchyroll" thumb="/home/localhost/.kodi/addons/plugin.video.crunchyroll/icon.png">ActivateWindow(10025,"plugin://plugin.video.crunchyroll",return)</favourite>
     <favourite name="Netflix" thumb="https://github.com/CastagnaIT/repository.castagnait/raw/kodi/kodi19/plugin.video.netflix/resources/media/icon.png">RunAddon("plugin.video.netflix")</favourite>
     <favourite name="Disney+" thumb="https://slyguy.uk/.repo/repository.slyguy/slyguy.disney.plus/icon.png">RunAddon("slyguy.disney.plus")</favourite>
     <favourite name="Amazon VOD" thumb="https://raw.githubusercontent.com/Sandmann79/xbmc/master/packages-py3/plugin.video.amazon-test/icon.png">RunAddon("plugin.video.amazon-test")</favourite>
-    <favourite name="Twitch" thumb="http://mirrors.kodi.tv/addons/nexus/plugin.video.twitch/resources/media/icon.png">RunAddon("plugin.video.twitch")</favourite>
-    <favourite name="MUBI" thumb="/home/localhost/.kodi/addons/plugin.video.mubi/icon.png">ActivateWindow(10025,"plugin://plugin.video.mubi",return)</favourite>
-    <favourite name="MyTube" thumb="/home/localhost/.kodi/addons/plugin.video.mytube/resources/media/icon.png">ActivateWindow(10025,"plugin://plugin.video.mytube",return)</favourite>
-    <favourite name="ARTE.TV" thumb="https://repo.kodinerds.net/addons/matrix/zip/plugin.video.tyl0re.arte/resources/media/icon.png">RunAddon("plugin.video.tyl0re.arte")</favourite>
-    <favourite name="SoundCloud" thumb="/home/localhost/.kodi/addons/plugin.audio.soundcloud/resources/icon.png">ActivateWindow(10502,"plugin://plugin.audio.soundcloud",return)</favourite>
-    <favourite name="Spotify" thumb="/home/localhost/.kodi/addons/plugin.audio.spotify/resources/icon.png">ActivateWindow(10502,"plugin://plugin.audio.spotify",return)</favourite>
-    <favourite name="Music add-ons" thumb="DefaultAddonMusic.png">ActivateWindow(10040,"addons://all/xbmc.addon.audio",return)</favourite>
-    <favourite name="Video add-ons" thumb="DefaultAddonVideo.png">ActivateWindow(10040,"addons://all/xbmc.addon.video",return)</favourite>
-    <favourite name="Filmarkivet" thumb="/home/localhost/.kodi/addons/plugin.video.filmarkivet/resources/icon.png">ActivateWindow(10025,"plugin://plugin.video.filmarkivet",return)</favourite>
-    <favourite name="Nasa" thumb="/home/localhost/.kodi/addons/plugin.video.nasa/icon.png">ActivateWindow(10025,"plugin://plugin.video.nasa",return)</favourite>
+    <favourite name="Crunchyroll" thumb="/home/localhost/.var/app/tv.kodi.Kodi/data/addons/plugin.video.crunchyroll/icon.png">RunAddon("plugin.video.crunchyroll")</favourite>
+    <favourite name="more Music providers" thumb="DefaultAddonMusic.png">ActivateWindow(10040,"addons://all/xbmc.addon.audio",return)</favourite>
+    <favourite name="more Video providers" thumb="DefaultAddonVideo.png">ActivateWindow(10040,"addons://all/xbmc.addon.video",return)</favourite>
+    <favourite name="Twitch" thumb="/home/localhost/.var/app/tv.kodi.Kodi/data/addons/plugin.video.twitch/resources/media/icon.png">RunAddon("plugin.video.twitch")</favourite>
+    <favourite name="YouTube" thumb="/home/localhost/.var/app/tv.kodi.Kodi/data/addons/plugin.video.mytube/resources/media/icon.png">RunAddon("plugin.video.mytube")</favourite>
+    <favourite name="Filmarkivet" thumb="/home/localhost/.var/app/tv.kodi.Kodi/data/addons/plugin.video.filmarkivet/resources/icon.png">RunAddon("plugin.video.filmarkivet")</favourite>
+    <favourite name="MUBI" thumb="/home/localhost/.var/app/tv.kodi.Kodi/data/addons/plugin.video.mubi/icon.png">RunAddon("plugin.video.mubi")</favourite>
+    <favourite name="Arte Concert" thumb="/home/localhost/.var/app/tv.kodi.Kodi/data/addons/plugin.audio.arteconcert/resources/icon.png">RunAddon("plugin.audio.arteconcert")</favourite>
+    <favourite name="Nasa" thumb="/home/localhost/.var/app/tv.kodi.Kodi/data/addons/plugin.video.nasa/icon.png">RunAddon("plugin.video.nasa")</favourite>
 </favourites>

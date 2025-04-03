@@ -25,7 +25,7 @@ def ided(idKey):
 class MyBrowse(object):
 
     def __init__(self, logger, session):
-        self.logger = logger.getLogger(f"{logger.component}.browse")
+        self.logger = logger.getLogger(component="browse")
         self.__session__ = session
 
     def __setup__(self):

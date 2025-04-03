@@ -53,7 +53,7 @@ __queryParams__ = {
 class MySearch(object):
 
     def __init__(self, logger, session):
-        self.logger = logger.getLogger(f"{logger.component}.search")
+        self.logger = logger.getLogger(component="search")
         self.__session__ = session
         self.__queries__ = MySearchHistory()
         self.__cache__ = deque()

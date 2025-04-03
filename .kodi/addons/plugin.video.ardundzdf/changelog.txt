@@ -10,6 +10,56 @@ CHANGE HISTORY
 			max_col 97	
 --------------
 
+30.03.2025 	5.2.1
+			Main_ZDF: Menüpunkt und Funktionen ZDF_Bildgalerien, ZDF_BildgalerieSingle, 
+			ZDF_BilderCollect nach Einstellung durch ZDF entfernt. 
+			getRedirect (Modul util): Verlagerung httplib-Import zum Modulkopf (häufige 
+			Kodi-Abstürze bei Import in getRedirect).
+			Anpassungen nach ZDF-Relaunch: get_summary_pre (getRedirect, Auswertung summ
+			erneuert), ZDF_get_content und ZDF_getApiStreams (Korrektur sharingUrl),
+			Modul EPG (Korrektur sharingUrl, Abgleich Textlängen).
+			ZDF_get_teaserbox: entfernt (obsolet).
+			ARD_FlatListRec (ARDnew): mehrfache Klammern bei Staffel-/Folge-Erkennung
+			berücksichtigt.
+			EPG_ShowSumm (Modul EPG): Hochkommta in Titel entfernt.
+			ARD_FlatListEpisodes: Url-Korrekturen (path.replace: embedded, pages, 
+			grouping) für vollständiges Serien-Listing.  
+			get_ZDFstreamlinks (Modul util): nach ZDF-Relaunch erneuert (apiToken aus
+			Webseite, ptmd-Url's hartkodiert).
+			arte-Modul: Umstellung auf HBBTV-api außer "Neueste Videos" und Suche (beide
+			api rproxy/emac/v4), Kopfdokus vor 2023 im Addon entfernt, Funktionen
+			ArteCluster und get_cluster entfernt.		
+
+15.03.2025 	5.2.0
+			ArteCluster: Url-Korrektur für Arte Concert (Redirect-Error für 
+			../de/videos/arte-concert/)
+			get_live_data (Modul arte): Nutzung EPG_Today, Anpassungen in 
+			get_live_data, EPG_Today (mode="onlyPage"), GetContent (OnlyNow=True, 
+			found_stickers). 
+			get_ArtePage: json-error abgefangen (relevant für www.arte.tv/de/live),
+			leeres bytes-like object abgefangen.
+			getRedirect (Modul util): Abfangen HTTP-Error 309-399 (nicht zugewiesen), 
+			relevant für arte.EPG_Today ("Error 309: Unknown").
+			url_check (Modul util): Header für Aufruf getRedirect auf user-agent (curl)
+			beschränkt, relevant für arte.EPG_Today (s.o.).	
+
+09.03.2025	5.1.9
+			ARDSearchnew, SearchARDundZDFnew (ARDnew): Such-Url durch ARD geändert: 
+			Zusatz platform=MEDIA_THEK.
+			get_next_url (Modul arte): zusätzl. Serverangabe "api-cdn.arte.tv" nach 
+			Ersetzung durch "www.arte.tv" entfernt (next_url betroffen).
+			get_ArtePage (Modul arte): Verzicht auf GetOnlyRedirect vor Seitenabruf
+			(Absturz nach mehrfachem HTTP Error 308 bei ../arte-concert).
+			ZDF-Bilderserien: Auswertung neues Datenformat bei zdfheute - neue
+			Funktion ZDF_BilderCollect.
+			thread_getpic: linken Rand (20 Pixel) für Wasserzeichen in Bilderserien
+			hinzugefügt.
+			XL_BilderClusterSingle (Modul TagesschauXL): Anpassung an geänderte Bild-
+			quelle.
+			Audio_get_items_single: HTML-Escapezeichen in Infotext entfernt (unescape).
+			Modul childs: Download KiKA-Mal-/Bastel-Bilder (PDF-Format) ergänzt - neue 
+			Funktion Kika_Malbilder + Kika_downl_PDF.
+
 05.02.2025	5.1.8
 			SingleVideo (Modul arte): Error-Handling für HBBTV-MP4-Quellen (leere Params
 			bei json_error_path2).

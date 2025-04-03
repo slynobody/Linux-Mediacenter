@@ -17,7 +17,7 @@ from mytube.persistence import MyNavigationHistory
 class MyClient(object):
 
     def __init__(self, logger):
-        self.logger = logger.getLogger(f"{logger.component}.client")
+        self.logger = logger.getLogger(component="client")
         self.__client__ = Client()
         self.__history__ = MyNavigationHistory()
 
@@ -30,7 +30,8 @@ class MyClient(object):
             if (item and sb and addonIsEnabled("service.sponsorblock")):
                 item.setProperty("SB:videoID", video["videoId"])
             return (
-                (item, video["manifestType"]), {"language": video["language"]}
+                (item, video["manifestType"]),
+                {"mimeType": video["mimeType"], "language": video["language"]}
             )
         return ((None, None), {})
 

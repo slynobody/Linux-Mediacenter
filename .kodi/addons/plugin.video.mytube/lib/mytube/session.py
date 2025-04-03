@@ -184,7 +184,7 @@ def cached(name):
 class MySession(__MySession__):
 
     def __init__(self, logger):
-        self.logger = logger.getLogger(f"{logger.component}.session")
+        self.logger = logger.getLogger(component="session")
         super(MySession, self).__init__()
         self.__pool__ = ThreadPoolExecutor()
         self.__ytdlp__ = MyYtDlp(self.logger)

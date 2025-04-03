@@ -22,7 +22,7 @@
     <setting id="locale.activekeyboardlayout" default="true">English QWERTY</setting>
     <setting id="locale.country" default="true">USA (12h)</setting>
     <setting id="locale.timezonecountry">France</setting>
-    <setting id="locale.timezone" default="true">Europe/Berlin</setting>
+    <setting id="locale.timezone">Europe/Paris</setting>
     <setting id="locale.shortdateformat" default="true">regional</setting>
     <setting id="locale.longdateformat" default="true">regional</setting>
     <setting id="locale.timeformat" default="true">regional</setting>
@@ -335,22 +335,22 @@
     <setting id="videoscreen.stereoscopicmode" default="true">0</setting>
     <setting id="videoscreen.preferedstereoscopicmode" default="true">100</setting>
     <setting id="videoscreen.noofbuffers" default="true">3</setting>
-    <setting id="audiooutput.audiodevice">PIPEWIRE:Default|Default Output Device (PIPEWIRE)</setting>
+    <setting id="audiooutput.audiodevice">ALSA:default|Default ALSA Output (currently PulseAudio Sound Server)</setting>
     <setting id="audiooutput.channels">10</setting>
     <setting id="audiooutput.config" default="true">2</setting>
     <setting id="audiooutput.volumesteps" default="true">90</setting>
     <setting id="audiooutput.maintainoriginalvolume">false</setting>
-    <setting id="audiooutput.stereoupmix" default="true">false</setting>
+    <setting id="audiooutput.stereoupmix">true</setting>
     <setting id="audiooutput.processquality">50</setting>
     <setting id="audiooutput.atempothreshold" default="true">2</setting>
     <setting id="audiooutput.samplerate" default="true">48000</setting>
     <setting id="audiooutput.streamsilence" default="true">1</setting>
     <setting id="audiooutput.streamnoise" default="true">true</setting>
     <setting id="audiooutput.guisoundmode">0</setting>
-    <setting id="audiooutput.guisoundvolume" default="true">100</setting>
+    <setting id="audiooutput.guisoundvolume">50</setting>
     <setting id="lookandfeel.soundskin" default="true">resource.uisounds.kodi</setting>
     <setting id="audiooutput.passthrough" default="true">false</setting>
-    <setting id="audiooutput.passthroughdevice" default="true">Default</setting>
+    <setting id="audiooutput.passthroughdevice">ALSA:hdmi:CARD=HDMI,DEV=0|HDA ATI</setting>
     <setting id="audiooutput.ac3passthrough" default="true">true</setting>
     <setting id="audiooutput.ac3transcode" default="true">false</setting>
     <setting id="audiooutput.eac3passthrough" default="true">false</setting>
@@ -377,8 +377,8 @@
     <setting id="powermanagement.waitfornetwork" default="true">0</setting>
     <setting id="powermanagement.wakeonaccess" default="true">false</setting>
     <setting id="general.addonupdates">2</setting>
-    <setting id="general.addonnotifications" default="true">false</setting>
-    <setting id="addons.unknownsources">true</setting>
+    <setting id="general.addonnotifications">true</setting>
+    <setting id="addons.unknownsources" default="true">false</setting>
     <setting id="addons.updatemode">1</setting>
     <setting id="debug.showloginfo" default="true">false</setting>
     <setting id="debug.extralogging" default="true">false</setting>
@@ -509,7 +509,7 @@
             <level>0</level>
             <showhigherlevels>true</showhigherlevels>
         </eventlog>
-        <systemtotaluptime>105</systemtotaluptime>
+        <systemtotaluptime>111</systemtotaluptime>
     </general>
     <resolutions />
     <defaultvideosettings>

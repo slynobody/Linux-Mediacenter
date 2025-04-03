@@ -214,4 +214,6 @@ class Logger(object):
     def getLogger(self, component=""):
         if component == self.component:
             return self
+        if self.component:
+            component = f"{self.component}.{component}"
         return Logger(self.id, component=component)

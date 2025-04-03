@@ -1,4 +1,5 @@
 import os
+import sys
 
 from kodi_six import xbmc, xbmcaddon
 
@@ -18,6 +19,8 @@ REPO_ADDON_ID = 'repository.slyguy'
 DEPENDENCIES_ADDON_ID = 'slyguy.dependencies'
 COMMON_ADDON_ID = 'script.module.slyguy'
 COMMON_ADDON = xbmcaddon.Addon(COMMON_ADDON_ID)
+IS_ANDROID = xbmc.getCondVisibility('System.Platform.Android')
+IS_PYTHON3 = sys.version_info[0] > 2
 
 try: KODI_VERSION = int(xbmc.getInfoLabel("System.BuildVersion").split('.')[0])
 except: KODI_VERSION = 18
@@ -146,3 +149,7 @@ MAX_QUALITY_HISTORY = 10
 MIDDLEWARE_CONVERT_SUB = 'convert_sub'
 MIDDLEWARE_REGEX = 'regex'
 MIDDLEWARE_PLUGIN = 'plugin'
+
+### TRAILERS ###
+YOTUBE_PLUGIN_ID = 'plugin.video.youtube'
+MDBLIST_API_KEY = 'tliqxfv0tg537ff7xyqkv7tug'

@@ -254,7 +254,11 @@ class Item(object):
                 self.properties['IsPlayable'] = 'true'
                 if self.path:
                     self.path = add_url_args(self.path, _play=1)
-                if KODI_VERSION < 20 or ROUTE_LIVE_TAG not in self.path:
+
+                # Kodi 21 and up correct for both
+                # Kodi 20 correct for PVR. Needs for vod
+                # Kodi 19 and below needs for both
+                if KODI_VERSION < 21 and (ROUTE_LIVE_TAG not in self.path or KODI_VERSION < 20):
                     # PlayNext added in Kodi 18
                     if KODI_VERSION > 17:
                         context_items.append((_.PLAY_NEXT, 'Action(PlayNext)'))
@@ -299,7 +303,12 @@ class Item(object):
         def get_url(url, plugin_proxy=False):
             _url = url.lower()
 
-            if os.path.exists(xbmc.translatePath(url)) or _url.startswith('special://') or (plugin_proxy and _url.startswith('plugin://')) or (is_http(_url) and self.use_proxy and not _url.startswith(proxy_path)) and settings.getBool('proxy_enabled', True):
+            if os.path.exists(xbmc.translatePath(url)):
+                # local path that isnt a supported manifest (eg. a mp4 trailer)
+                if not _url.endswith(('.mpd', '.m3u8', '.m3u', '.ism')):
+                    return url
+
+            if _url.startswith('special://') or (plugin_proxy and _url.startswith('plugin://')) or (is_http(_url) and self.use_proxy and not _url.startswith(proxy_path)) and settings.getBool('proxy_enabled', True):
                 url = u'{}{}'.format(proxy_path, url)
 
             return url

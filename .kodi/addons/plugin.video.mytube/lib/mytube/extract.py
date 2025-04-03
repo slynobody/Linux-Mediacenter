@@ -243,11 +243,22 @@ def renderLockupViewModel(obj):
         "text",
         default={}
     )
-    yield dict(
-        extractLockupViewModel(obj),
-        channelId=channelParts["commandRuns"][0]["onTap"]["innertubeCommand"]["browseEndpoint"]["browseId"],
-        channel=channelParts["content"]
-    )
+    if (
+        channelId := traverse(
+            channelParts,
+            "commandRuns",
+            0,
+            "onTap",
+            "innertubeCommand",
+            "browseEndpoint",
+            "browseId"
+        )
+    ):
+        yield dict(
+            extractLockupViewModel(obj),
+            channelId=channelId,
+            channel=channelParts["content"]
+        )
 
 __renderers__ = {
     "videoRenderer": renderVideo,
@@ -493,6 +504,7 @@ class __MyYtDlpVideo__(__MyVideo__):
             duration=info["duration"],
             url=(info.get("url") or None),
             manifestType=(info.get("manifestType") or None),
+            mimeType=(info.get("mimeType") or None),
             language=(info.get("language") or None),
             **kwargs
         )

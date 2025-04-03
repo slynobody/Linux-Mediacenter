@@ -1,5 +1,6 @@
 # service.manifests.mpd
 
+Kodi service for MPEG-DASH manifests.
 
 ### USAGE:
 

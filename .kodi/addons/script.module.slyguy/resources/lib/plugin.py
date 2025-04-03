@@ -1,11 +1,11 @@
 import re
 
 from kodi_six import xbmc, xbmcaddon
-from six.moves.urllib_parse import urlparse
 
 from slyguy import plugin, gui, _
 from slyguy.settings.types import STORAGE
 from slyguy.util import get_kodi_setting, get_addon
+from slyguy.yt import li_trailer
 from slyguy.constants import ROUTE_CONTEXT, ROUTE_SETTINGS, ADDON_NAME
 
 from .util import check_updates, get_slyguy_addons
@@ -36,35 +36,10 @@ def home(**kwargs):
 
     return folder
 
+
 @plugin.route(ROUTE_CONTEXT)
-def context(listitem, **kwargs):
-    vid_tag = listitem.getVideoInfoTag()
-    trailer_path = vid_tag.getTrailer()
-
-    parsed = urlparse(trailer_path)
-    if parsed.scheme.lower() == 'plugin':
-        addon_id = parsed.netloc
-        get_addon(addon_id, required=True)
-
-    li = plugin.Item(path=trailer_path)
-    li.label = u"{} ({})".format(listitem.getLabel(), _.TRAILER)
-    li.info = {
-        'plot': vid_tag.getPlot(),
-        'tagline': vid_tag.getTagLine(),
-        'year': vid_tag.getYear(),
-        'mediatype': vid_tag.getMediaType(),
-    }
-
-    try:
-        # v20+
-        li.info['genre'] = vid_tag.getGenres()
-    except AttributeError:
-        li.info['genre'] = vid_tag.getGenre()
-
-    for key in ['thumb','poster','banner','fanart','clearart','clearlogo','landscape','icon']:
-        li.art[key] = listitem.getArt(key)
-
-    return li
+def trailer(listitem, **kwargs):
+    return li_trailer(listitem)
 
 
 @plugin.route()

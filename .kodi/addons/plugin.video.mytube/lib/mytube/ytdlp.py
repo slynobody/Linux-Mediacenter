@@ -27,7 +27,7 @@ class MyYtDlp(object):
     }
 
     def __init__(self, logger):
-        self.logger = logger.getLogger(f"{logger.component}.ytdlp")
+        self.logger = logger.getLogger(component="ytdlp")
         self.__infos__ = YoutubeDL()
         self.__client__ = Client(self.__service_id__)
 

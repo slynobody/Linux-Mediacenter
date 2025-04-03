@@ -78,7 +78,7 @@ Funktionen:
 - für die Aufnahmefunktion (mit oder ohne EPG) ist eine [ffmpeg-Installation](https://ffmpeg.org/download.html) erforderlich 
 
 #### Radio-Live-Streams der ARD:
-- alle Radiosender von Bayern, HR, mdr, NDR, Radio Bremen, RBB, SR, SWR, WDR, Deutschlandfunk. Insgesamt 10 Stationen, 65 Sender
+- alle Radiosender von Bayern, HR, mdr, NDR, Radio Bremen, RBB, SR, SWR, WDR, Deutschlandfunk. Insgesamt 10 Stationen, 65 Sender plus regionale Sender (z.B. hr1-Rhein-Main, -Südhessen, -Osthessen, -Nordhessen, -Mittelhessen) 
  
 #### Videobehandlung (Setting: Sofortstart AUS):
 - Livestreams: Auflistung der verfügbaren Angebote an Bandbreiten + Auflösungen (falls verfügbar: Audio ohne Video)
@@ -90,7 +90,7 @@ Funktionen:
 - Download von Videos in den Modulen arte, 3Sat, TagesschauXL, phoenix, Kinderprogramme
 - Download von Podcasts - bei Podcast-Favoriten zusätzlich Sammeldownloads (angezeigte Liste der Beiträge)
 
-#### [Addon-Tools](https://github.com/rols1/Kodi-Addon-ARDundZDF/wiki/11.-Tools-Modul)
+#### [Addon-Tools](https://github.com/rols1/Kodi-Addon-ARDundZDF/wiki/11.-Tools-Modul) - gekürzte Liste
 - [Änderungsliste: Addon-Infos mit Angaben zum System, Cache, zu Dateipfaden und Modulen](https://github.com/rols1/Kodi-Addon-ARDundZDF/wiki/11.-Tools-Modul#1-%C3%A4nderungsliste)
 - ["Zuletzt gesehen"-Liste](https://github.com/rols1/Kodi-Addon-ARDundZDF/wiki/11.-Tools-Modul#3-zuletzt-gesehen)
 - [Tools zum Bearbeiten von Ausschluss-Filtern (ARD, ZDF)](https://github.com/rols1/Kodi-Addon-ARDundZDF/wiki/11.-Tools-Modul#4-filter-bearbeiten)

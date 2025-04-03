@@ -27,9 +27,10 @@ except ImportError:
     import pickle
 
 try:
-    from urllib.parse import quote_plus, unquote_plus
+    from urllib.parse import quote_plus, unquote_plus, parse_qs, urlparse
 except ImportError:
     from urllib import quote_plus, unquote_plus
+    from urlparse import parse_qs, urlparse
 
 
 class PrimeVideo(Singleton):
@@ -916,10 +917,11 @@ class PrimeVideo(Singleton):
                     return False
 
             # Video/season/movie data are in the `state` field of the response
-            if 'state' not in data:
+            if 'state' not in data and 'widgets' not in data:
                 return False
 
-            state = data['state']  # Video info
+            state = data['state' if 'state' in data else 'widgets']  # Video info
+            title_id = state['pageContext']['pageTitleId']
             GTIs = []  # List of inserted GTIs
             parents = {}  # Map of parents
             bUpdated = False  # Video data updated
@@ -936,7 +938,7 @@ class PrimeVideo(Singleton):
                             state['self'][gti].update({'compactGTI': cgti, 'asins': [cgti], 'link': lnk, 'titleType': 'season', 'gti': gti, })
                 del state['seasons']
 
-            if oid not in state['self']:
+            if ('self' in state) and (oid not in state['self']):
                 res = [x for x in state['self'] if oid in (state['self'][x].get('compactGTI', '') if self._g.UsePrimeVideo else state['self'][x].get('asins', ''))]
                 if len(res) > 1:
                     oid = res[0]
@@ -1008,7 +1010,7 @@ class PrimeVideo(Singleton):
                     s = state['self'][gti]
                     gti = s['gti'] if self._g.UsePrimeVideo else gti
                     if gti not in self._videodata:
-                        o[gti] = {('ref' if state['pageTitleId'] == gti else 'lazyLoadURL'): s['link']}
+                        o[gti] = {('ref' if title_id == gti else 'lazyLoadURL'): s['link']}
                         self._videodata[gti] = {'ref': s['link'], 'children': [], 'siblings': []}
                         bUpdated = True
                     else:
@@ -1032,16 +1034,25 @@ class PrimeVideo(Singleton):
             # Episodes lists
             episodes = state.get('collections', {})
             if 'episodeList' in state:
-                episodes = {state['pageTitleId']: [state['episodeList']]}
+                episodes = {title_id: [state['episodeList']]}
+                if 'actions' in state['episodeList'] and 'pagination' in state['episodeList']['actions']:
+                    for next_epi in state['episodeList']['actions']['pagination']:
+                        if next_epi['tokenType'].lower() == 'nextpage':
+                            next_url = '/gp/video/api/getDetailWidgets?titleID={}&isTvodOnRow=&widgets=%5B%7B%22widgetType%22%3A%22EpisodeList%22%2C%22widgetToken%22%3A%22{}%22%7D%5D'.format(title_id, next_epi['token'])
+                            requestURLs.append(next_url)
             # "collections": {"amzn1.dv.gti.[…]": [{"titleIds": ["amzn1.dv.gti.[…]", "amzn1.dv.gti.[…]"]}]}
             # "collections": {"amzn1.dv.gti.[…]": [{"cardTitleIds": ["amzn1.dv.gti.[…]", "amzn1.dv.gti.[…]"]}]}
             # "episodeList": {"cardTitleIds": ["amzn1.dv.gti.[…]", "amzn1.dv.gti.[…]"]}
             for gti, lc in episodes.items():
                 for le in lc:
-                    for e in le.get('titleIds', le.get('cardTitleIds', [])):
+                    for e in le.get('titleIds', le.get('cardTitleIds', le.get('episodes', []))):
+                        if isinstance(e, dict):
+                            state['detail'] = {e['titleID']: e['detail']}
+                            e = e['titleID']
                         GTIs.append(e)
                         # Save parent/children relationships
                         parents[e] = gti
+                        Log(e)
                         if gti in self._videodata and e not in self._videodata[gti]['children']:
                             self._videodata[gti]['children'].append(e)
                             bUpdated = True
@@ -1051,7 +1062,7 @@ class PrimeVideo(Singleton):
                 return bUpdated
 
             if urn not in self._videodata['urn2gti']:
-                self._videodata['urn2gti'][urn] = state['pageTitleId']
+                self._videodata['urn2gti'][urn] = title_id
 
             # Both of these versions have been spotted in the wild
             # { "detail": { "headerDetail": {…}, "amzn1.dv.gti.[…]": {…} }
@@ -1100,7 +1111,7 @@ class PrimeVideo(Singleton):
 
                 # add missing episodes infos from season or self.gti
                 if titleType == 'episode' and 'episodeNumber' not in item:
-                    seasonDetails = details[state['pageTitleId']]
+                    seasonDetails = details[title_id]
                     if gti in state['self']:
                         item['episodeNumber'] = state['self'][gti].get('sequenceNumber', 0)
                     for titleinfo in ['amazonRating', 'contributors', 'genres', 'ratingBadge', 'studios', 'seasonNumber']:
@@ -1426,7 +1437,7 @@ class PrimeVideo(Singleton):
 
                 # Single page
                 bSinglePage = False
-                if 'state' in cnt:
+                if 'state' in cnt or 'widgets' in cnt:
                     bSinglePage = True
                     bUpdatedVideoData |= ParseSinglePage(breadcrumb[-1], o, bCacheRefresh, data=cnt, url=requestURL)
                 # Pagination
@@ -1450,7 +1461,14 @@ class PrimeVideo(Singleton):
                                 q = cnt['pagination']['queryParameters']
                                 q = {k.replace('content', 'page') if k in ['contentId', 'contentType'] else k: v for k, v in q.items()}
                                 q.update({'isCleanSlateActive': '1', 'isDiscoverActive': '1', 'isLivePageActive': '1', 'variant': 'desktopWindows', 'payloadScheme': 'default'})
-                                t = json.loads(base64.b64decode(q['serviceToken']))
+                                try:
+                                    t = json.loads(base64.b64decode(q['serviceToken']))
+                                except:
+                                    t = ''
+                                    if cnt['pagination'].get('url') is not None:
+                                        u_parse = urlparse(cnt['pagination']['url'])
+                                        u_query = parse_qs(u_parse.query)
+                                        t = json.loads(base64.b64decode(u_query['serviceToken'][0]))
                                 if 'type' in t and 'vpage' in t['type']:
                                     nextPage = '/gp/video/api/getLandingPage?' + urlencode(q, doseq=True)
                                 else:

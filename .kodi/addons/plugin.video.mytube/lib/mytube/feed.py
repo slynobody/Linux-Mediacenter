@@ -16,7 +16,7 @@ from mytube.utils import confirm
 class MyFeed(object):
 
     def __init__(self, logger, session, timeout=1800):
-        self.logger = logger.getLogger(f"{logger.component}.feed")
+        self.logger = logger.getLogger(component="feed")
         self.__session__ = session
         self.__timeout__ = timeout
         self.__channels__ = MyFeedChannels()

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="script.module.slyguy" name="SlyGuy Common" provider-name="SlyGuy" version="0.85.63">
+<addon id="script.module.slyguy" name="SlyGuy Common" provider-name="SlyGuy" version="0.85.79">
   <requires>
-    <import addon="slyguy.dependencies" version="0.0.20"/>
+    <import addon="slyguy.dependencies" version="0.0.24"/>
     <import addon="repository.slyguy" version="0.0.9"/>
   </requires>
   <extension point="xbmc.python.pluginsource" library="default.py">
@@ -12,7 +12,11 @@
     <menu id="kodi.core.main">
       <item library="default.py">
         <label>$LOCALIZE[20410]</label>
-        <visible>!String.IsEmpty(ListItem.Trailer) + ![String.StartsWith(Container.FolderPath,plugin://) + String.Contains(Container.FolderPath,trailer)] + Integer.IsEqual(Window(10000).Property(_slyguy_trailer_context_menu),1)</visible>
+        <visible>[!String.IsEmpty(ListItem.Trailer) + ![String.StartsWith(Container.FolderPath,plugin://) + String.Contains(Container.FolderPath,trailer)] + Integer.IsGreaterOrEqual(Window(10000).Property(_slyguy_trailer_context_menu),1)] |
+                 [[!String.IsEmpty(ListItem.IMDBNumber) | !String.IsEmpty(ListItem.UniqueID())] + [String.IsEqual(ListItem.DBType,movie) | String.IsEqual(ListItem.DBType,tvshow)] + Integer.IsGreaterOrEqual(Window(10000).Property(_slyguy_trailer_context_menu),2)] |
+                 [!String.IsEmpty(ListItem.Label) + !String.IsEmpty(ListItem.Year) + [String.IsEqual(ListItem.DBType,movie) | String.IsEqual(ListItem.DBType,tvshow)] + Integer.IsGreaterOrEqual(Window(10000).Property(_slyguy_trailer_context_menu),3)] |
+                 [[String.IsEqual(ListItem.DBType,movie) | String.IsEqual(ListItem.DBType,tvshow)] + Integer.IsGreaterOrEqual(Window(10000).Property(_slyguy_trailer_context_menu),4)]
+        </visible>
       </item>
     </menu>
   </extension>
@@ -23,7 +27,7 @@
     <license></license>
     <language></language>
     <website></website>
-    <news>Move userdata and bookmarks into settings!</news>
+    <news>Support local trailers when using trailer context menu</news>
     <assets>
       <icon>icon.png</icon>
       <fanart>fanart.jpg</fanart>

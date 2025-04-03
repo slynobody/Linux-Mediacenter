@@ -111,6 +111,8 @@ class RequestHandler(BaseHTTPRequestHandler):
 
 class Server(HTTPServer):
 
+    __url_fmt__ = "http://{}:{}"
+
     @staticmethod
     def __localhost__():
         with socket(AF_INET, SOCK_STREAM) as s:
@@ -128,16 +130,15 @@ class Server(HTTPServer):
                 yield (path, method.__http_command__, method)
 
     def __init__(self, id, logger=None, timeout=-1, handler=RequestHandler):
-        component = ["httpd"]
-        if logger: component.insert(0, logger.component)
-        self.logger = Logger(id, component=".".join(component))
+        self.logger = logger or Logger(id, component="httpd")
         self.timeout = None if timeout < 0 else timeout
         self.methods = {}
         for path, command, method in self.__methods__(self):
             self.methods.setdefault(path, {})[command] = method
         handler.server_version = f"{id}/{getAddonVersion()}"
         super(Server, self).__init__(self.__localhost__(), handler)
-        self.logger.info(f"started on: {self.server_address}")
+        self.url = self.__url_fmt__.format(*self.server_address)
+        self.logger.info(f"started on: {self.url}")
 
     def server_close(self):
         self.socket.shutdown(SHUT_RDWR)

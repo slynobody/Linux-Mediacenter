@@ -11,8 +11,8 @@
 #	02.11.2019 Migration Python3 Modul future
 #	17.11.2019 Migration Python3 Modul kodi_six + manuelle Anpassungen
 # 	
-# 	<nr>118</nr>										# Numerierung für Einzelupdate
-#	Stand: 15.01.2025
+# 	<nr>125</nr>										# Numerierung für Einzelupdate
+#	Stand: 23.03.2025
 
 # Python3-Kompatibilität:
 from __future__ import absolute_import
@@ -41,7 +41,10 @@ elif PYTHON3:
 	except:
 		pass
 
-	
+try:
+	import httplib2			# https://httplib2.readthedocs.io/en/latest/libhttplib2.html
+except:
+	httplib2=""	
 import time, datetime
 from time import sleep  # PlayVideo
 
@@ -793,7 +796,7 @@ def addDir(li, label, action, dirID, fanart, thumb, fparams, summary='', tagline
 				org, org_id  = item.split("|")
 				if org in fparams:
 					break
-			if org_id and EPG_ID == "":									# nicht bei Livestreams
+			if org_id and EPG_ID == "":									# Inhaltstext nicht bei Livestreams
 				try:
 					s = fparams.split("&fparams=")[1]
 					json_string = s.replace("'", "\"")
@@ -1127,7 +1130,7 @@ def get_page(path, header='', cTimeout=None, JsonPage=False, GetOnlyRedirect=Fal
 
 	try:															# 1. Versuch ohne SSLContext 
 		PLog("get_page1:")
-		if GetOnlyRedirect:											# nur Redirect anfordern - hier nur dummy
+		if GetOnlyRedirect:											# nur Redirect anfordern
 			PLog('GetOnlyRedirect: ' + str(GetOnlyRedirect))
 			page, msg = getRedirect(path, header)
 			return page, msg
@@ -1138,7 +1141,7 @@ def get_page(path, header='', cTimeout=None, JsonPage=False, GetOnlyRedirect=Fal
 			req = Request(path)
 		
 		r = urlopen(req, timeout=UrlopenTimeout)					# float-Werte möglich
-		new_url = r.geturl()										# follow redirects
+		# new_url = r.geturl()										# follow redirects
 		PLog("new_url: " + new_url)									# -> msg s.u.
 		# PLog("headers: " + str(r.headers))
 		
@@ -1213,6 +1216,7 @@ def get_page(path, header='', cTimeout=None, JsonPage=False, GetOnlyRedirect=Fal
 					f = gzip.GzipFile(fileobj=buf)
 					page = f.read()
 					PLog(len(page))
+
 				if PYTHON2:			
 					page = py2_decode(page)								# erzeugt bei PY3 Bytestrings (ARD)
 				else:
@@ -1257,9 +1261,11 @@ def getHeaders(response):						# z.Z.  nicht genutzt
 #	Versuch in get_page (get_page3) mit requests (falls vorh.)
 #   Für PYTHON3 bei Redirect-Errors Umstellung auf httplib2.
 #	Debug 308_Error: www.ardaudiothek.de/rubrik/42914694 (ohne /-Ende)
+# 12.03.2025 für arte.EPG_Today: Check auf Error 309-399
 #	
 def getRedirect(path, header=""):		
 	PLog('getRedirect: '+ path)
+	PLog("header: " + str(header))
 	page=""; msg=""
 	parsed = urlparse(path)
 
@@ -1276,30 +1282,41 @@ def getRedirect(path, header=""):
 		return new_url, msg
 	except Exception as e:
 		PLog("redirect_error: "  + str(e))
-		try:
-			if "308:" in str(e) or "307:" in str(e) or "301:" in str(e):	# Permanent-Redirect-Url
-				if PYTHON2:											# -> get_page (s.o.)
+		err=str(e)		
+		
+	try:
+		PLog("analyze_http_error:")
+		err = re.search(r'HTTP Error (\d+):', err).group(1)
+		err = int(err)
+		if err >= 309 and err <= 399:							#  Die Statuscodes 309 bis 399 nicht zugewiesen
+			PLog("ignore_309_to_399")
+			return path, msg
+		PLog(str(err))
+		if "308" in str(err) or "307" in str(err) or "301" in str(err):	# Permanent-Redirect-Url
+			if PYTHON2:											# -> get_page (s.o.)
+				PLog("PY2_give_up")
+				return path, msg
+			else:
+				if httplib2 == "":								# nicht geladen?
 					return path, msg
-				else:
-					# https://httplib2.readthedocs.io/en/latest/libhttplib2.html
-					import httplib2
-					h = httplib2.Http()								# class httplib2.Http, Cache nicht erford.
-					h.follow_all_redirects = True
-					r = h.request(path, "GET")[0]
-					new_url = r['content-location']
-					PLog("httplib2_url: " + new_url)
-					parsed = urlparse(path)
-					if new_url.startswith("http") == False:			# s.o.
-						new_url = 'https://%s%s' % (parsed.netloc, new_url)
-						PLog("HTTP308_301_new_url: " + new_url)
-					if path.find(new_url) == 0:		# Debug
-						PLog("same_new_url_path: " + new_url) 
-					return new_url, msg
-
-		except Exception as e:
-			PLog("r_error: "  + str(e))
-			PLog(str(e))
-			page=path, msg=str(e)									# Fallback
+				# import httplib2								# s. Modulkopf, hier häufige Kodi-Abstürze
+				h = httplib2.Http()								# class httplib2.Http, Cache nicht erford.
+				h.follow_all_redirects = True
+				r = h.request(path, "GET")[0]
+				new_url = r['content-location']
+				PLog("httplib2_url: " + new_url)
+				PLog(type(new_url)); PLog(new_url)
+				PLog(parsed.netloc)
+				if new_url.startswith("http") == False:			# s.o.
+					new_url = 'https://%s%s' % (parsed.netloc, new_url)
+					PLog("HTTP308_301_new_url: " + new_url)
+				if path in new_url:		# Debug
+					PLog("same_new_url_path: " + new_url) 
+				return new_url, msg
+	except Exception as e:
+		PLog("r_error: "  + str(e))
+		PLog(str(e))
+		page=path, msg=str(e)									# Fallback übergebener path
 
 	return page, msg	
 	
@@ -1517,7 +1534,7 @@ def repl_dop(liste):
 def repl_json_chars(line):	
 	line_ret = line
 	#PLog(type(line_ret))
-	for r in	((u'"', u''), (u'\\', u''), (u'\'', u''), (u'%5C', u'')
+	for r in	((u'"', u''), (u"'", ''), (u'\\', u''), (u'\'', u''), (u'%5C', u'')
 		, (u'&', u'und'), ('(u', u'<'), (u'(', u'<'),  (u')', u'>'), (u'∙', u'|')
 		, (u'„', u'>'), (u'“', u'<'), (u'”', u'>'),(u'°', u' Grad'), (u'u00b0', u' Grad')
 		, (u'\r', u''), (u'#', u'*'), (u'u003e', u''), (u'❤', u'love'), (u'%C3%A9', u'é')		# u'u003e' 	-> u'®'
@@ -1876,7 +1893,7 @@ def wrap_old(text, width):		# 15.02.2020 abgelöst durch wrap s.u.
                    word),
                   text.split(' ')
                  )
-#  wrap-Funktion ohne reduce:                
+#  wrap-Funktion ohne reduce:
 def wrap(text, width):
 	text = text.strip()
 	lines = text.splitlines()
@@ -2436,6 +2453,7 @@ def ReadJobs():
 #					ARDPagination -> get_page_content
 #					ARDStartRubrik (Swiper) 
 #					ARDVerpasstContent
+#					Kontextmenü seit V5.1.6 via EPG-Modul (Anzeige textviewer)
 #			
 # Aufruf erfolgt, wenn für eine Sendung kein summary (teasertext, descr, ..) gefunden wird.
 #
@@ -2452,11 +2470,15 @@ def ReadJobs():
 # 11.05.2023 postcontent (ZDF, 3sat) hinzugefügt
 # 08.10.2024 Änderung Cache-Format - nur noch Inhalt summary (Start mit "V5.1.2_summ:"),
 #	Param page entfernt (obsolet)
+# 19.03.2025 getRedirect (nach ZDF-Relaunch für geänderte Weblinks notwendig)
 #
 def get_summary_pre(path,ID='ZDF',skip_verf=False,skip_pubDate=False,pattern='',duration=''):	
 	PLog('get_summary_pre: ' + ID); PLog(path)
 	PLog(skip_verf); PLog(skip_pubDate); PLog(duration); 
 	duration_org=duration
+
+	
+	path, msg = getRedirect(path)					# ZDF, s.o.
 	
 	fname = path.split('/')[-1]
 	fname = fname.replace('.html', '')				# .html bei ZDF-Links entfernen
@@ -2468,6 +2490,8 @@ def get_summary_pre(path,ID='ZDF',skip_verf=False,skip_pubDate=False,pattern='',
 	
 	page=""; summ=''; pubDate=''
 	save_new = False
+	
+	'''										# Debug: Cache ausschalten
 	if os.path.exists(fpath):					# Text lokal laden + zurückgeben
 		page=''
 		PLog('lade_aus_Cache:') 
@@ -2478,6 +2502,7 @@ def get_summary_pre(path,ID='ZDF',skip_verf=False,skip_pubDate=False,pattern='',
 			return page
 		else:
 			save_new = True
+	'''
 
 	if page == '':
 		PLog('lade_extern:') 
@@ -2503,47 +2528,68 @@ def get_summary_pre(path,ID='ZDF',skip_verf=False,skip_pubDate=False,pattern='',
 	#-----------------	
 	
 	if 	ID == 'ZDF':
-		teaserinfo = stringextract('teaser-info">', '<', page)
-		summ = stringextract('class="item-description" >', '</p>', page)
-		summ = mystrip(summ)
-		if teaserinfo:
-			summ = "%s | %s" % (teaserinfo, summ)
-		summ = unescape(summ)
-																			# 11.05.2023 neu 
-		postcontent = stringextract('b-post-content">', '"b-post-footer"', page)
-		if postcontent:
-			addpost=[]
-			items = blockextract("<p>", postcontent, "</p>")
-			for item in items:
-				s = stringextract("<p>", "</p>", item)
-				s=unescape(s); s=cleanhtml(s); s=transl_json(s)
-				if s:
-					addpost.append(s)
-			if len(addpost) > 0:
-				summ = summ + " | " + " | ".join(addpost)
-				summ = mystrip(summ)
-		summ  = valid_title_chars(summ)										# s. changelog V4.7.4
+		# 18.03.2025 vorerst unberücksichtig: skip_verf, skip_pubDate
+		# transl_json, valid_title_chars
+		page = page.replace('\\"', '"')
+		page = page.replace('\\"', '*').replace('\\*', '*')
 
-		if skip_verf == False:
-			if u'erfügbar bis' in page:										# enth. Uhrzeit									
-				verf = stringextract(u'erfügbar bis ', '<', page)			# Blank bis <
-			if verf == '':
-				verf = stringextract('plusbar-end-date="', '"', page)
-				verf = time_translate(verf, add_hour=0)
-			if verf:														# Verfügbar voranstellen
-				summ = u"[B]Verfügbar bis [COLOR darkgoldenrod]%s[/COLOR][/B]\n\n%s\n" % (verf, summ)
+		head = stringextract('"leadParagraph":"', '"', page)			# Web: unter dem Titel, kann fehlen
+		PLog("head: " + head)
 		
-		if skip_pubDate == False:		
-			pubDate = stringextract('publicationDate" content="', '"', page)# Bsp. 2020-06-15T22:51:28.328+02:00
-			if pubDate == '':
-				pubDate = stringextract('<time datetime="', '"', page)		# Alternative wie oben
-			if pubDate:
-				pubDate = time_translate(pubDate)
-				pubDate = " | Sendedatum: [COLOR blue]%s Uhr[/COLOR]\n\n" % pubDate	
-				if u'erfügbar bis' in summ:	
-					summ = summ.replace('\n\n', pubDate)					# zwischen Verfügbar + summ  einsetzen
-				else:
-					summ = "%s%s" % (pubDate[3:], summ)
+		#summ0 = stringextract('>Details<', 'ZDF auf YouTube', page)	# ev. Darsteller formatieren
+		summ0 = stringextract('>Details<', '>Darsteller<', page)
+		if summ0 == "":
+			summ0 = stringextract('"infoText":"', '"', page)			# kann fehlen	
+		PLog("summ0_1: " + summ0)
+		if 'description":"' in page:
+			descr =  stringextract('"description":"', '"', page)
+			if descr and summ0 and descr in summ0 == False:				# Doppel möglich
+				summ0 = "%s\n%s" % (summ0, descr)
+		PLog("summ0_2: " + summ0)
+			
+		mark = 'longInfoText":{"items'; len_mark = len(mark)			# Web: Box Details	
+		pos = page.find(mark)
+		PLog(page[pos:pos+200])		
+		summ1 = stringextract(mark, 'style"', page[pos:])
+		summ1 = stringextract('text":"', '"', summ1)
+		PLog("summ1: " + summ1)
+	
+		summ3 = stringextract('PageViewHistory"]', '"])</script>', page)# 
+		PLog(summ3[:80])
+		if len(summ3) <= 10 or "[" in summ3:							# Bsp. Zukunftspreis 2012: \n40:Ta4c,
+			summ3=""													# od. jung-radikal-organisiert
+		else:
+			summ3 = stringextract('PageViewHistory"]', 'next_f.push([1,"9', page)	# summ3 ausdehnen
+			summ3 = summ3[10:]											# skip \n40:T6c3 o.ä. java-Marke
+		if summ3 == "":													# 
+			summ3 = stringextract('"EpisodePage"', '</script>', page)	# Lebensmitteltricks
+			summ3 = "\n\n" + summ3[11:]											# skip \n43:T4bf, o.ä. java-Marke		
+			
+		PLog("summ3: " + summ3)		
+		
+		summ = "%s\n\n%s\n\n%s" % (summ0, summ1, summ3)
+		summ=""
+		if head:
+			summ = summ + head + "\n"
+		if summ0:
+			summ = summ + summ0 
+		if summ1:
+			summ = summ + summ1 
+		if summ3:
+			summ = summ + summ3
+		summ = summ.replace('\\u003c',"").replace('\\u003e',"")			# <br>
+		summ = summ.replace('<br/><br/>',"\n\n").replace('br/'," \n")	
+		summ = summ.replace('"])</script><script>self.__next_f.push([1,"', " ")	# java-Verkettung innerhalb Text
+		summ = summ.replace('"])</script><script>self.__', " ")			# Textende s.o.: ..self.__next_f.push([1,"9
+		summ = summ.replace('/button>',"")
+		summ = unescape(summ)
+		
+		s = stringextract('<h2 class="', '"', summ)
+		s = '<h2 class="%s"' % s
+		summ = summ.replace(s, "")
+		summ = cleanhtml(summ)
+
+		PLog("summ_zdf: " + summ)			
 					
 	#-----------------	
 	
@@ -2664,7 +2710,8 @@ def refresh_streamlinks():
 # Mehrkanal-Streamlinks seit Aug. 2020 - die enth. Audiolinks in 
 #	Kodi nicht getrennt verwertbar. 
 # 29.10.2023 force=True: InfoAndFilter -> refresh_streamlinks
-#
+# 23.03.2025 nach ZDF-Relaunch erneuert (nur noch apiToken von
+#	Webseite, ptmd-Url's hartkodiert)
 #-----------------------------------------------
 def get_ZDFstreamlinks(skip_log=False, force=False):
 	PLog('get_ZDFstreamlinks:')
@@ -2691,53 +2738,38 @@ def get_ZDFstreamlinks(skip_log=False, force=False):
 		PLog('get_ZDFstreamlinks: leer')
 		return []
 
-	page = page.replace('content": "', '"content":"')
-	page = page.replace('apiToken": "', '"apiToken":"')
-	content = blockextract('js-livetv-scroller-cell', page)			# Playerdaten einschl. apiToken
-	PLog("len_content: %d" % len(content))
-	apiToken = stringextract('"apiToken":"', '"', page)				# für alle identisch
-	PLog("apiToken: " + apiToken[:80] + "..")
-	header = "{'Api-Auth': 'Bearer %s','Host': 'api.zdf.de'}" % apiToken
+	Token = stringextract('videoToken', 'expiresAt', page)			# apiToken aus Web
+	PLog("Token: " + Token[:80] + "..")	
+	Token = Token.replace('\\"', '"')
+	apiToken = stringextract('"apiToken":"', '"', Token)
+	PLog("apiToken: " + apiToken)	
+	# assetid's in ptmd-Url's auf Webseite www.zdf.de/live-tv
+	# hier ohne 247onAir-205 phoenix, ptmd/247onAir-206 fehlt, 
+	ids = ["247onAir-201|ZDF", "247onAir-202|ZDFneo", "247onAir-203|ZDFinfo",
+		"247onAir-204|3sat", "247onAir-207|KiKA", "247onAir-208|arte"]
 	
-	zdf_streamlinks=[]
-	for rec in content:												# Schleife  Web-Sätze		
-		player2_url=''; assetid=''; videodat_url=''; apiToken=''; href=''
-		title = stringextract('visuallyhidden">', '<', rec)
-		title = title.replace('im Livestream', ''); title = title.strip()	# phoenix
-		title = title.replace('Livestream', ''); title = title.strip()		# restl. sender
-		PLog("Sender: " + title);
-		# Bsp.: api.zdf.de/../zdfinfo-live-beitrag-100.json?profile=player2:
-		player2_url = stringextract('"content":"', '"', rec)
-
-		thumb 	= stringextract('data-src="', '"', rec)			# erstes img = größtes
-		geo		= stringextract('geolocation="', '"', rec)
-		if geo:
-			geo = "Geoblock: %s" % geo
-		fsk		= stringextract('-fsk="', '"', rec)
-		if fsk:
-			fsk = "FSK: %s" % fsk
-			fsk = fsk.replace('none', 'ohne')
-		tagline = "%s,  %s" % (geo, fsk)
-
-		PLog("player2_url: " + player2_url)
-		if player2_url:
-			page, msg = get_page(path=player2_url, header=header)
-			# Bsp.: 247onAir-203
-			assetid = stringextract('assetid":"', '"', page)
-			assetid = assetid.strip()
-			
-		PLog(assetid); 
-		if assetid:
-			videodat_url = "https://api.zdf.de/tmd/2/ngplayer_2_3/live/ptmd/%s" % assetid
-			page, msg	= get_page(path=videodat_url, header=header)
-			PLog("videodat: " + page[:40])
-			#PLog(page) 	# Debug
-		
-			href = stringextract('"https://',  'master.m3u8', page) 	# 1.: auto
-			if href:
-				href = 	"https://" + href + "master.m3u8"
-				# Zeile: "title_sender|href|thumb|tagline"
-				zdf_streamlinks.append("%s|%s|%s|%s" % (title, href,thumb,tagline))	
+	#	----------------------------
+	header = "{'Api-Auth': 'Bearer %s','Host': 'api.zdf.de'}" % apiToken
+	PLog("header" + header)
+	
+	zdf_streamlinks=[]; thumb=""
+	for asset in ids:												# Schleife  Web-Sätze		
+		PLog(asset)
+		assetid, title = asset.split("|") 
+		videodat_url = "https://api.zdf.de/tmd/2/ngplayer_2_3/live/ptmd/%s" % assetid
+		page, msg	= get_page(path=videodat_url, header=header)
+		PLog("videodat: " + page[:40])
+		tagline = stringextract('description":"',  '"', page)
+		href = stringextract('"https://',  'master.m3u8', page) 	# 1.: auto
+		PLog("href: " + href)
+		if href:
+			href = 	"https://" + href + "master.m3u8"
+			PLog("href: " + href)
+		if href:
+			# Zeile: "title_sender|href|thumb|tagline"
+			line = "%s|%s|%s|%s" % (title, href,thumb,tagline)
+			PLog("line: " + line)
+			zdf_streamlinks.append(line)
 	
 	PLog("zdf_streamlinks: %d" % len(zdf_streamlinks))
 	page = "\n".join(zdf_streamlinks)									# Ablage Cache
@@ -3983,6 +4015,8 @@ def PlayAudio(url, title, thumb, Plot, header=None, FavCall=''):
 # 04.03.2022 Header für ZDF-Url erforderl. (Error "502 Bad Gateway")
 # 21.01.2023 dialog optional für add_UHD_Streams (ohne Dialog)
 # Rückage url oder False
+# 14.03.2025 Header auf user-agent (curl) beschränkt 
+#
 def url_check(url, caller='', dialog=True):
 	PLog('url_check: ' + url)
 
@@ -3999,6 +4033,7 @@ def url_check(url, caller='', dialog=True):
 					msg1= 'Url-Check: Video fehlt! Datei:'
 				MyDialog(msg1, msg2, "")		 			 	 
 			return False
+
 	#-----------------------------------------
 	# hier bei Bedarf ein SessionTimeout verwenden, Bsp.
 	#	blog.apify.com/python-requests-timeout/
@@ -4006,9 +4041,7 @@ def url_check(url, caller='', dialog=True):
 	# Tests:
 	# url='http://104.250.149.122:8012'			# Debug: urlopen error Connection refused
 	# url='http://feeds.soundcloud.com/x'		# HTTP Error 405: Method Not Allowed
-
-	header={'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36', \
-		'Connection': 'keep-alive', 'Accept-Encoding': 'gzip, deflate, br', 'Cache-Control': 'max-age=0'}
+	header = {'user-agent': 'curl/7.81.0'}
 
 	page, msg = getRedirect(url, header)			
 	if page:

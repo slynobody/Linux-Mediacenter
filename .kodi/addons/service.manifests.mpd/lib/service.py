@@ -16,7 +16,6 @@ class DashHttpServer(Server):
 
     def __init__(self, *args, **kwargs):
         super(DashHttpServer, self).__init__(*args, **kwargs)
-        self.__url__ = "http://{}:{}".format(*self.server_address)
         self.__manifests__ = {}
 
     def server_close(self):
@@ -34,7 +33,7 @@ class DashHttpServer(Server):
 
     def __manifest__(self, *args):
         self.__manifests__[(id := uuid4().hex)] = manifest(*args)
-        return buildUrl(self.__url__, "manifest", id=id)
+        return buildUrl(self.url, "manifest", id=id)
 
     @http()
     def manifest(self, **kwargs):
@@ -52,7 +51,9 @@ class DashService(Service):
 
     def serve_forever(self, timeout):
         self.__httpd__ = DashHttpServer(
-            self.id, logger=self.logger, timeout=timeout
+            self.id,
+            logger=self.logger.getLogger(component="httpd"),
+            timeout=timeout
         )
         while not self.waitForAbort(timeout):
             self.__httpd__.handle_request()

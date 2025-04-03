@@ -47,7 +47,7 @@ class YtDlpMpd(object):
     }
 
     def __init__(self, logger):
-        self.logger = logger.getLogger(f"{logger.component}.mpd")
+        self.logger = logger.getLogger(component="mpd")
         self.__manifests__ = Client(self.__service_id__)
         self.__streamTypes__ = {
             "video": self.__video_stream__,
@@ -106,7 +106,7 @@ class YtDlpMpd(object):
             "lang": fmt["language"],
             "averageBitrate": int(fmt["abr"] * 1000),
             "audioSamplingRate": fmt["asr"],
-            "audioChannels": fmt["audio_channels"]
+            "audioChannels": fmt.get("audio_channels", 2)
         }
 
     def __stream__(self, contentType, codecs, fmt, exclude=None, **kwargs):
@@ -122,8 +122,8 @@ class YtDlpMpd(object):
                 codecs=codecs,
                 #averageBitrate=int(fmt["tbr"] * 1000),
                 url=fmt["url"],
-                indexRange=fmt["indexRange"],
-                initRange=fmt["initRange"]
+                indexRange=fmt.get("indexRange", {}),
+                initRange=fmt.get("initRange", {})
             )
 
     def __streams__(self, formats, **kwargs):

@@ -10,8 +10,8 @@
 #	21.11.2019 Migration Python3 Modul kodi_six + manuelle Anpassungen
 #
 ################################################################################
-# 	<nr>94</nr>										# Numerierung für Einzelupdate
-#	Stand: 14.01.2025
+# 	<nr>98</nr>										# Numerierung für Einzelupdate
+#	Stand: 23.03.2025
 
 # Python3-Kompatibilität:
 from __future__ import absolute_import		# sucht erst top-level statt im akt. Verz. 
@@ -959,10 +959,14 @@ def ARDPagination(title, path, pageNumber, pageSize, ID, mark, homeID=""):
 # Ähnlich ZDF_FlatListEpisodes, flache Liste aller Folgen
 #	ohne Zusätze (Teaser usw.)
 # Aufruf ARDStartRubrik ('hasSeasons":true')
+# 23.03.2025 path-Korrekturen für vollständige Liste (Bsp. fehlende Staffel 2
+#	bei Feuer & Flamme)
 #
 def ARD_FlatListEpisodes(path, title):
 	PLog('ARD_FlatListEpisodes:')
 	
+	path = path.replace("?embedded=true", "?pageSize=100")
+	path = path.replace("/pages", "/widgets").replace("/grouping", "/asset")
 	page, msg = get_page(path)	
 	if page == '':	
 		msg1 = u"Fehler in ARD_FlatListEpisodes: %s"	% title
@@ -1102,21 +1106,29 @@ def ARD_FlatListRec(item, vers):
 	#---------------------								# Staffel-/Folge-Erkennung
 	se=''
 	try:												# hinter Folge in Titel kann ":" fehlen
-		se = title
-		if ":" in se:
-			se = se.split(":")[-1]						# manchmal zusätzl. im Titel: ..(6):.. 
-		se = re.search(r'\((.*?)\)', se).group(1)		# Bsp. (S03/E12)
+		se = title			 
+		se_list = re.findall(r'\((.*?)\)', se)			# mehrfach möglich: Einspruch, Schatz! (1) (S01/E01)
+		se = se_list[-1]								# Default letztes Element
+		for s in se_list:
+			if len(s) == 7:								# Bsp. S03/E12
+				se = s
+				break
+		PLog("se_list: %s, se: %s" % (str(se_list), se))
+		
 		season = re.search(r'S(\d+)', se).group(1)
 		episode = re.search(r'E(\d+)', se).group(1)
 	except Exception as exception:
-		PLog(str(exception))
+		season=""; episode=""
+		PLog("season_error1: " + str(exception))	
+		
 	if season == '' and episode == '':					# Alternative: ohne Staffel, nur Folgen
 		try: 
-			episode = re.search(r'\((\d+)\)', title).group(1)									
+			episode = re.search(r'\((\d+)\)', title).group(1) 									
 			season = "0"
 		except Exception as exception:
-			PLog(str(exception))	
-	PLog(season); PLog(episode)
+			season="0"; episode=""
+			PLog("season_error2: " + str(exception))	
+	PLog("season: " + str(season)); PLog("episode: " + str(episode))
 	
 	if episode == '':
 		title=''
@@ -2504,6 +2516,7 @@ def SendungenAZ_ARDnew(title, button, href, CurSender="", homeID=''):
 # 01.03.2023 ARD-Suchpfad wie SearchARDundZDFnew (page.ardmediathek -> api.ardmediathek)
 # 21.07.2024 Nutzung für Suchen nur in ARD od. ZDF (Vermeidung Absturzproblem nach Abbruch)
 # 20.12.2024 Nutzung für Medienlinks (eingefügt durch Yatse, Kore o.ä.)
+# 10.02.2025 Such-Url durch ARD geändert: Zusatz platform=MEDIA_THEK
 #
 def SearchARDundZDFnew(title, query='', pagenr='', homeID=""):
 	PLog('SearchARDundZDFnew:');
@@ -2548,7 +2561,8 @@ def SearchARDundZDFnew(title, query='', pagenr='', homeID=""):
 		pageNumber = 0
 		
 		query_lable = query_ard.replace('+', ' ')
-		path = 'https://api.ardmediathek.de/search-system/mediathek/%s/search/vods?query=%s&pageNumber=%s&pageSize=24' % (sender, query_ard, pageNumber)
+		path= "https://api.ardmediathek.de/search-system/search/shows/%s?query=%s&pageSize=48&pageNumber=%s&platform=MEDIA_THEK"  % (sender, query_ard, pageNumber)
+
 		icon = R(ICON_SEARCH)
 		xbmcgui.Dialog().notification("ARD-Suche",query_lable,icon,1000, sound=False)
 		page, msg = get_page(path)					
@@ -2566,7 +2580,7 @@ def SearchARDundZDFnew(title, query='', pagenr='', homeID=""):
 		else:	
 			store_recents = True											# Sucheingabe speichern
 			PLog(type(vodTotal)); 	PLog(type(query_lable)); 			
-			title = "[B]ARD[/B]: %s Video(s)  | %s" % (vodTotal, query_lable)
+			title = "[B]ARD[/B]: %s Sendung(en)  | %s" % (vodTotal, query_lable)
 			query_ard=py2_encode(query_ard); title=py2_encode(title); 
 			fparams="&fparams={'query': '%s', 'title': '%s', 'sender': '%s','offset': '0'}" %\
 				(quote(query_ard), quote(title), sender)
@@ -2610,7 +2624,7 @@ def SearchARDundZDFnew(title, query='', pagenr='', homeID=""):
 				fanart=R('suche_ardundzdf.png'), thumb=R('suche_ardundzdf.png'), tagline=tag_negativ, fparams=fparams)
 		else:	
 			store_recents = True										# Sucheingabe speichern
-			title = "[B]ZDF[/B]: %s Video(s)  | %s" % (searchResult, query_lable)
+			title = "[B]ZDF[/B]: %s Sendung(en)  | %s" % (searchResult, query_lable)
 			query_zdf=py2_encode(query_zdf); title=py2_encode(title);
 			fparams="&fparams={'query': '%s', 'title': '%s', 'pagenr': '%s'}" % (quote(query_zdf), 
 				quote(title), pagenr)
@@ -2731,6 +2745,7 @@ def ARDHandleRecents(title, mode="load", query=""):
 # 22.03.2023 api-Suche umgestellt page-gateway/widgets  -> search-system/mediathek, um
 #	Videos von Sendereihen zu erfassen (Bsp. "2 für 300")
 # 13.06.2023 Mitnutzung durch phoenix (sender, query, homeID)
+# 10.02.2025 Such-Url durch ARD geändert: Zusatz platform=MEDIA_THEK
 #
 def ARDSearchnew(title, sender, offset=0, query='', homeID=""):
 	PLog('ARDSearchnew:');	
@@ -2767,7 +2782,7 @@ def ARDSearchnew(title, sender, offset=0, query='', homeID=""):
 	
 	# ----------------------------------------------------- # Suchstring umgestellt, s.o.
 	PLog(query)
-	path = 'https://api.ardmediathek.de/search-system/mediathek/%s/search/vods?query=%s&pageNumber=%s&pageSize=24' % (sender, query, offset)
+	path= "https://api.ardmediathek.de/search-system/search/shows/%s?query=%s&pageSize=48&pageNumber=%s&platform=MEDIA_THEK"  % (sender, query, offset)
 
 	page, msg = get_page(path)					
 	PLog(len(page))
@@ -2777,8 +2792,9 @@ def ARDSearchnew(title, sender, offset=0, query='', homeID=""):
 		MyDialog(msg1, msg2, '')	
 		return
 	
-	gridlist = blockextract( '"availableTo"', page) 		# Beiträge?
-	if len(gridlist) == 0:				
+	vodTotal =  stringextract('"totalElements":', '}', page)	# Beiträge?
+	gridlist = blockextract( '"mediumTitle":', page) 			# Sicherung
+	if len(gridlist) == 0 or vodTotal == '0':		
 		msg1 = u'keine Beiträge gefunden zu: %s'  % query
 		PLog(msg1)
 		MyDialog(msg1, '', '')
@@ -3073,7 +3089,7 @@ def ARDVerpasst_get_json(li, channels, homeID, sender):
 						fcnt = fcnt+1
 						continue		
 					
-				PLog("Satz:")
+				PLog("Satz2:")
 				PLog(title); PLog(href); PLog(path); PLog(img); PLog(summ[:60]); 
 				PLog(duration); PLog(availableTo);
 						
