@@ -39,7 +39,7 @@
 gamemode: properties: set another resolution there.
 
 ## how do i use netflix?
-to get secure access to 1080p-streaming you need to login once through a browser to get a credential-file as well as a code. use 'netflix.sh' for this.
+to get secure access to 1080p-streaming you need to login once through a browser (brave) to get a credential-file as well as a code. use 'netflix.sh' for this.
 
 > cd SteamOS-Kodi-Installer
 >
