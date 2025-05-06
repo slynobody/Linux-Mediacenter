@@ -35,7 +35,7 @@ except ImportError:
 IS_MACOS = platform.system().lower() == 'darwin'
 
 # Script configuration
-BROWSER_PATH = '/opt/brave.com/brave-nightly/brave'
+BROWSER_PATH = '/var/lib/flatpak/app/com.brave.Browser/current/active/files/brave/brave'
 DEBUG_PORT = 9222
 LOCALHOST_ADDRESS = '127.0.0.1'
 URL = 'https://www.netflix.com/login'
@@ -92,7 +92,7 @@ class Main(object):
         if not self.wait_user_logged():
             raise Warning('You have exceeded the time available for the login. Restart the operations.')
 
-        self.ws_wait_event('Page.domContentEventFired')  # Wait loading DOM (document.onDOMContentLoaded event)
+        #self.ws_wait_event('Page.domContentEventFired')  # Wait loading DOM (document.onDOMContentLoaded event)
 
         # Verify that falcorCache data exist, this data exist only when logged
         show_msg('Verification of data in progress... please wait')
@@ -182,7 +182,7 @@ class Main(object):
         self._ws.send(message)
         start_time = time.time()
         while True:
-            if time.time() - start_time > 10:
+            if time.time() - start_time > 10000:
                 break
             message = self._ws.recv()
             parsed_message = json.loads(message)
