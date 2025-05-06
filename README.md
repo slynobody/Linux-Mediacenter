@@ -47,6 +47,10 @@ to get secure access to 1080p-streaming you need to login once through a browser
 
 background: https://github.com/CastagnaIT/plugin.video.netflix/wiki/Login-with-Authentication-key
 
+## netflix has errors 
+on debian use this deb: https://github.com/slynobody/Debian-Packages/releases/download/last/int-kodi-inputstream-adaptive_21.5.13_amd64.deb
+look here for latest solutions: https://github.com/CastagnaIT/plugin.video.netflix/issues
+
 # why is 7.1-audio preconfigured?
 just use https://github.com/slynobody/SteamOS-surround and you will hear.
 
