@@ -295,7 +295,7 @@
     <setting id="smb.minprotocol" default="true">0</setting>
     <setting id="smb.maxprotocol" default="true">3</setting>
     <setting id="smb.legacysecurity" default="true">false</setting>
-    <setting id="services.wsdiscovery" default="true">true</setting>
+    <setting id="services.wsdiscovery">false</setting>
     <setting id="smb.chunksize" default="true">128</setting>
     <setting id="nfs.version" default="true">3</setting>
     <setting id="nfs.chunksize" default="true">128</setting>
@@ -335,7 +335,7 @@
     <setting id="videoscreen.stereoscopicmode" default="true">0</setting>
     <setting id="videoscreen.preferedstereoscopicmode" default="true">100</setting>
     <setting id="videoscreen.noofbuffers" default="true">3</setting>
-    <setting id="audiooutput.audiodevice">ALSA:default|Default ALSA Output (currently PulseAudio Sound Server)</setting>
+    <setting id="audiooutput.audiodevice">PIPEWIRE:Default|Default Output Device (PIPEWIRE)</setting>
     <setting id="audiooutput.channels">10</setting>
     <setting id="audiooutput.config" default="true">2</setting>
     <setting id="audiooutput.volumesteps" default="true">90</setting>
@@ -509,7 +509,7 @@
             <level>0</level>
             <showhigherlevels>true</showhigherlevels>
         </eventlog>
-        <systemtotaluptime>111</systemtotaluptime>
+        <systemtotaluptime>120</systemtotaluptime>
     </general>
     <resolutions />
     <defaultvideosettings>

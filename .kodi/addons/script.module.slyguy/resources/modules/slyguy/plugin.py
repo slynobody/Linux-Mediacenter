@@ -1,15 +1,14 @@
 import sys
 import re
-import shutil
 import random
 import time
 import json
 from functools import wraps
 from six.moves.urllib_parse import quote_plus
 
-from kodi_six import xbmc, xbmcplugin
+from kodi_six import xbmc, xbmcplugin, xbmcaddon
 
-from slyguy import router, gui, settings, userdata, inputstream, signals, migrate, bookmarks, mem_cache, is_donor, log, _
+from slyguy import monitor, router, gui, settings, userdata, inputstream, signals, migrate, bookmarks, mem_cache, is_donor, log, _, keep_alive
 from slyguy.constants import *
 from slyguy.exceptions import Error, PluginError, CancelDialog
 from slyguy.util import set_kodi_string, get_addon, remove_file, user_country
@@ -27,6 +26,7 @@ def exception(msg=''):
 
 logged_in = False
 
+
 # @plugin.no_error_gui()
 def no_error_gui():
     def decorator(f):
@@ -38,6 +38,7 @@ def no_error_gui():
                 log.exception(e)
         return decorated_function
     return lambda f: decorator(f)
+
 
 # @plugin.login_required()
 def login_required():
@@ -84,6 +85,8 @@ def route(url=None):
                 item.display()
             elif isinstance(item, Item):
                 item.play(**kwargs)
+            elif isinstance(item, str) and item.lower().startswith('plugin://'):
+                redirect(item)
             else:
                 resolve()
 
@@ -205,6 +208,7 @@ def search(key=None):
         return decorated_function
     return lambda f: decorator(f)
 
+
 # @plugin.pagination()
 def pagination(key=None):
     def decorator(f):
@@ -250,6 +254,7 @@ def pagination(key=None):
         return decorated_function
     return lambda f: decorator(f)
 
+
 def resolve():
     handle = _handle()
     if handle < 0:
@@ -261,6 +266,7 @@ def resolve():
     else:
         xbmcplugin.endOfDirectory(handle, succeeded=False, updateListing=False, cacheToDisc=False)
 
+
 @signals.on(signals.ON_ERROR)
 def _error(e):
     if not e.message:
@@ -270,9 +276,10 @@ def _error(e):
     mem_cache.empty()
     _close()
 
-    log.debug(e, exc_info=True)
+    log.error(e, exc_info=True)
     gui.ok(e.message, heading=e.heading)
     resolve()
+
 
 @signals.on(signals.ON_EXCEPTION)
 def _exception(e):
@@ -325,7 +332,7 @@ def move_bookmark(index, shift, **kwargs):
 
 @route(ROUTE_BOOKMARKS)
 def _bookmarks(**kwargs):
-    folder = Folder(_.BOOKMARKS)
+    folder = Folder(_.BOOKMARKS, show_news=False)
 
     _bookmarks = bookmarks.get()
     for index, row in enumerate(_bookmarks):
@@ -350,15 +357,27 @@ def _bookmarks(**kwargs):
 
     return folder
 
+
 @route(ROUTE_IA_SETTINGS)
 def _ia_settings(**kwargs):
     _close()
     inputstream.open_settings()
 
+
+@route(ROUTE_KEEP_ALIVE)
+def _keep_alive(**kwargs):
+    try:
+        keep_alive.run()
+    except Exception as e:
+        #catch all errors so dispatch doesn't show error
+        log.exception(e)
+
+
 @route(ROUTE_IA_INSTALL)
 def _ia_install(**kwargs):
     _close()
     inputstream.install_widevine(reinstall=True)
+
 
 @route(ROUTE_IA_HELPER)
 def _ia_helper(protocol, drm='', **kwargs):
@@ -371,6 +390,7 @@ def _ia_helper(protocol, drm='', **kwargs):
     )
     return folder
 
+
 @route(ROUTE_SETUP_MERGE)
 def _setup_iptv_merge(**kwargs):
     addon = get_addon(IPTV_MERGE_ID, required=True, install=True)
@@ -378,15 +398,17 @@ def _setup_iptv_merge(**kwargs):
     plugin_url = router.url_for('setup_addon', addon_id=ADDON_ID, _addon_id=IPTV_MERGE_ID)
     xbmc.executebuiltin('RunPlugin({})'.format(plugin_url))
 
+
 @route(ROUTE_MIGRATE_DONE)
 def _migrate_done(old_addon_id, **kwargs):
     _close()
     migrate.migrate_done(old_addon_id)
 
+
 @route(ROUTE_SETTINGS)
 def _settings(category=0, **kwargs):
     category = Category.get(int(category))
-    folder = Folder(category.label, content='files')
+    folder = Folder(category.label, content='files', show_news=False)
 
     for subcat in category.categories:
         folder.add_item(
@@ -400,14 +422,15 @@ def _settings(category=0, **kwargs):
             label = setting.label,
             path = url_for(setting_select, id=setting.id),
             bookmark = False,
+            art = {'thumb': setting.image},
             context = ((_.RESET_TO_DEFAULT, 'RunPlugin({})'.format(url_for(setting_clear, id=setting.id))),) if setting.can_clear() else None,
-            is_folder = False,            
+            is_folder = False,
         )
 
         if setting.description:
             item.info['plot'] = setting.description
             item.context.append((_.HELP, 'RunPlugin({})'.format(url_for(setting_help, id=setting.id))))
-        
+
         folder.add_items([item])
 
     if any(setting.can_bulk_clear() for setting in category.settings):
@@ -530,8 +553,6 @@ def _service(**kwargs):
 #     gui.refresh()
 
 def service(interval=ROUTE_SERVICE_INTERVAL):
-    monitor = xbmc.Monitor()
-
     delay = settings.getInt('service_delay', 0) or random.randint(10, 60)
     monitor.waitForAbort(delay)
 
@@ -549,9 +570,11 @@ def service(interval=ROUTE_SERVICE_INTERVAL):
 
         monitor.waitForAbort(5)
 
+
 def _handle():
     try: return int(sys.argv[1])
     except: return -1
+
 
 def _autoplay(folder, pattern, playable=True):
     choose = 'pick'
@@ -729,6 +752,10 @@ class Item(gui.Item):
 
         set_kodi_string('_slyguy_play_data', json.dumps(play_data))
 
+        # check supporter on final url
+        if self.path.lower().startswith('http'):
+            process_support()
+
         if handle > 0:
             xbmcplugin.setResolvedUrl(handle, True, li)
         else:
@@ -866,6 +893,7 @@ class Folder(object):
         xbmcplugin.endOfDirectory(handle, succeeded=True, updateListing=self.updateListing, cacheToDisc=self.cacheToDisc)
 
         if self.show_news:
+            process_support()
             process_news()
 
     def add_item(self, *args, **kwargs):
@@ -922,6 +950,21 @@ def require_update():
         log.error(_(_.UPDATES_REQUIRED, updates_required='\n'.join(['{} ({})'.format(entry[1], entry[2]) for entry in need_updated])))
 
 
+def process_support():
+    if is_donor():
+        return
+
+    _time = int(time.time())
+    if settings.LAST_SUPPORT_REMINDER.value == 0:
+        settings.LAST_SUPPORT_REMINDER.value = _time
+
+    if _time < settings.LAST_SUPPORT_REMINDER.value + SUPPORT_REMINDER:
+        return
+
+    settings.LAST_SUPPORT_REMINDER.value = _time
+    gui.ok(_.SHOW_SUPPORT, qr=SUPPORT_URL)
+
+
 def process_news():
     news = settings.getDict('_news')
     if not news:
@@ -954,9 +997,6 @@ def process_news():
             log.debug('news only for users with add-on: {} '.format(news['requires']))
             return
 
-        if news['type'] in ('message', 'donate'):
-            gui.ok(news['message'], news.get('heading', _.NEWS_HEADING))
-
         elif news['type'] == 'addon_release':
             if get_addon(news['addon_id'], install=False):
                 log.debug('addon_release {} already installed'.format(news['addon_id']))
@@ -972,3 +1012,23 @@ def process_news():
 
     except Exception as e:
         log.exception(e)
+
+
+def get_trailer_item(item, check=True):
+    title = item.label
+    year = item.info.get('year')
+    media_type = item.info.get('mediatype')
+
+    if check:
+        if not title or not year or media_type not in ('tvshow', 'movie'):
+            gui.notification(_.TRAILER_NOT_FOUND)
+            return
+
+        get_addon(TRAILERS_ADDON_ID, required=True, install=True)
+
+    item.update(
+        label = u"{} ({})".format(item.label, _.TRAILER),
+        path = router.build_url('/by_title_year', title=title, year=year, media_type=media_type, _addon_id=TRAILERS_ADDON_ID),
+        playable = True,
+    )
+    return item

@@ -1570,6 +1570,8 @@ class InfoExtractor:
         """Yield all json ld objects in the html"""
         if default is not NO_DEFAULT:
             fatal = False
+        if not fatal and not isinstance(html, str):
+            return
         for mobj in re.finditer(JSON_LD_RE, html):
             json_ld_item = self._parse_json(
                 mobj.group('json_ld'), video_id, fatal=fatal,
@@ -1673,9 +1675,9 @@ class InfoExtractor:
                 'ext': mimetype2ext(e.get('encodingFormat')),
                 'title': unescapeHTML(e.get('name')),
                 'description': unescapeHTML(e.get('description')),
-                'thumbnails': [{'url': unescapeHTML(url)}
-                               for url in variadic(traverse_obj(e, 'thumbnailUrl', 'thumbnailURL'))
-                               if url_or_none(url)],
+                'thumbnails': traverse_obj(e, (('thumbnailUrl', 'thumbnailURL', 'thumbnail_url'), (None, ...), {
+                    'url': ({str}, {unescapeHTML}, {self._proto_relative_url}, {url_or_none}),
+                })),
                 'duration': parse_duration(e.get('duration')),
                 'timestamp': unified_timestamp(e.get('uploadDate')),
                 # author can be an instance of 'Organization' or 'Person' types.

@@ -17,6 +17,7 @@ ADDON_DEV      = bool(int(os.environ.get('SLYGUY_DEV', '0')))
 
 REPO_ADDON_ID = 'repository.slyguy'
 DEPENDENCIES_ADDON_ID = 'slyguy.dependencies'
+TRAILERS_ADDON_ID = 'slyguy.trailers'
 COMMON_ADDON_ID = 'script.module.slyguy'
 COMMON_ADDON = xbmcaddon.Addon(COMMON_ADDON_ID)
 IS_ANDROID = xbmc.getCondVisibility('System.Platform.Android')
@@ -31,6 +32,9 @@ REDIRECT_HOSTS = ['i.mjh.nz', 'r.mjh.nz', 'c.mjh.nz', 'jmp2.uk']
 DONOR_URL = 'https://d.slyguy.uk/donors/{id}'
 DONOR_CHECK_TIME = (60*60*1) #1 hour
 DONOR_TIMEOUT = 172800 #48 hours
+SUPPORT_REMINDER = 604800 # 1 week
+SUPPORT_TIMEOUT = 5
+SUPPORT_URL = 'https://ko-fi.com/matthuisman'
 UPDATE_TIME_LIMIT = 86400 #24 hours
 REQUIRED_UPDATE = [ADDON_ID, COMMON_ADDON_ID, DEPENDENCIES_ADDON_ID, REPO_ADDON_ID]
 
@@ -85,6 +89,7 @@ ROUTE_MIGRATE_DONE     = '_migrated'
 ROUTE_BOOKMARKS        = '_bookmarks'
 ROUTE_CONTEXT          = '_context'
 ROUTE_SCRIPT           = '_script'
+ROUTE_KEEP_ALIVE       = '_keep_alive'
 #################
 
 #### INPUTSTREAM ADAPTIVE #####
@@ -133,6 +138,7 @@ DEFAULT_WORKERS = 5
 BOOKMARK_FILE = os.path.join(ADDON_PROFILE, 'bookmarks.json')
 
 #### PROXY #####
+DEFAULT_PROXY_PORT = 8095
 REMOVE_IN_HEADERS = ['upgrade', 'host', 'accept-encoding']
 REMOVE_OUT_HEADERS = ['date', 'server', 'transfer-encoding', 'keep-alive', 'connection']
 ERROR_URL = 'error.m3u8'
@@ -141,6 +147,7 @@ EMPTY_TS = 'empty.ts' if KODI_VERSION < 19 else ''
 #################
 
 CHUNK_SIZE = 64 * 1024
+INVALID_IPS = ['0.0.0.0', '::']
 LIVE_HEAD = 25*60*60
 NEWS_MAX_TIME = 432000 #5 Days
 MAX_SEARCH_HISTORY = 10
@@ -149,7 +156,3 @@ MAX_QUALITY_HISTORY = 10
 MIDDLEWARE_CONVERT_SUB = 'convert_sub'
 MIDDLEWARE_REGEX = 'regex'
 MIDDLEWARE_PLUGIN = 'plugin'
-
-### TRAILERS ###
-YOTUBE_PLUGIN_ID = 'plugin.video.youtube'
-MDBLIST_API_KEY = 'tliqxfv0tg537ff7xyqkv7tug'

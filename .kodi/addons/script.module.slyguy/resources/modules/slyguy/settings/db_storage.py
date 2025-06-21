@@ -5,7 +5,7 @@ from collections import defaultdict
 import peewee
 from kodi_six import xbmc
 
-from slyguy import database, log, _
+from slyguy import database
 from slyguy.constants import COMMON_ADDON_ID, COMMON_ADDON, ADDON_ID
 
 

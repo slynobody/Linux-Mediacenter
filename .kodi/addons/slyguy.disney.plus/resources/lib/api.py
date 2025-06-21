@@ -1,7 +1,7 @@
 import uuid
 from time import time
 
-from slyguy import userdata, mem_cache
+from slyguy import userdata, mem_cache, log
 from slyguy.session import Session
 from slyguy.exceptions import Error
 
@@ -80,16 +80,22 @@ class API(object):
         self.logout()
 
         payload = {
+            #'operationName': 'registerDevice',
             'variables': {
                 'registerDevice': {
                     'applicationRuntime': 'android',
                     'attributes': {
+                        'osDeviceIds': [],
+                        'manufacturer': 'NVIDIA',
+                        'model': 'SHIELD Android TV',
                         'operatingSystem': 'Android',
-                        'operatingSystemVersion': '8.1.0',
+                        'operatingSystemVersion': '11',
+                        'brand': 'NVIDIA'
                     },
                     'deviceFamily': 'android',
                     'deviceLanguage': 'en',
                     'deviceProfile': 'tv',
+                    'devicePlatformId': 'android-tv',
                 }
             },
             'query': queries.REGISTER_DEVICE,
@@ -294,6 +300,13 @@ class API(object):
         _args.update(**kwargs)
         return href.format(**_args)
 
+    def is_subscribed(self):
+        try:
+            return self.profile()[1]['isSubscriber']
+        except Exception as e:
+            log.warning("Failed to check subscriber due to: {}".format(e))
+            return True
+
     def profile(self):
         session = self._cache.get('session')
         profile = self._cache.get('profile')
@@ -345,17 +358,16 @@ class API(object):
         return self._json_call(endpoint, params=params)['data']['page']
 
     @mem_cache.cached(60*5)
-    def set(self, set_id, limit=48, page=1):
+    def set(self, set_id, limit=100, page=1):
         params = {
             'limit': limit,
             'offset': limit*(page-1),
         }
-        params['offset'] = params['limit']*(page-1)
         endpoint = self._endpoint(self.get_config()['services']['explore']['client']['endpoints']['getSet']['href'], version=EXPLORE_VERSION, setId=set_id)
         return self._json_call(endpoint, params=params)['data']['set']
 
     @mem_cache.cached(60*5)
-    def season(self, season_id, limit=48, page=1):
+    def season(self, season_id, limit=100, page=1):
         params = {
             'limit': limit,
             'offset': limit*(page-1),
@@ -398,6 +410,28 @@ class API(object):
             'source': 'urn:dss:source:sdk:android:google:tv',
             'type': 'urn:dss:event:cs:user-content-actions:preference:v1:watchlist',
             'schemaurl': 'https://github.bamtech.co/schema-registry/schema-registry-client-signals/blob/series/0.X.X/smithy/dss/cs/event/user-content-actions/preference/v1/watchlist.smithy',
+            'id': str(uuid.uuid4()),
+            'time': event_time,
+        }]
+
+        endpoint = self.get_config()['services']['telemetry']['client']['endpoints']['envelopeEvent']['href']
+        data = self._session.post(endpoint, json=payload).json()
+        self._check_errors(data)
+        return not any([x['error'] is not None for x in data])
+
+    def remove_continue_watching(self, action_info):
+        self._set_token()
+        profile, session = self.profile()
+        event_time = arrow.utcnow().format("YYYY-MM-DDTHH:mm:ss.SSS") + "Z"
+        payload = [{
+            'data': {
+                'action_info_block': action_info,
+            },
+            'datacontenttype': 'application/json;charset=utf-8',
+            'subject': 'sessionId={},profileId={}'.format(session['sessionId'], profile['id']),
+            'source': 'urn:dss:source:sdk:android:google:tv',
+            'type': 'urn:dss:event:cs:user-content-actions:preference:v1:watch-history-preference',
+            'schemaurl': 'https://github.bamtech.co/schema-registry/schema-registry-client-signals/blob/series/1.X.X/smithy/dss/cs/event/user-content-actions/preference/v1/watch-history-preference.smithy',
             'id': str(uuid.uuid4()),
             'time': event_time,
         }]

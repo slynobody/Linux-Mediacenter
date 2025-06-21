@@ -30,9 +30,9 @@ img_path=PATH+'/resources/img/'
 img_empty=img_path+'empty.png'
 fanart=img_path+'fanart.jpg'
 
-UA='Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:125.0) Gecko/20100101 Firefox/125.0'
+UA='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36'
 baseurl='https://mubi.com/'
-apiURL='https://api.mubi.com/v3/'
+apiURL='https://api.mubi.com/v4/'
 
 langs={'English':'en','Deutsch':'de','español':'es','français':'fr','italiano':'it','Nederlands':'nl','português':'pt','Türkçe':'tr'} 
 lng=langs[addon.getSetting('lng')]
@@ -67,7 +67,8 @@ def heaGen():
         'Client-Accept-Audio-Codecs':'eac3,aac',
         'Client-Accept-Video-Codecs':'h265,vp9,h264',
         'Client-Country':addon.getSetting('client_country'),
-        'accept-language':lng
+        'accept-language':lng,
+        
     }
     return HEA
 
@@ -323,59 +324,126 @@ def browsFilter(cat,ft):
     addon.setSetting('filters',str(filters))
     xbmc.executebuiltin('Container.Refresh')
     
-def addFilmToList(r): #helper
-    title=r['title']
-    vid=str(r['id'])
-    img=r['still_url']
-    
-    original_title=r['original_title']
-    year=r['year']
-    dur=r['duration'] if r['duration']!=None else 0
-    genres=r['genres']
-    directors=[i['name'] for i in r['directors']]
-    countries=r['historic_countries']
-    desc=r['short_synopsis']
-    
-    if r['consumable']==None:
-        url=build_url({'mode':'noPlay'})
-        isPlayable='false'
-        titleToList='[I]%s[/I]'%(title)
-        desc='[B]'+translate(30012)+'[/B]\n'+desc
-        cm=False
-        cmItems=[]
-    else:
-        now=datetime.datetime.now()
-        ts=datetime.datetime(*(time.strptime(r['consumable']['available_at'],'%Y-%m-%dT%H:%M:%SZ')[0:6]))
-        try:
-            te=datetime.datetime(*(time.strptime(r['consumable']['availability_ends_at'],'%Y-%m-%dT%H:%M:%SZ')[0:6]))
-            dateEnd=te.strftime('%Y-%m-%d %H:%M')
-        except:
-            te=None
-            dateEnd='n/a'
-        dateStart=ts.strftime('%Y-%m-%d %H:%M')
-        desc='[B]%s: [/B]%s\n[B]%s: [/B]%s\n'%(translate(30013),dateStart,translate(30014),dateEnd) +desc
+def addFilmToList(r,ep=False): #helper
+    isSeries=False
+    if 'series' in r:
+        if r['series']!=None:
+            isSeries=True
+    if not isSeries or ep:
+        title=r['title'] if not ep else '%s: %s'%(r['episode']['label'],r['episode']['episode_title'])
+        vid=str(r['id'])
+        img=r['still_url']
         
-        if (te!=None and now>ts and now<te) or (te==None and now>ts):           
-            url=build_url({'mode':'playMubi','vid':vid})
-            isPlayable='true'
-            titleToList=title
-        else:
+        original_title=r['original_title']
+        year=r['year']
+        dur=r['duration'] if r['duration']!=None else 0
+        genres=r['genres']
+        directors=[i['name'] for i in r['directors']]
+        countries=r['historic_countries']
+        desc=r['short_synopsis']
+        
+        if r['consumable']==None:
             url=build_url({'mode':'noPlay'})
             isPlayable='false'
             titleToList='[I]%s[/I]'%(title)
+            desc='[B]'+translate(30012)+'[/B]\n'+desc
+            cm=False
+            cmItems=[]
+        else:
+            now=datetime.datetime.now()
+            ts=datetime.datetime(*(time.strptime(r['consumable']['available_at'],'%Y-%m-%dT%H:%M:%SZ')[0:6]))
+            try:
+                te=datetime.datetime(*(time.strptime(r['consumable']['availability_ends_at'],'%Y-%m-%dT%H:%M:%SZ')[0:6]))
+                dateEnd=te.strftime('%Y-%m-%d %H:%M')
+            except:
+                te=None
+                dateEnd='n/a'
+            dateStart=ts.strftime('%Y-%m-%d %H:%M')
+            desc='[B]%s: [/B]%s\n[B]%s: [/B]%s\n'%(translate(30013),dateStart,translate(30014),dateEnd) +desc
+            
+            
+            if (te!=None and now>ts and now<te) or (te==None and now>ts):           
+                url=build_url({'mode':'playMubi','vid':vid})
+                isPlayable='true'
+                titleToList=title
+            else:
+                url=build_url({'mode':'noPlay'})
+                isPlayable='false'
+                titleToList='[I]%s[/I]'%(title)
+            
+            cm=True
+            cmItems=[('[B]%s[/B]'%(translate(30015)),'RunPlugin(plugin://plugin.video.mubi?mode=lang&vid='+vid+')')]
         
-        cm=True
-        cmItems=[('[B]%s[/B]'%(translate(30015)),'RunPlugin(plugin://plugin.video.mubi?mode=lang&vid='+vid+')')]
-    
-    trailerURL=''    
-    if 'trailer_url' in r:
-        if r['trailer_url']!=None:
-            trailerURL=build_url({'mode':'trailer','url':r['trailer_url']})
-    
-    iL={'title': title,'originaltitle':original_title,'sorttitle': title,'plot': desc,'year':year,'genre':genres,'duration':dur*60,'director':directors,'cast':[],'trailer':trailerURL,'mediatype':'movie'}        
-    setArt={'thumb': img, 'poster': img, 'banner': img, 'icon': img, 'fanart': fanart}
-    addItemList(url, titleToList, setArt, 'video', iL, False, isPlayable, cm, cmItems)
+        trailerURL=''    
+        if 'trailer_url' in r:
+            if r['trailer_url']!=None:
+                trailerURL=build_url({'mode':'trailer','url':r['trailer_url']})
+        
+        iL={'title': title,'originaltitle':original_title,'sorttitle': title,'plot': desc,'year':year,'genre':genres,'duration':dur*60,'director':directors,'cast':[],'trailer':trailerURL,'mediatype':'movie'}
+        if ep:
+            iL['mediatype']='episode'
+            iL['episode']=r['episode']['number']
+            iL['season']=r['episode']['season_number']
+            
+            
+        setArt={'thumb': img, 'poster': img, 'banner': img, 'icon': img, 'fanart': fanart}
+        addItemList(url, titleToList, setArt, 'video', iL, False, isPlayable, cm, cmItems)
+    else:
+        rs=r['series']
+        
+        title=rs['title']
+        sid=rs['slug']
+        img=r['still_url']
+        
+        original_title=rs['original_title']
+        year=r['year']
+        genres=rs['genres']
+        directors=[i['name'] for i in r['directors']] if 'directors' in r else []
+        countries=r['historic_countries'] if 'historic_countries' in r else []
+        desc=rs['short_synopsis']
+        
+        trailerURL=''    
+        if 'trailer_url' in r:
+            if r['trailer_url']!=None:
+                trailerURL=build_url({'mode':'trailer','url':r['trailer_url']})
+        
+        url=build_url({'mode':'seasList','sid':sid})
+        iL={'title': title,'originaltitle':original_title,'sorttitle': title,'plot': desc,'year':year,'genre':genres,'director':directors,'cast':[],'trailer':trailerURL,'mediatype':'tvshow'}        
+        setArt={'thumb': img, 'poster': img, 'banner': img, 'icon': img, 'fanart': fanart}
+        addItemList(url, title, setArt, 'video', iL, True, 'false')
 
+
+def seasList(sid):
+    url=apiURL+'series/'+sid+'/up_next'
+    resp=requests.get(url,headers=heaGen()).json()
+    for s in resp['series']['seasons']:
+        title=s['title']
+        seas_id=s['slug']
+        img='DefaultPlaylist.png'
+        
+        url=build_url({'mode':'epList','sid':sid,'seas_id':seas_id})
+        setArt={'thumb': img, 'poster': img, 'banner': img, 'icon': img, 'fanart': fanart}
+        addItemList(url, title, setArt)
+        
+    xbmcplugin.endOfDirectory(addon_handle)
+
+def epList(sid,seas_id,page):
+    url=apiURL+'series/'+sid+'/seasons/'+seas_id+'/episodes'
+    URLparams={}
+    if page!=None:
+        URLparams={'page':page}
+    
+    resp=requests.get(url,headers=heaGen(),params=URLparams).json()
+    for r in resp['episodes']:
+        addFilmToList(r,True)
+    
+    if resp['meta']['next_page']!=None:
+        setArt={'thumb': '', 'poster': '', 'banner': '', 'icon': img_empty, 'fanart': fanart}
+        url=build_url({'mode':'epList','sid':sid,'seas_id':seas_id,'page':str(resp['meta']['next_page'])})
+        addItemList(url, nextPageLabel, setArt)    
+    
+    xbmcplugin.setContent(addon_handle, 'videos')
+    xbmcplugin.endOfDirectory(addon_handle)
    
 def films(s,f,p): #Browser Lev.1 [lista filmów]
     URLparams={
@@ -962,6 +1030,16 @@ else:
     if mode=='lang':
         vid=params.get('vid')
         lang(vid)
+    
+    if mode=='seasList':
+        sid=params.get('sid')
+        seasList(sid)
+    
+    if mode=='epList':
+        sid=params.get('sid')
+        seas_id=params.get('seas_id')
+        page=params.get('page')
+        epList(sid,seas_id,page)
     
     if mode=='logIn':
         logIn()        

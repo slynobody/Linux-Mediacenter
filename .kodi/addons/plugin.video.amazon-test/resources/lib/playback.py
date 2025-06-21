@@ -143,10 +143,11 @@ def PlayVideo(name, asin, adultstr, streamtype, forcefb=0):
                     if urlset['cdn'] == 'Cloudfront':
                         import random, string
                         let = string.ascii_letters + string.digits
-                        rnd = [random.choice(let) for _ in range(random.randint(2,10))]
+                        rnd = [random.choice(let) for _ in range(random.randint(2, 10))]
                         try:
                             returl = re.sub(r'(\/3\$[^\/]*)', r'\1' + ''.join(rnd), returl)
-                        except: pass
+                        except:
+                            pass
                 if not bypassproxy:
                     returl = 'http://{}/mpd/{}'.format(_s.proxyaddress, quote_plus(returl))
                 return (returl, subUrls, timecodes) if retmpd else (True, _extrFr(data), None)
@@ -356,9 +357,9 @@ def PlayVideo(name, asin, adultstr, streamtype, forcefb=0):
         # If not, then the second iteration will fall back to cookie authentification
         # and try again. This is neccessary for content like Amazon Freevee, which is not
         # available though token based authentification.
-        
+
         for preferTokenToCookie in ([True, False] if _s.wvl1_device else [False]):
-            cookie, opt_lic, headers, dtid, lic_headers = _getPlaybackVars(preferToken=preferTokenToCookie)
+            cookie, req_param, headers, dtid, req_headers = _getPlaybackVars(preferToken=preferTokenToCookie)
             if not cookie:
                 _g.dialog.notification(getString(30203), getString(30200), xbmcgui.NOTIFICATION_ERROR)
                 Log('Login error at playback')
@@ -369,12 +370,12 @@ def PlayVideo(name, asin, adultstr, streamtype, forcefb=0):
             if success or not isinstance(cookie, dict):
                 break
 
-        mpd, subs, timecodes = _ParseStreams(success, data, retmpd=True, bypassproxy=bypassproxy, webid=dtid==_g.dtid_web)
+        mpd, subs, timecodes = _ParseStreams(success, data, retmpd=True, bypassproxy=bypassproxy, webid=dtid == _g.dtid_web)
         if not mpd:
             _g.dialog.notification(getString(30203), subs, xbmcgui.NOTIFICATION_ERROR)
             return False
 
-        licURL = getURLData('catalog/GetPlaybackResources', asin, devicetypeid=dtid, opt=opt_lic, extra=True, vMT=vMT, dRes='Widevine2License', retURL=True)
+        licURL = getURLData('catalog/GetPlaybackResources', asin, devicetypeid=dtid, opt=req_param, extra=True, vMT=vMT, dRes='Widevine2License', retURL=True)
         skip = timecodes.get('skipElements')
         Log('Skip Items: %s' % skip, Log.DEBUG)
 
@@ -411,23 +412,22 @@ def PlayVideo(name, asin, adultstr, streamtype, forcefb=0):
         listitem.setProperty('%s.manifest_headers' % _g.is_addon, urlencode(headers))
         listitem.setContentLookup(False)
 
-        if list(map(int, is_version.split('.'))) < [99, 1, 5]:
+        if list(map(int, is_version.split('.'))) < [22, 1, 5]:
             listitem.setProperty('%s.license_type' % _g.is_addon, 'com.widevine.alpha')
-            listitem.setProperty('%s.license_key' % _g.is_addon, licURL + opt_lic)
+            listitem.setProperty('%s.license_key' % _g.is_addon, licURL + req_param)
         else:
-            req_data = json.dumps({'widevine2Challenge': '{CHA-B64U}', 'includeHdcpTestKeyInLicense': True})
             drm_cfg = {'com.widevine.alpha':
-                           {'license':
+                           {'force_single_session': True,
+                            'license':
                                 {'server_url': licURL,
-                                 'req_headers': urlencode(lic_headers),
-                                 'req_data': base64.b64encode(req_data.encode('utf-8')).decode(),
-                                 'wrapper': "base64",
+                                 'req_headers': urlencode(req_headers),
+                                 'req_data': base64.b64encode(b'widevine2Challenge={CHA-B64U}').decode('utf-8'),
                                  'unwrapper': 'json,base64',
-                                 'unwrapper_params': {'path_data': 'license', 'path_data_traverse': True,
-                                                      'path_hdcp': 'hdcpEnforcementResolutionPixels', 'path_hdcp_traverse': True}
+                                 'unwrapper_params': {'path_data': 'widevine2License/license'}
                                  }
                             }
                        }
+
             listitem.setProperty('inputstream.adaptive.drm', json.dumps(drm_cfg))
 
         player = _AmazonPlayer()
@@ -463,7 +463,7 @@ def PlayVideo(name, asin, adultstr, streamtype, forcefb=0):
 
     def _getPlaybackVars(preferToken=True):
         cookie = MechanizeLogin(preferToken=preferToken)
-        cj_str = deepcopy(cookie)
+        req_headers = deepcopy(cookie)
         dtid = _g.dtid_web
 
         if cookie:
@@ -471,14 +471,14 @@ def PlayVideo(name, asin, adultstr, streamtype, forcefb=0):
                 dtid = _g.dtid_android
                 headers = _g.headers_android
             else:
-                cj_str = {'Cookie': ';'.join(['%s=%s' % (k, v) for k, v in cookie.items()])}
+                req_headers = {'Cookie': ';'.join(['%s=%s' % (k, v) for k, v in cookie.items()])}
                 headers = {'User-Agent': getConfig('UserAgent')}
-            cj_str.update({'Content-Type': 'application/octet-stream'})
-            cj_str.update(headers)
-            opt = '|' + urlencode(cj_str)
-            opt += '|widevine2Challenge=B{SSM}&includeHdcpTestKeyInLicense=true'
-            opt += '|JBlicense;hdcpEnforcementResolutionPixels'
-            return cookie, opt, headers, dtid, cj_str
+            req_headers.update({'Content-Type': 'application/octet-stream'})
+            req_headers.update(headers)
+            req_param = '|' + urlencode(req_headers)
+            req_param += '|widevine2Challenge=B{SSM}'
+            req_param += '|JBlicense'
+            return cookie, req_param, headers, dtid, req_headers
         return False
 
     isAdult = adultstr == '1'
@@ -737,7 +737,8 @@ class _SkipButton(xbmcgui.WindowDialog):
         super(_SkipButton, self).__init__()
         x = self.getWidth() - 550
         y = self.getHeight() - 70
-        self.skip_button = xbmcgui.ControlButton(x, y, width=500, height=30, label='', textColor='0xFFFFFFFF', focusedColor='0xFFFFA500', disabledColor='0xFFFFA500',
+        self.skip_button = xbmcgui.ControlButton(x, y, width=500, height=30, label='', textColor='0xFFFFFFFF', focusedColor='0xFFFFA500',
+                                                 disabledColor='0xFFFFA500',
                                                  shadowColor='0xFF000000', focusTexture='', noFocusTexture='', alignment=1, font='font14')
         self.act_btn = ''
         self.btn_list = ('SHOW', 'INTRO', 'RECAP', 'INTRO_RECAP')

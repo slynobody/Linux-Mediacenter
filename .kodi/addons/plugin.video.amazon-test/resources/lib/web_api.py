@@ -12,7 +12,7 @@ from copy import deepcopy
 from kodi_six import xbmc, xbmcplugin, xbmcgui
 
 from .singleton import Singleton
-from .common import key_exists, return_item, return_value, sleep, findKey, MechanizeLogin
+from .common import key_exists, return_item, return_value, sleep, findKey, MechanizeLogin, decode_token
 from .network import getURL, getURLData, FQify, GrabJSON, LocaleSelector
 from .logging import Log, LogJSON
 from .itemlisting import setContentAndView, addVideo, addDir
@@ -307,7 +307,6 @@ class PrimeVideo(Singleton):
         # Specify `None` instead of just not empty to avoid multiple queries to the same endpoint
         if home is None:
             home = GrabJSON(self._g.BaseUrl + ('' if self._g.UsePrimeVideo else '/gp/video/storefront'))
-            LogJSON(home)
             if not home:
                 return False
             self._UpdateProfiles(home)
@@ -916,12 +915,23 @@ class PrimeVideo(Singleton):
                     Log('Unable to fetch the url: {}'.format(url), Log.ERROR)
                     return False
 
+            # convert widgets field to state
+            if 'widgets' in data and 'episodeList' in data['widgets']:
+                season_id = urn = data['widgets']['pageContext']['pageTitleId']
+                data['state'] = {'episodeList': {'actions': data['widgets']['episodeList']['actions'], 'cardTitleIds': []},
+                                 'pageTitleId': season_id,
+                                 'detail': {season_id: {'titleType': 'season'}}, 'self': {season_id: {'titleType': 'season'}}}
+                for episodes in data['widgets']['episodeList']['episodes']:
+                    data['state']['episodeList']['cardTitleIds'].append(episodes['titleID'])
+                    for state_key in ['detail', 'self']:
+                        data['state'][state_key].update({episodes['titleID']: episodes[state_key]})
+
             # Video/season/movie data are in the `state` field of the response
-            if 'state' not in data and 'widgets' not in data:
+            if 'state' not in data:
                 return False
 
-            state = data['state' if 'state' in data else 'widgets']  # Video info
-            title_id = state['pageContext']['pageTitleId']
+            state = data['state']  # Video info
+            title_id = state['pageTitleId']
             GTIs = []  # List of inserted GTIs
             parents = {}  # Map of parents
             bUpdated = False  # Video data updated
@@ -973,7 +983,7 @@ class PrimeVideo(Singleton):
                         if vid in o:
                             continue
 
-                    o[vid] = {'title': i['title'], 'metadata': {'compactGTI': i.get('compactGti', i.get('catalogId', vid)),
+                    o[vid] = {'title': i['title'], 'metadata': {'compactGTI': i.get('compactGTI', i.get('catalogId', vid)),
                                                                 'artmeta': {}, 'videometa': {'mediatype': 'video'}}}
 
                     if 'liveState' in i:
@@ -1004,13 +1014,12 @@ class PrimeVideo(Singleton):
 
             # Seasons (episodes are now listed in self too)
             # Only add seasons if we are not inside a season already
-            if ('self' in state) and (oid not in state['self']):
+            if ('self' in state) and (oid not in state['self']) and ('widgets' not in data):
                 # "self": {"amzn1.dv.gti.[…]": {"gti": "amzn1.dv.gti.[…]", "link": "/detail/[…]"}}
                 for gti in [k for k in state['self'] if 'season' == state['self'][k]['titleType'].lower()]:
                     s = state['self'][gti]
                     gti = s['gti'] if self._g.UsePrimeVideo else gti
                     if gti not in self._videodata:
-                        o[gti] = {('ref' if title_id == gti else 'lazyLoadURL'): s['link']}
                         self._videodata[gti] = {'ref': s['link'], 'children': [], 'siblings': []}
                         bUpdated = True
                     else:
@@ -1035,7 +1044,7 @@ class PrimeVideo(Singleton):
             episodes = state.get('collections', {})
             if 'episodeList' in state:
                 episodes = {title_id: [state['episodeList']]}
-                if 'actions' in state['episodeList'] and 'pagination' in state['episodeList']['actions']:
+                if ('self' in state and title_id in state['self']) and ('actions' in state['episodeList'] and 'pagination' in state['episodeList']['actions']):
                     for next_epi in state['episodeList']['actions']['pagination']:
                         if next_epi['tokenType'].lower() == 'nextpage':
                             next_url = '/gp/video/api/getDetailWidgets?titleID={}&isTvodOnRow=&widgets=%5B%7B%22widgetType%22%3A%22EpisodeList%22%2C%22widgetToken%22%3A%22{}%22%7D%5D'.format(title_id, next_epi['token'])
@@ -1045,14 +1054,10 @@ class PrimeVideo(Singleton):
             # "episodeList": {"cardTitleIds": ["amzn1.dv.gti.[…]", "amzn1.dv.gti.[…]"]}
             for gti, lc in episodes.items():
                 for le in lc:
-                    for e in le.get('titleIds', le.get('cardTitleIds', le.get('episodes', []))):
-                        if isinstance(e, dict):
-                            state['detail'] = {e['titleID']: e['detail']}
-                            e = e['titleID']
+                    for e in le.get('titleIds', le.get('cardTitleIds', [])):
                         GTIs.append(e)
                         # Save parent/children relationships
                         parents[e] = gti
-                        Log(e)
                         if gti in self._videodata and e not in self._videodata[gti]['children']:
                             self._videodata[gti]['children'].append(e)
                             bUpdated = True
@@ -1083,6 +1088,8 @@ class PrimeVideo(Singleton):
                 # not inside a season/show: (oid not in details)
                 #     not already appended: (gti not in GTIs)
                 # part of the page details: ('self' in state) & (gti in state['self'])
+                if details[gti]['titleType'].lower() == 'season' and 'widgets' in data:
+                    continue
                 if (oid not in details) and (gti not in GTIs) and ('self' in state) and (gti in state['self']):
                     GTIs.append(gti)
                     o[gti] = {}
@@ -1340,11 +1347,11 @@ class PrimeVideo(Singleton):
                             if 'seeMoreLink' in collection:
                                 o[id]['lazyLoadURL'] = collection['seeMoreLink']['url']
                             elif 'paginationTargetId' in collection:
-                                q = ['{}={}'.format(k.replace('paginationServiceToken', 'serviceToken'), ','.join(v) if isinstance(v, list) else quote_plus(v))
-                                     for k, v in collection.items() if k in ['collectionType', 'paginationServiceToken', 'paginationTargetId', 'tags',
-                                                                             'journeyIngressContext']]
+                                q = ['{}={}'.format(k.replace('paginationServiceToken', 'serviceToken').replace('paginationStartIndex', 'startIndex'),
+                                                    ','.join(v) if isinstance(v, list) else quote_plus(str(v)))
+                                     for k, v in collection.items() if k in ['collectionType', 'paginationServiceToken', 'paginationTargetId', 'tags', 'paginationStartIndex']]
                                 q.append('pageId=live' if 'EpgGroup' in collection.get('containerType', '') else 'pageId=home')
-                                q.append('startIndex=0&pageSize=20&pageType=home')
+                                q.append('pageSize=20&pageType=home')
                                 q.append('isCleanSlateActive=1&isDiscoverActive=1&isLivePageActive=1&variant=desktopWindows&payloadScheme=default&actionScheme=default'
                                          '&decorationScheme=web-decoration-asin-v4&featureScheme=web-features-v6&widgetScheme=web-explorecs-v11&dynamicFeatures=integration'
                                          '&dynamicFeatures=CLIENT_DECORATION_ENABLE_DAAPI&dynamicFeatures=ENABLE_DRAPER_CONTENT&dynamicFeatures=HorizontalPagination'
@@ -1353,7 +1360,8 @@ class PrimeVideo(Singleton):
                                     q.append('collectionType=Container')
                                 if var == 'collection':
                                     q.append('facetType=' + collection['facet']['facetType'])
-                                o[id]['lazyLoadURL'] = '/gp/video/api/paginateCollection?' + '&'.join(q)
+                                o[id]['lazyLoadData'] = collection
+                                o[id]['lazyLoadData']['paginationTargetUrl'] = '/gp/video/api/paginateCollection?' + '&'.join(q)
                             else:
                                 o[id]['lazyLoadData'] = collection
                         elif 'items' in collection:
@@ -1444,48 +1452,43 @@ class PrimeVideo(Singleton):
                 if ('pagination' in cnt) or (key_exists(cnt, 'viewOutput', 'features', wl_lib, 'content', 'seeMoreHref'))\
                         or ('hasMoreItems' in cnt) or ('paginationTargetId' in vo):
                     nextPage = None
-                    try:
+                    if 'viewOutput' in cnt:
                         # Dynamic AJAX pagination
                         seeMore = cnt['viewOutput']['features'][wl_lib]['content']
                         if seeMore['nextPageStartIndex'] < seeMore['totalItems']:
                             nextPage = seeMore['seeMoreHref']
-                    except:
-                        # Classic numbered pagination
-                        if 'pagination' in cnt:
-                            if 'paginator' in cnt['pagination']:
-                                nextPage = next((x['href'] for x in cnt['pagination']['paginator'] if
-                                                 (('type' in x) and ('NextPage' == x['type'])) or
-                                                 (('*className*' in x) and ('atv.wps.PaginatorNext' == x['*className*'])) or
-                                                 (('__type' in x) and ('PaginatorNext' in x['__type']))), None)
-                            elif 'queryParameters' in cnt['pagination']:
-                                q = cnt['pagination']['queryParameters']
-                                q = {k.replace('content', 'page') if k in ['contentId', 'contentType'] else k: v for k, v in q.items()}
-                                q.update({'isCleanSlateActive': '1', 'isDiscoverActive': '1', 'isLivePageActive': '1', 'variant': 'desktopWindows', 'payloadScheme': 'default'})
-                                try:
-                                    t = json.loads(base64.b64decode(q['serviceToken']))
-                                except:
-                                    t = ''
-                                    if cnt['pagination'].get('url') is not None:
-                                        u_parse = urlparse(cnt['pagination']['url'])
-                                        u_query = parse_qs(u_parse.query)
-                                        t = json.loads(base64.b64decode(u_query['serviceToken'][0]))
-                                if 'type' in t and 'vpage' in t['type']:
-                                    nextPage = '/gp/video/api/getLandingPage?' + urlencode(q, doseq=True)
-                                else:
-                                    q = {k.replace('targetId', 'paginationTargetId') if k in 'targetId' else k: v for k, v in q.items()}
-                                    q.update({'collectionType': 'Container'} if 'collectionType' not in q else {})
-                                    nextPage = '/gp/video/api/paginateCollection?' + urlencode(q, doseq=True)
-                        elif cnt.get('hasMoreItems', False) and 'startIndex=' in requestURL:
-                            idx = int(re.search(r'startIndex=(\d*)', requestURL).group(1))
-                            nextPage = requestURL.replace('startIndex={}'.format(idx), 'startIndex={}'.format(idx+20))
-                        elif 'paginationTargetId' in vo:
-                            q = ['{}={}'.format(k.replace('paginationServiceToken', 'serviceToken').replace('paginationStartIndex', 'startIndex'), ','.join(v) if isinstance(v, list) else quote_plus(str(v)))
-                                 for k, v in vo.items() if k in ['collectionType', 'paginationServiceToken', 'paginationTargetId', 'tags', 'paginationStartIndex']]
-                            q.append('pageSize=20&pageType=browse&pageId=default&variant=desktopWindows&actionScheme=default&payloadScheme=default'
-                                     '&decorationScheme=web-search-decoration-tournaments-v2&featureScheme=web-search-v4&dynamicFeatures=HorizontalPagination&widgetScheme=web-explorecs-v11')
-                            if 'collectionType' not in q:
-                                q.append('collectionType=Container')
-                            nextPage = '/gp/video/api/paginateCollection?' + '&'.join(q)
+                    elif 'pagination' in cnt:
+                        if 'paginator' in cnt['pagination']:
+                            nextPage = next((x['href'] for x in cnt['pagination']['paginator'] if
+                                             (('type' in x) and ('NextPage' == x['type'])) or
+                                             (('*className*' in x) and ('atv.wps.PaginatorNext' == x['*className*'])) or
+                                             (('__type' in x) and ('PaginatorNext' in x['__type']))), None)
+                        elif 'queryParameters' in cnt['pagination']:
+                            q = cnt['pagination']['queryParameters']
+                            q = {k.replace('content', 'page') if k in ['contentId', 'contentType'] else k: v for k, v in q.items()}
+                            q.update({'isCleanSlateActive': '1', 'isDiscoverActive': '1', 'isLivePageActive': '1', 'variant': 'desktopWindows',
+                                      'payloadScheme': 'default'})
+
+                            if 'vpage' in decode_token(q['serviceToken']):
+                                nextPage = '/gp/video/api/getLandingPage?' + urlencode(q, doseq=True)
+                            else:
+                                q = {k.replace('targetId', 'paginationTargetId') if k in 'targetId' else k: v for k, v in q.items()}
+                                q.update({'collectionType': 'Container'} if 'collectionType' not in q else {})
+                                nextPage = '/gp/video/api/paginateCollection?' + urlencode(q, doseq=True)
+                    elif cnt.get('hasMoreItems', False) and 'startIndex=' in requestURL:
+                        idx = int(re.search(r'startIndex=(\d*)', requestURL).group(1))
+                        nextPage = requestURL.replace('startIndex={}'.format(idx), 'startIndex={}'.format(idx + 20))
+                    elif 'paginationTargetUrl' in vo:
+                        nextPage = vo['paginationTargetUrl']
+                    elif 'paginationTargetId' in vo:
+                        q = ['{}={}'.format(k.replace('paginationServiceToken', 'serviceToken').replace('paginationStartIndex', 'startIndex'),
+                                            ','.join(v) if isinstance(v, list) else quote_plus(str(v)))
+                             for k, v in vo.items() if k in ['collectionType', 'paginationServiceToken', 'paginationTargetId', 'tags', 'paginationStartIndex']]
+                        q.append('pageSize=20&pageType=browse&pageId=default&variant=desktopWindows&actionScheme=default&payloadScheme=default'
+                                 '&decorationScheme=web-search-decoration-tournaments-v2&featureScheme=web-search-v4&dynamicFeatures=HorizontalPagination&widgetScheme=web-explorecs-v11')
+                        if 'collectionType' not in q:
+                            q.append('collectionType=Container')
+                        nextPage = '/gp/video/api/paginateCollection?' + '&'.join(q)
 
                     if nextPage:
                         # Determine if we can auto page

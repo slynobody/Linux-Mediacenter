@@ -2,11 +2,10 @@ import sys
 import uuid
 from time import time
 
-from slyguy import gui, settings, log, check_donor, is_donor, set_drm_level, _
+from slyguy import monitor, gui, settings, log, check_donor, is_donor, set_drm_level, _
+from slyguy.keep_alive import call_keep_alives
 from slyguy.session import Session
-from slyguy.monitor import monitor
 from slyguy.util import get_system_arch
-from slyguy.settings import set_trailer_context
 from slyguy.settings.db_storage import db
 
 from .proxy import Proxy
@@ -30,9 +29,6 @@ def _check_news():
     if 'id' not in news or news['id'] == settings.get('_last_news_id'):
         return
     settings.set('_last_news_id', news['id'])
-
-    if news['type'] == 'donate' and is_donor():
-        return
     settings.setDict('_news', news)
 
 
@@ -58,27 +54,31 @@ def run():
         log.exception(e)
         gui.exception()
 
+
 def _run():
     log.info('Shared Service: Started')
     log.info('Python Version: {}'.format(sys.version))
 
-    player = Player()
-    proxy = Proxy()
-    proxy.start()
-
-    check_donor(force=True)
-    if is_donor():
-        log.info("Welcome SlyGuy Supporter!")
-    else:
-        log.info("Visit donate.slyguy.uk to become a supporter and unlock perks!")
-
-    set_drm_level()
-    check_arch()
-    set_trailer_context()
-
-    ## Inital wait on boot
-    monitor.waitForAbort(10)
     try:
+        # updates at start may already have called abort
+        if not monitor.abortRequested():
+            player = Player()
+            proxy = Proxy()
+            proxy.start()
+
+            check_donor(force=True)
+            if is_donor():
+                log.info("Welcome SlyGuy Supporter!")
+            else:
+                log.info("Visit donate.slyguy.uk to become a supporter and unlock perks!")
+
+            set_drm_level()
+            check_arch()
+
+        ## Inital wait on boot
+        monitor.waitForAbort(10)
+
+        # run service loop
         while not monitor.abortRequested():
             try:
                 settings.reset()
@@ -90,6 +90,7 @@ def _run():
                 if not is_donor() or settings.getBool('show_news'):
                     _check_news()
 
+                call_keep_alives()
                 check_repo()
             except Exception as e:
                 log.exception(e)

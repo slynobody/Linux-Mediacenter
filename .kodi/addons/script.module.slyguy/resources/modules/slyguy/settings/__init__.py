@@ -2,13 +2,15 @@ import os
 import re
 from time import time
 
+import arrow
+
 from slyguy import dialog, signals
 from slyguy.language import _
 from slyguy.log import log
 from slyguy.constants import *
-from slyguy.util import get_kodi_string, set_kodi_string, kodi_rpc
+from slyguy.util import get_kodi_string, set_kodi_string, kodi_rpc, get_qr_img
 
-from .types import BaseSettings, Bool, Dict, Number, Text, Enum, Categories, Action, Browse, STORAGE
+from .types import BaseSettings, Bool, Dict, Number, Text, Enum, Categories, Action, STORAGE
 
 
 WV_AUTO = -1
@@ -34,20 +36,6 @@ class IPMode:
     ONLY_IPV6 = 'only_ipv6'
 
 
-class YTMode:
-    YT_DLP = 'yt_dlp'
-    PLUGIN = 'plugin'
-    APK = 'apk'
-    YT_DLP_APK = 'yt_dlp_apk'
-    YT_DLP_PLUGIN = 'yt_dlp_plugin'
-
-
-class TrailerMode:
-    MEDIA = 'media'
-    MEDIA_MDBLIST = 'media_mdblist'
-    MDBLIST_MEDIA = 'mdblist_media'
-
-
 def is_donor():
     return bool(settings.DONOR_ID_CHK.value and settings.DONOR_ID_CHK.value == settings.DONOR_ID.value)
 
@@ -55,13 +43,14 @@ def is_donor():
 def _set_donor(donor_id):
     set_kodi_string('_slyguy_donor', '1')
     settings.set('donor_id_chk', donor_id)
-    set_trailer_context()
+    signals.emit(signals.ON_DONOR_SET, donor_id=donor_id)
 
 
 def _unset_donor():
     set_kodi_string('_slyguy_donor', '0')
+    old_donor_id = settings.get('donor_id_chk')
     settings.remove('donor_id_chk')
-    set_trailer_context()
+    signals.emit(signals.ON_DONOR_UNSET, donor_id=old_donor_id)
 
 
 def is_wv_secure():
@@ -92,19 +81,6 @@ def hdcp_level():
         return hdcp_level
 
 
-def set_trailer_context():
-    if not settings.TRAILER_CONTEXT_MENU.value:
-        set_kodi_string('_slyguy_trailer_context_menu', '0')
-    elif settings.TRAILER_LOCAL.value:
-        set_kodi_string('_slyguy_trailer_context_menu', '4')
-    elif settings.TRAILER_MODE.value != TrailerMode.MEDIA:
-        set_kodi_string('_slyguy_trailer_context_menu', '2')
-        if settings.MDBLIST_SEARCH.value:
-            set_kodi_string('_slyguy_trailer_context_menu', '3')
-    else:
-        set_kodi_string('_slyguy_trailer_context_menu', '1')
-
-
 def restart_service():
     kodi_rpc('Addons.SetAddonEnabled', {'addonid': COMMON_ADDON_ID, 'enabled': False})
     kodi_rpc('Addons.SetAddonEnabled', {'addonid': COMMON_ADDON_ID, 'enabled': True})
@@ -121,7 +97,11 @@ def check_donor(force=False):
 
     try:
         from slyguy.session import Session
-        result = Session().head(DONOR_URL.format(id=settings.DONOR_ID.value), log_url=DONOR_URL.format(id='xxxxx')).status_code == 200
+        resp = Session().get(DONOR_URL.format(id=settings.DONOR_ID.value), log_url=DONOR_URL.format(id='xxxxx'))
+        result = (resp.status_code == 200)
+        if result:
+            try: settings.setInt('donor_expires', int(resp.text))
+            except: pass
     except Exception as e:
         log.warning("Failed to check donor id due to: {}".format(e))
         if _time > settings.getInt('last_donor_check', 0) + DONOR_TIMEOUT:
@@ -227,10 +207,17 @@ class Donor(Text):
         elif self.can_clear():
             value = _(value, _bold=True)
 
+        expires = settings.getInt('donor_expires', 0)
+        if expires > 0:
+            expires = arrow.get(expires)
+
         if is_donor():
             value = _(value, _color='green')
         else:
             value = _(value, _color='red')
+
+        if expires:
+            value = _(_.VALID_TO, supporter_id=value, expires=expires.to('local').format('D MMMM YYYY'))
 
         label = u'{}: {}'.format(self._label, value)
         return label
@@ -245,10 +232,13 @@ class Donor(Text):
             return _.SUPPORTER_HELP
 
 
-def reset_addon():
-    STORAGE.delete_all(ADDON_ID)
+def reset_addon(addon_id=ADDON_ID):
+    from slyguy import gui, dialog
+    if not dialog.yes_no(_.PLUGIN_RESET_YES_NO):
+        return
+
+    STORAGE.delete_all(addon_id)
     signals.emit(signals.AFTER_RESET)
-    from slyguy import gui
     gui.notification(_.PLUGIN_RESET_OK)
     return True
 
@@ -256,16 +246,6 @@ def reset_addon():
 WV_LEVEL_OPTIONS = [[_.AUTO, WV_AUTO], [_.WV_LEVEL_L3, WV_L3]]
 if ADDON_DEV:
     WV_LEVEL_OPTIONS.append([_.WV_LEVEL_L1, WV_L1])
-
-
-YT_OPTIONS = [[_.YT_PLUGIN, YTMode.PLUGIN]]
-if IS_ANDROID:
-    YT_OPTIONS.append([_.YT_APK, YTMode.APK])
-if IS_PYTHON3:
-    YT_OPTIONS.insert(0, [_.YT_DLP, YTMode.YT_DLP])
-    YT_OPTIONS.append([_.YT_DLP_PLUGIN, YTMode.YT_DLP_PLUGIN])
-    if IS_ANDROID:
-        YT_OPTIONS.append([_.YT_DLP_APK, YTMode.YT_DLP_APK])
 
 
 class CommonSettings(BaseSettings):
@@ -300,12 +280,13 @@ class CommonSettings(BaseSettings):
     DEFAULT_SUBTITLE = Text('default_subtitle', default='original,interface,en', owner=COMMON_ADDON_ID, disabled_value='', enable=is_donor, disabled_reason=_.SUPPORTER_ONLY, category=Categories.PLAYER_LANGUAGE)
 
     # PLAYER / ADVANCED
+    REMOVE_FRAMERATE = Bool('remove_framerate', default=False, owner=COMMON_ADDON_ID, category=Categories.PLAYER_ADVANCED)
+    #CONVERT_FRAMERATE = Bool('convert_framerate', disable=False)
     REINSTALL_WV = Action("RunPlugin(plugin://{}/?_=_ia_install)".format(COMMON_ADDON_ID), visible=not IS_ANDROID, category=Categories.PLAYER_ADVANCED)
     LIVE_PLAY_TYPE = Enum('live_play_type', options=[[_.PLAY_FROM_ASK, PLAY_FROM_ASK], [_.PLAY_FROM_LIVE_CONTEXT, PLAY_FROM_LIVE], [_.PLAY_FROM_BEGINNING, PLAY_FROM_START]],
                     loop=True, default=PLAY_FROM_ASK, owner=COMMON_ADDON_ID, category=Categories.PLAYER_ADVANCED)
     USE_IA_HLS_LIVE = Bool('use_ia_hls_live', default=True, owner=COMMON_ADDON_ID, category=Categories.PLAYER_ADVANCED)
     USE_IA_HLS_VOD = Bool('use_ia_hls_vod', default=True, owner=COMMON_ADDON_ID, category=Categories.PLAYER_ADVANCED)
-    PROXY_ENABLED = Bool('proxy_enabled', default=True, before_save=lambda val: val or dialog.yes_no(_.CONFIRM_DISABLE_PROXY), owner=COMMON_ADDON_ID, category=Categories.PLAYER_ADVANCED)
     WV_LEVEL = Enum('wv_level', after_save=set_drm_level, options=WV_LEVEL_OPTIONS, loop=True, default=WV_AUTO, owner=COMMON_ADDON_ID, category=Categories.PLAYER_ADVANCED)
     HDCP_LEVEL = Enum('hdcp_level', before_save=lambda val: settings.HDCP_LEVEL.value != HDCP_AUTO or dialog.yes_no(_.CONFIRM_CHANGE_HDCP_LEVEL), after_save=set_drm_level,
                       options=[[_.AUTO, HDCP_AUTO], [_.HDCP_OFF, HDCP_NONE], [_.HDCP_1, HDCP_1], [_.HDCP_2_2, HDCP_2_2], [_.HDCP_3_0, HDCP_3_0]], 
@@ -337,31 +318,19 @@ class CommonSettings(BaseSettings):
 
     # SYSTEM
     FAST_UPDATES = Bool('fast_updates', default=True, enable=is_donor, disabled_value=False, disabled_reason=_.SUPPORTER_ONLY, override=False, owner=COMMON_ADDON_ID, category=Categories.SYSTEM)
-    PROXY_PORT = Number('proxy_port', default=8095, override=False, visible=lambda: settings.PROXY_ENABLED.value, owner=COMMON_ADDON_ID, after_save=lambda val: restart_service(), after_clear=restart_service, category=Categories.SYSTEM)
-    CHECK_LOG = Action("RunPlugin(plugin://{}/?_=check_log)".format(COMMON_ADDON_ID), owner=COMMON_ADDON_ID, category=Categories.SYSTEM)
-
-    # TRAILERS
-    TRAILER_CONTEXT_MENU = Bool('trailer_context_menu', default=True, enable=is_donor, after_save=lambda val:set_trailer_context(),
-        after_clear=set_trailer_context, disabled_value=False, disabled_reason=_.SUPPORTER_ONLY, override=False, owner=COMMON_ADDON_ID, category=Categories.TRAILERS)
-    TRAILER_MODE = Enum('trailer_mode', _.TRAILER_MODE, options=[[_.MEDIA, TrailerMode.MEDIA], [_.MEDIA_MDBLIST, TrailerMode.MEDIA_MDBLIST], [_.MDBLIST_MEDIA, TrailerMode.MDBLIST_MEDIA]],
-                             default=TrailerMode.MEDIA, override=False, owner=COMMON_ADDON_ID, after_save=lambda val:set_trailer_context(), after_clear=set_trailer_context, enable=is_donor, disabled_reason=_.SUPPORTER_ONLY, category=Categories.TRAILERS)
-    MDBLIST_SEARCH = Bool('mdblist_search', _.MDBLIST_SEARCH, default=True, override=False, owner=COMMON_ADDON_ID, enable=is_donor, disabled_reason=_.SUPPORTER_ONLY, category=Categories.TRAILERS)
-    TRAILER_LOCAL = Bool('trailer_local', _.TRAILER_LOCAL, default=False, override=False, owner=COMMON_ADDON_ID, after_save=lambda val:set_trailer_context(), after_clear=set_trailer_context, enable=is_donor, disabled_reason=_.SUPPORTER_ONLY, category=Categories.TRAILERS)
-    YT_PLAY_USING = Enum('yt_play_using', _.YT_PLAY_USING, options=YT_OPTIONS, default=YT_OPTIONS[0][1], override=False, owner=COMMON_ADDON_ID, category=Categories.TRAILERS)
-    YT_SUBTITLES = Bool('yt_subtitles', _.YT_SUBTITLES, default=True, override=False, owner=COMMON_ADDON_ID, category=Categories.TRAILERS)
-    YT_AUTO_SUBTITLES = Bool('yt_auto_subtitles', _.YT_AUTO_SUBTITLES, default=True, override=False, owner=COMMON_ADDON_ID, category=Categories.TRAILERS)
-    YT_COOKIES_PATH = Browse('yt_cookies_path', _.YT_DLP_COOKIES_PATH, type=Browse.FILE, override=False, owner=COMMON_ADDON_ID, category=Categories.TRAILERS)
-    YT_NATIVE_APK_ID = Text('yt_android_app_id', _.YT_NATIVE_APK_ID, default_label=_.AUTO, visible=IS_ANDROID, override=False, owner=COMMON_ADDON_ID, category=Categories.TRAILERS)
+    PROXY_ENABLED = Bool('proxy_enabled', default=True, before_save=lambda val: val or dialog.yes_no(_.CONFIRM_DISABLE_PROXY), owner=COMMON_ADDON_ID, category=Categories.SYSTEM)
+    PROXY_PORT = Number('proxy_port', default=None, default_label=_.AUTO, override=False, visible=lambda: settings.PROXY_ENABLED.value, owner=COMMON_ADDON_ID, after_save=lambda val: restart_service(), after_clear=restart_service, category=Categories.SYSTEM)
 
     # ROOT
-    DONOR_ID = Donor('donor_id', override=False, confirm_clear=True, owner=COMMON_ADDON_ID, category=Categories.ROOT)
+    DONOR_ID = Donor('donor_id', override=False, confirm_clear=True, owner=COMMON_ADDON_ID, category=Categories.ROOT, image=get_qr_img(SUPPORT_URL))
     UPDATE_ADDONS = Action("RunPlugin(plugin://{}/?_=update_addons)".format(COMMON_ADDON_ID), enable=is_donor, disabled_reason=_.SUPPORTER_ONLY, owner=COMMON_ADDON_ID, category=Categories.ROOT)
-    RESET_ADDON = Action(reset_addon, confirm_action=_.PLUGIN_RESET_YES_NO, owner=COMMON_ADDON_ID, category=Categories.ROOT)
+    RESET_ADDON = Action(reset_addon, owner=COMMON_ADDON_ID, category=Categories.ROOT)
 
     # HIDDEN
     DONOR_ID_CHK = Text('donor_id_chk', visible=False, override=False, owner=COMMON_ADDON_ID)
     ADDONS_MD5 = Text('addon_md5', visible=False, override=False, owner=COMMON_ADDON_ID)
     LAST_DONOR_CHECK = Number('last_donor_check', visible=False, override=False, owner=COMMON_ADDON_ID)
+    LAST_SUPPORT_REMINDER = Number('last_support_reminder', visible=False, override=False, owner=COMMON_ADDON_ID)
     LAST_NEWS_CHECK = Number('last_news_check', visible=False, override=False, owner=COMMON_ADDON_ID)
     LAST_NEWS_ID = Text('last_news_id', visible=False, override=False, owner=COMMON_ADDON_ID)
     PROXY_PATH = Text('proxy_path', visible=False, override=False, owner=COMMON_ADDON_ID)

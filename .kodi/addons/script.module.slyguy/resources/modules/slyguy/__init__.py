@@ -4,6 +4,7 @@ import xbmc, xbmcaddon
 DEPENDENCIES_ADDON_ID = 'slyguy.dependencies'
 COMMON_ADDON_ID = 'script.module.slyguy'
 ADDON_ID = xbmcaddon.Addon().getAddonInfo('id')
+monitor = xbmc.Monitor()
 
 # fix for asyncio crashes
 sys.modules['_asyncio'] = None
@@ -26,3 +27,4 @@ if ADDON_ID not in sys.path[0]:
 from slyguy.log import log
 from slyguy.language import _
 from slyguy.settings import settings, is_donor, check_donor, set_drm_level
+from slyguy.keep_alive import keep_alive

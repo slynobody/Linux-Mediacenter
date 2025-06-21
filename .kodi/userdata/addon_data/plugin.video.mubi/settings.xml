@@ -1,0 +1,5 @@
+<settings version="2">
+    <setting id="playable">true</setting>
+    <setting id="lng" default="true">English</setting>
+    <setting id="deviceID" default="true">16eef807-35cd-cac4-0296-335ee1e2334a</setting>
+</settings>

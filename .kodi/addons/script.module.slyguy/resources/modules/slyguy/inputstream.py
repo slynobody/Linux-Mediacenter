@@ -114,8 +114,10 @@ class Widevine(InputstreamItem):
     license_type = 'com.widevine.alpha'
     minversion = IA_WV_MIN_VER
 
-    def __init__(self, license_key=None, content_type='application/octet-stream', challenge='R{SSM}', response='', manifest_type='mpd', mimetype='application/dash+xml', server_certificate=None, license_data=None, license_headers=None, wv_secure=False, flags=None, **kwargs):
+    def __init__(self, license_key=None, content_type='application/octet-stream', challenge='R{SSM}', response='', manifest_type='mpd', mimetype=None, server_certificate=None, license_data=None, license_headers=None, wv_secure=False, flags=None, **kwargs):
         super(Widevine, self).__init__(**kwargs)
+        if mimetype is None:
+            mimetype = 'application/vnd.apple.mpegurl' if manifest_type == 'hls' else 'application/dash+xml'
         self.license_key = license_key
         self.content_type = content_type
         self.challenge = challenge
@@ -266,6 +268,17 @@ def install_widevine(reinstall=False):
             wv['compatible'] = False
             wv['label'] = _(_.WV_REVOKED, label=wv['label'])
             wv['confirm'] = _.WV_REVOKED_CONFIRM
+
+        elif wv.get('min_ia'):
+            min_ia = wv['min_ia'].get(str(KODI_VERSION))
+            if not min_ia or not require_version(min_ia):
+                wv['compatible'] = False
+                wv['label'] = _(_.WV_ISSUES, label=wv['label'])
+                if min_ia:
+                    wv['confirm'] = _(_.WV_REQUIRE_IA, version=min_ia)
+                else:
+                    wv['confirm'] = _.WV_UNSUPPORTED_IA
+
         elif wv.get('issues'):
             wv['compatible'] = False
             wv['label'] = _(_.WV_ISSUES, label=wv['label'])

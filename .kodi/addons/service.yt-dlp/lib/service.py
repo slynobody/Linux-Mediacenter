@@ -52,7 +52,7 @@ class YtDlpVideo(dict):
             like_count=info.get("like_count", 0),
             view_count=info.get("view_count", 0),
             timestamp=info.get("timestamp", 0),
-            #headers=info.get("http_headers", {}),
+            headers=info.get("http_headers", {}),
             formats=info.get("formats", []),
             subtitles=subtitles,
             language=info.get("language", ""),
@@ -101,7 +101,7 @@ class YtDlpService(Service):
                 raise value.with_traceback(traceback)
             raise value
         finally:
-            v = None
+            value = None
             traceback = None
 
     def __extract__(self, url, **kwargs):
@@ -114,8 +114,10 @@ class YtDlpService(Service):
                 if (exc_info := error.exc_info):
                     self.__reraise__(*exc_info)
                 raise error
-        except (UserNotLive, ExtractorError) as error:
-            self.logger.info(error, notify=True, time=1000)
+        except UserNotLive as error:
+            self.logger.info(error.__class__.__name__, notify=True, time=1000)
+        except ExtractorError as error:
+            self.logger.info(error, notify=True)
 
     def __video__(self, info, captions=None, **kwargs):
         captions = captions if captions is not None else self.__captions__

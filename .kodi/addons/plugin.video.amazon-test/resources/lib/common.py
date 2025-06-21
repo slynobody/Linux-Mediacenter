@@ -162,7 +162,8 @@ class Settings(Singleton):
                   _bool_true:
                       ['useshowfanart', 'disptvshow', 'paycont', 'logging', 'json_dump', 'json_dump_collisions', 'sub_stretch', 'log_http', 'remotectrl',
                        'remote_vol', 'multiuser', 'wl_export', 'audio_description', 'pv_episode_thumbnails', 'tld_episode_thumbnails', 'use_h265', 'enable_atmos',
-                       'profiles', 'show_pass', 'enable_uhd', 'show_recents', 'preload_seasons', 'preload_all_seasons', 'wvl1_device', 'search_history', 'hide_trailers'],
+                       'profiles', 'show_pass', 'enable_uhd', 'show_recents', 'preload_seasons', 'preload_all_seasons', 'wvl1_device', 'search_history',
+                       'hide_trailers', 'export_not_aired'],
                   _bool_false: ['json_dump_raw', 'ssl_verif', 'proxy_mpdalter']}
 
     def __getattr__(self, name):
@@ -308,6 +309,24 @@ def get_key(def_value, obj, *keys):
             return def_value
         obj = obj[key]
     return obj
+
+
+def decode_token(token):
+    if token.startswith('v0_'):
+        token = token[3:]
+    if token.startswith('ey'):
+        return base64.b64decode(token)
+
+    padding_needed = (4 - len(token) % 4) % 4
+    token_padded = token + ("=" * padding_needed)
+
+    try:
+        decoded_bytes = base64.urlsafe_b64decode(token_padded)
+        decoded_text = decoded_bytes.decode('utf-8', errors='replace')
+        readable = ''.join(c if 32 <= ord(c) <= 126 else '.' for c in decoded_text)
+        return readable
+    except:
+        return ''
 
 
 def get_user_lang(cj=None, iso6392=False):

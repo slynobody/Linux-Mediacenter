@@ -1,0 +1,609 @@
+# Kodi Media Center language file
+# Addon Name: Joyn
+# Addon id: plugin.video.joyn
+# Addon Provider: knaerzche
+msgid ""
+msgstr ""
+"Project-Id-Version: KODI-Addons\n"
+"Report-Msgid-Bugs-To: alanwww1@kodi.org\n"
+"POT-Creation-Date: 2020-08-11 18:12+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Kodi Translation Team\n"
+"Language-Team: LANGUAGE\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: de_DE\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#strings start
+# SETTINGS-CATEGORIES
+
+msgctxt "#30000"
+msgid "General"
+msgstr "Allgemein"
+
+msgctxt "#30001"
+msgid "View"
+msgstr "Ansicht"
+
+msgctxt "#30002"
+msgid "Connection"
+msgstr "Verbindung"
+
+msgctxt "#30003"
+msgid "Advanced"
+msgstr "Erweitert"
+
+#empty strings from id 30004 to 30100
+# SETTINGS-BUTTONS
+
+msgctxt "#30101"
+msgid "DRM certificate check"
+msgstr "DRM Zertifikatsprüfung"
+
+msgctxt "#30102"
+msgid "How often to renew config (in days)"
+msgstr "Wie oft Konfiguration neu herunterladen (in Tagen)"
+
+msgctxt "#30103"
+msgid "Count of lastseen seasons in main menu"
+msgstr "Anzahl zuletzt gesehener Staffeln im Hauptmenu"
+
+msgctxt "#30104"
+msgid "Clear cache"
+msgstr "Cache leeren"
+
+#empty strings from id 30105 to 30107
+
+msgctxt "#30108"
+msgid "inputstream Addon settings"
+msgstr "inputstream Addon Einstellungen"
+
+#msgctxt "#30109"
+#msgid ""
+#msgstr ""
+
+msgctxt "#30110"
+msgid "Exclude items from watchlist from lastseen seasons"
+msgstr "Inhalte aus der Watchlist nicht bei zuletzt gesehenen Staffeln anzeigen"
+
+msgctxt "#30111"
+msgid "Season order"
+msgstr "Reihenfolde der Staffeln"
+
+msgctxt "#30112"
+msgid "Episode order"
+msgstr "Reihenfolde der Episoden"
+
+msgctxt "#30113"
+msgid "Episode descending"
+msgstr "Episode absteigend"
+
+msgctxt "#30114"
+msgid "Episode ascending"
+msgstr "Episode aufsteigend"
+
+msgctxt "#30115"
+msgid "Viewmode main menu/media libraries/categories"
+msgstr "Ansicht Hauptmenu/Mediatheken/Rubriken"
+
+msgctxt "#30116"
+msgid "Viewmode tvshows"
+msgstr "Ansicht Serien"
+
+msgctxt "#30117"
+msgid "Viewmode seasons"
+msgstr "Ansicht Staffeln"
+
+msgctxt "#30118"
+msgid "Viewmode episodes"
+msgstr "Ansicht Episoden"
+
+msgctxt "#30119"
+msgid "Viewmode Live TV"
+msgstr "Ansicht Live TV"
+
+msgctxt "#30120"
+msgid "Viewmode watchlist"
+msgstr "Ansicht Watchlist"
+
+msgctxt "#30121"
+msgid "Viewmode category"
+msgstr "Ansicht Rubrik"
+
+msgctxt "#30122"
+msgid "Enable custom viewmodes"
+msgstr "Ansichtseinstellungen aktivieren"
+
+msgctxt "#30123"
+msgid "Default"
+msgstr "Standard"
+
+msgctxt "#30124"
+msgid "Custom View ID"
+msgstr "Benutzerdefinierte View ID"
+
+msgctxt "#30125"
+msgid "Season ascending"
+msgstr "Staffel aufsteigend"
+
+msgctxt "#30126"
+msgid "Season descending"
+msgstr "Staffel absteigend"
+
+msgctxt "#30127"
+msgid "Disable folder cache"
+msgstr "Ordner-Cache deaktivieren"
+
+msgctxt "#30128"
+msgid "Recommendations count"
+msgstr "Anzahl der Empfehlungen"
+
+msgctxt "#30129"
+msgid "Show episodes immediately if only one season is available"
+msgstr "Epsioden direkt anzeigen, wenn nur eine Staffel verfügbar"
+
+msgctxt "#30130"
+msgid "Force PlayReady DRM (Android only)"
+msgstr "Playready als DRM erzwingen (nur für Android)"
+
+msgctxt "#30131"
+msgid "Don't verfiy SSL certificates"
+msgstr "SSL-Zertifkate nicht überprüfen"
+
+msgctxt "#30132"
+msgid "Use HTTPS Proxy"
+msgstr "HTTPS-Proxy benutzen"
+
+msgctxt "#30133"
+msgid "Host"
+msgstr "Host"
+
+msgctxt "#30134"
+msgid "Port"
+msgstr "Port"
+
+msgctxt "#30135"
+msgid "Joyn platform"
+msgstr "Joyn Platform"
+
+msgctxt "#30136"
+msgid "Login"
+msgstr "Anmelden"
+
+msgctxt "#30137"
+msgid "Logout"
+msgstr "Abmelden"
+
+#empty string id 30138
+
+msgctxt "#30139"
+msgid "Debug"
+msgstr "Debug"
+
+msgctxt "#30140"
+msgid "Debug requests"
+msgstr "Debug requests"
+
+#empty strings from id 30141 to 30229
+# SETTINGS-TITLES
+
+#empty strings from id 30230 to 30350
+# SETTINGS-DESCRIPTIONS
+msgctxt "#30351"
+msgid "Use 'Custom'+View ID for all non-Estuary skins"
+msgstr "'Custom'+View ID für alle nicht-Estuary skins verwenden."
+
+msgctxt "#30352"
+msgid "Account"
+msgstr "Konto"
+
+msgctxt "#30353"
+msgid "Show Plus+ contents without subscription"
+msgstr "Plus+-Inhalte auch ohne Abo anzeigen"
+
+msgctxt "#30354"
+msgid "Highlight Plus+ content"
+msgstr "Plus+-Inhalte hervorheben"
+
+msgctxt "#30355"
+msgid "Show categories on main menu"
+msgstr "Rubriken im Hauptmenu anzeigen"
+
+msgctxt "#30356"
+msgid "Save username/password encrypted"
+msgstr "Benutzernamen/Passwort verschlüsselt speichern"
+
+#msgctxt "#30357"
+#msgid ""
+#msgstr ""
+
+#msgctxt "#30358"
+#msgid ""
+#msgstr ""
+
+#msgctxt "#30359"
+#msgid ""
+#msgstr ""
+
+msgctxt "#30360"
+msgid "Postion in stream (in seconds) where to start save resume postion"
+msgstr "Postion im Stream (in Sekunden) ab der die 'Weiterschauen-' Postion gespeichert werden soll"
+
+msgctxt "#30361"
+msgid "Seconds from end of the stream, where resume postion should be resetted"
+msgstr "Sekunden vor dem Ende des Streams, ab der die 'Weiterschauen-' Postion zurückgesetzt werden soll"
+
+# empty strings from id 30362 to 30500
+# WARNING/INFORMATION-MESSAGES-OK
+
+msgctxt "#30501"
+msgid "[COLOR orangered]ATTENTION : ... the required addon *[/COLOR][COLOR yellow]inputstream.adaptive[/COLOR][COLOR orangered]* is NOT activated !!![/COLOR][CR]To continue, please activate -[COLOR yellow]inputstream.adaptive[/COLOR]- !!!"
+msgstr "[COLOR orangered]ACHTUNG : ... das benötigte Addon *[/COLOR][COLOR yellow]inputstream.adaptive[/COLOR][COLOR orangered]* ist NICHT aktiviert !!![/COLOR][CR]Um fortzufahren, bitte -[COLOR yellow]inputstream.adaptive[/COLOR]- aktivieren !!!"
+
+msgctxt "#30502"
+msgid "[COLOR orangered]ATTENTION : ... *[/COLOR][COLOR yellow]Widevine[/COLOR][COLOR orangered]* was not found !!![/COLOR][CR]Without Widevine this Addon can not be used !!!"
+msgstr "[COLOR orangered]ACHTUNG : ... *[/COLOR][COLOR yellow]Widevine[/COLOR][COLOR orangered]* wurde nicht gefunden !!![/COLOR][CR]Ohne Widevine kann dieses Addon nicht verwendet werden !!!"
+
+msgctxt "#30503"
+msgid "Cancel"
+msgstr "Abbrechen"
+
+msgctxt "#30504"
+msgid "Open addon Settings"
+msgstr "Addon Settings öffnen"
+
+msgctxt "#30505"
+msgid "Retry"
+msgstr "Erneut versuchen"
+
+msgctxt "#30506"
+msgid "Continue without account"
+msgstr "Ohne Anmeldung fortfahren"
+
+#empty strings from id 30507 to 30520
+# WARNING/INFORMATION-MESSAGES-NOTIFICATION
+
+msgctxt "#30521"
+msgid "[COLOR red]{0:s} - ERROR[/COLOR]"
+msgstr "[COLOR red]{0:s} - FEHLER[/COLOR]"
+
+msgctxt "#30522"
+msgid "[COLOR FF008B00]Please try again[/COLOR]"
+msgstr "[COLOR FF008B00]Bitte erneut versuchen[/COLOR]"
+
+msgctxt "#30523"
+msgid "[COLOR red]Configuration could not be decrypted[/COLOR]"
+msgstr "[COLOR red]Konfiguration konnte nicht entschlüsselt werden[/COLOR]"
+
+msgctxt "#30524"
+msgid "[COLOR red]Could not find a valid Video-Stream[/COLOR]"
+msgstr "[COLOR red]Konnte keine gültigen Video-Stream finden[/COLOR]"
+
+msgctxt "#30525"
+msgid "No results found for '{0:s}'"
+msgstr "Keine Ergebnisse für '{0:s}' gefunden"
+
+msgctxt "#30526"
+msgid "{:s} was added to watchlist"
+msgstr "{:s} wurde zur Watchlist hinzugefügt"
+
+msgctxt "#30527"
+msgid "{:s} was removed from watchlist"
+msgstr "{:s} wurde aus Watchlist entfernt"
+
+msgctxt "#30528"
+msgid "No items in watchlist yet"
+msgstr "Bisher nichts in die Watchlist hinzugefügt"
+
+msgctxt "#30529"
+msgid "Some items from watchlist are no longer available - the have been removed automatically"
+msgstr "Eingige Elemente aus der Watchlist sind nicht mehr verfügbar - sie wurden automatisch entfernt"
+
+msgctxt "#30530"
+msgid "Some essential configuration values could not be loaded: {:s}"
+msgstr "Essentielle Konfigurationswerte konnten nicht ermittelt werden {:s}"
+
+msgctxt "#30531"
+msgid "Could not access URL {:s}, check your Internet connection"
+msgstr "Konnte nicht auf URL zugreifen: {:s}. Bitte Internetzugang prüfen"
+
+msgctxt "#30532"
+msgid "Your coutry could not be automatically detected - please set it in the addon settings"
+msgstr "Land konnte nicht automatisch ermittelt werden - bitte in den Addon Einstellungen setzen"
+
+msgctxt "#30533"
+msgid "It looks like you are located in {:s} - this country is currently not supported by this Joyn addon.[CR]If you are sure, that your are located in another country, please set it in the addon settings (at your own risk)"
+msgstr "Es scheint, dass Sie in aus {:s} kommen. Dieses Land wird derzeit von Joyn-Addon nicht unterstützt.[CR]Wenn Sie sicher sind, dass Sie aus einem andern Land kommen, bitte in den Addon Einstellungen setzen (auf eigene Gefahr)"
+
+msgctxt "#30534"
+msgid "The authorization of your account could not get refreshed automatically - please login again"
+msgstr "Die Authorisierung für das Konto konnte nicht automatisch aktualisiert werden - bitte erneut einloggen"
+
+msgctxt "#30535"
+msgid "Authorization could not be done - check log for errors"
+msgstr "Es konnte keine Authorisierung erfolgen - bitte Log auf Fehler überprüfen"
+
+#empty strings from id 30536 to 30600
+# PLUGIN-MAIN and SIDEMENU
+
+msgctxt "#30601"
+msgid "Watchlist"
+msgstr "Watchlist"
+
+msgctxt "#30602"
+msgid "Media libraries"
+msgstr "Mediatheken"
+
+msgctxt "#30603"
+msgid "Categories"
+msgstr "Rubriken"
+
+msgctxt "#30604"
+msgid "Search"
+msgstr "Suche"
+
+msgctxt "#30605"
+msgid "Live TV"
+msgstr "Live TV"
+
+msgctxt "#30606"
+msgid "VOD channels"
+msgstr "VOD Sender"
+
+msgctxt "#30607"
+msgid "Personal Joyn watchlist"
+msgstr "Persönliche Joyn Watchlist"
+
+msgctxt "#30608"
+msgid "Joyn media libraries"
+msgstr "Joyn Mediatheken"
+
+msgctxt "#30609"
+msgid "Media libraries grouped by categories"
+msgstr "Mediatheken gruppiert in Rubriken"
+
+msgctxt "#30610"
+msgid "Search in TV Shows"
+msgstr "Suche in Serien"
+
+msgctxt "#30611"
+msgid "Watch over 60 TV channels and current sporting events live"
+msgstr "Über 60 TV-Sender sowie aktuelle Sportevents live ansehen"
+
+msgctxt "#30621"
+msgid "Season {0:s}"
+msgstr "Staffel {0:s}"
+
+msgctxt "#30622"
+msgid "Media library"
+msgstr "Mediathek"
+
+msgctxt "#30623"
+msgid "Category"
+msgstr "Rubrik"
+
+msgctxt "#30624"
+msgid "TV Show"
+msgstr "Serie"
+
+msgctxt "#30625"
+msgid "Season"
+msgstr "Staffel"
+
+msgctxt "#30626"
+msgid "Episode"
+msgstr "Folge"
+
+msgctxt "#30650"
+msgid "[CR]available until {:%m/%d/%Y %H:%M}[CR][CR]"
+msgstr "[CR]Verfügbar bis {:%d.%m.%Y %H:%M Uhr}[CR][CR]"
+
+msgctxt "#30651"
+msgid "[B]Add to watchlist[/B]"
+msgstr "[B]Zur Watchlist hinzufügen[/B]"
+
+msgctxt "#30652"
+msgid "[B]Remove from watchlist[/B]"
+msgstr "[B]Aus Watchlist entfernen[/B]"
+
+msgctxt "#30653"
+msgid "add {:s} to watchlist"
+msgstr "{:s} zur Watchlist hinzufügen"
+
+msgctxt "#30654"
+msgid "Remove {:s} from watchlist"
+msgstr "{:s} aus Watchlist entfernen"
+
+msgctxt "#30655"
+msgid "[B]{:s}[/B] - {:s}"
+msgstr "[B]{:s}[/B] - {:s}"
+
+msgctxt "#30656"
+msgid "[CR]until {:%H:%M}[CR][CR]"
+msgstr "[CR]bis {:%H:%M} Uhr[CR][CR]"
+
+msgctxt "#30657"
+msgid "[CR]until {:%H:%M}, next: {:s}[CR][CR]"
+msgstr "[CR]bis {:%H:%M} Uhr, danach: {:s}[CR][CR]"
+
+msgctxt "#30658"
+msgid "{:s} years and older only"
+msgstr "Ab {:s} Jahren"
+
+msgctxt "#30659"
+msgid "Cache was cleared"
+msgstr "Cache wurde geleert"
+
+msgctxt "#30660"
+msgid "Cache could not be cleared"
+msgstr "Cache konnte nicht geleert werden"
+
+msgctxt "#30661"
+msgid "en"
+msgstr "de"
+
+msgctxt "#30662"
+msgid "This video is currently unavailable"
+msgstr "Dieses Video ist derzeit nicht verfügbar"
+
+msgctxt "#30663"
+msgid "GraphQL query error"
+msgstr "GraphQL Fehler"
+
+msgctxt "#30664"
+msgid "No content available"
+msgstr "Keine Inhalte verfügbar"
+
+msgctxt "#30665"
+msgid "Continue watching: {:s}"
+msgstr "Weiterschauen: {:s}"
+
+msgctxt "#30666"
+msgid "Recommendation: {:s}"
+msgstr "Empfehlung: {:s}"
+
+msgctxt "#30667"
+msgid "Movie"
+msgstr "Film"
+
+msgctxt "#30668"
+msgid "Series"
+msgstr "Serie"
+
+msgctxt "#30669"
+msgid "[I]{:s}[/I]"
+msgstr "[I]{:s}[/I]"
+
+msgctxt "#30670"
+msgid "Logged in as {:s}"
+msgstr "Angemeldet als {:s}"
+
+msgctxt "#30671"
+msgid "Login failed"
+msgstr "Login fehlgeschlagen"
+
+msgctxt "#30672"
+msgid "Plus+: {:s}[CR]HD: {:s}"
+msgstr "Plus+: {:s}[CR]HD: {:s}"
+
+msgctxt "#30673"
+msgid "Yes"
+msgstr "Ja"
+
+msgctxt "#30674"
+msgid "No"
+msgstr "Nein"
+
+msgctxt "#30675"
+msgid "Username (email)"
+msgstr "Benutzername (E-Mail)"
+
+msgctxt "#30676"
+msgid "Password"
+msgstr "Passwort"
+
+msgctxt "#30677"
+msgid "Invalid email (format)"
+msgstr "Ungültige E-Mail-Adresse (Format)"
+
+msgctxt "#30678"
+msgid "Logged out successfully"
+msgstr "Erfolgreich abgemeldet"
+
+msgctxt "#30679"
+msgid "Not logged in"
+msgstr "Nicht angemeldet"
+
+msgctxt "#30680"
+msgid "Logout failed"
+msgstr "Abmeldung fehlgeschlagen"
+
+msgctxt "#30681"
+msgid "Joyn Bookmarks"
+msgstr "Joyn Merkliste"
+
+msgctxt "#30682"
+msgid "[B]{:s}[/B]"
+msgstr "[B]{:s}[/B]"
+
+msgctxt "#30683"
+msgid "Successfully added"
+msgstr "Erfolgreich hinzugefügt"
+
+msgctxt "#30684"
+msgid "Failed to add"
+msgstr "Hinzufügen fehlgeschlagen"
+
+msgctxt "#30685"
+msgid "Successfully removed"
+msgstr "Erfolgreich entfernt"
+
+msgctxt "#30686"
+msgid "Failed to remove"
+msgstr "Entfernen fehlgeschlagen"
+
+msgctxt "#30687"
+msgid "Add to Joyn Bookmarks"
+msgstr "Zur Joyn Merkliste hinzufügen"
+
+msgctxt "#30688"
+msgid "Remove from Joyn bookmarks"
+msgstr "Aus der Joyn Merkliste entfernen"
+
+msgctxt "#30689"
+msgid "MPAA pin"
+msgstr "FSK Pin"
+
+msgctxt "#30690"
+msgid "The given MPP pin is invalid - please enter the correct one"
+msgstr "Der eingegebene FSK Pin ist ungültig - bitte den korrekten eingeben"
+
+msgctxt "#30691"
+msgid "[COLOR blue]{:s}[/COLOR]"
+msgstr "[COLOR blue]{:s}[/COLOR]"
+
+msgctxt "#30692"
+msgid "Invalid password (length)"
+msgstr "Ungültiges Password (Länge)"
+
+msgctxt "#30693"
+msgid "No information available"
+msgstr "Keine Informationen  verfügbar"
+
+msgctxt "#30694"
+msgid "If have an Joyn-Account you can sign-in now"
+msgstr "Jetzt mit Joyn-Konto anmelden?"
+
+msgctxt "#30695"
+msgid "ascending"
+msgstr "aufsteigend"
+
+msgctxt "#30696"
+msgid "descending"
+msgstr "absteigend"
+
+msgctxt "#30697"
+msgid "TV Shows"
+msgstr "Serien"
+
+msgctxt "#30698"
+msgid "On Joyn you will find a variety of series and shows. Let yourself be entertained, whether you missed the episode on TV or are looking for a new favorite series."
+msgstr "Auf Joyn findest du eine Vielzahl an Serien und Shows. Lass dich unterhalten, egal ob du die Folge im TV verpasst hast oder eine neue Lieblingsserie suchst."
+
+msgctxt "#30699"
+msgid "Movies"
+msgstr "Filme"
+
+msgctxt "#30700"
+msgid "Popcorn ready for movie night? On Joyn you can watch many movies for free. You can find the entire selection here."
+msgstr "Popcorn fertig für den Filmabend? Auf Joyn kannst du viele Filme kostenlos anschauen. Hier findest du die gesamte Auswahl."
+
+msgctxt "#30701"
+msgid "Sport"
+msgstr "Sport"
+
+msgctxt "#30702"
+msgid "On Joyn you will find a wide range of sports - live or after TV broadcasts. From football to cycling - athletes' hearts beat faster here."
+msgstr "Auf Joyn findest du ein großes Sportangebot – live oder nach TV-Ausstrahlung. Von Football bis Radsport – hier schlagen Sportlerherzen höher."

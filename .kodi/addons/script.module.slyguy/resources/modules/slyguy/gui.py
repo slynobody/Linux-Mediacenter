@@ -8,7 +8,7 @@ from kodi_six import xbmcgui, xbmc
 
 from slyguy import settings, _
 from slyguy.constants import *
-from slyguy.router import add_url_args
+from slyguy.router import build_url, add_url_args
 from slyguy.smart_urls import get_dns_rewrites
 from slyguy.util import fix_url, set_kodi_string, hash_6, get_url_headers, get_headers_from_url, get_addon
 from slyguy.session import Session
@@ -354,6 +354,7 @@ class Item(object):
             if headers:
                 li.setProperty('{}.stream_headers'.format(self.inputstream.addon_id), headers)
                 li.setProperty('{}.manifest_headers'.format(self.inputstream.addon_id), headers)
+                li.setProperty('{}.common_headers'.format(self.inputstream.addon_id), headers)
 
             # IA does not support HLS original language attribute (only dash) so need to use property
             if self.proxy_data.get('original_language'):
@@ -440,7 +441,7 @@ class Item(object):
                     'interface_language': xbmc.getLanguage(xbmc.ISO_639_1),
                     'subs_forced': settings.getBool('subs_forced', True),
                     'subs_non_forced': settings.getBool('subs_non_forced', True),
-                    'remove_framerate': False,
+                    'remove_framerate': settings.REMOVE_FRAMERATE.value,
                     'subtitles': [],
                     'path_subs': {},
                     'addon_id': ADDON_ID,

@@ -1,3 +1,6 @@
+1.0.3
+- series support
+- VP9 codec support
 1.0.2
 - support 5.1 surround sound audio
 - moving text strings displayed in the user interface to string.po file

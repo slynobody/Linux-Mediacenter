@@ -2,10 +2,10 @@ import sys
 import traceback
 from contextlib import contextmanager
 
-from kodi_six import xbmcgui, xbmc
+from kodi_six import xbmcgui, xbmc, xbmcvfs
 
 from slyguy import _
-from slyguy.util import get_system_arch
+from slyguy.util import get_system_arch, get_qr_img
 from slyguy.constants import *
 
 
@@ -95,6 +95,26 @@ def progressbg(message='', heading=None, percent=0):
     return dialog
 
 
+class QRCodeDialog(xbmcgui.WindowDialog):
+    def __init__(self, qr_data, size=324):
+        super(QRCodeDialog, self).__init__()
+        self.addControl(xbmcgui.ControlImage(5, 200, size, size, get_qr_img(qr_data, size)))
+
+    def close(self):
+        super(QRCodeDialog, self).close()
+
+
+class ProgressQR(Progress):
+    def __init__(self, qr_data, message='', heading=None, percent=0, background=False):
+        self.qr_dlg = QRCodeDialog(qr_data, size=324)
+        self.qr_dlg.show()
+        super(ProgressQR, self).__init__(message, heading, percent, background)
+
+    def close(self):
+        self.qr_dlg.close()
+        super(ProgressQR, self).close()
+
+
 @contextmanager
 def busy():
     xbmc.executebuiltin('ActivateWindow(busydialognocancel)')
@@ -107,6 +127,15 @@ def busy():
 @contextmanager
 def progress(message='', heading=None, percent=0, background=False):
     dialog = Progress(message=message, heading=heading, percent=percent, background=background)
+
+    try:
+        yield dialog
+    finally:
+        dialog.close()
+
+@contextmanager
+def progress_qr(qr_data, message='', heading=None, percent=0, background=False):
+    dialog = ProgressQR(qr_data, message=message, heading=heading, percent=percent, background=background)
 
     try:
         yield dialog
@@ -133,9 +162,16 @@ def error(message, heading=None):
     return ok(message, heading)
 
 
-def ok(message, heading=None):
+def ok(message, heading=None, qr=None):
     heading = make_heading(heading)
-    return xbmcgui.Dialog().ok(heading, message)
+    if qr:
+        qr_dlg = QRCodeDialog(qr, size=324)
+        qr_dlg.show()
+    try:
+        return xbmcgui.Dialog().ok(heading, message)
+    finally:
+        if qr:
+            qr_dlg.close()
 
 
 def text(message, heading=None, **kwargs):

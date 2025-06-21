@@ -2,11 +2,11 @@ import json
 import time
 from base64 import b64decode
 
+import arrow
 from slyguy import plugin, gui, userdata, signals, inputstream
 from slyguy.exceptions import PluginError
 from slyguy.constants import KODI_VERSION, NO_RESUME_TAG, ROUTE_RESUME_TAG
 from slyguy.drm import is_wv_secure
-from slyguy.yt import li_trailer
 
 from .api import API
 from .constants import *
@@ -77,6 +77,8 @@ def originals(**kwargs):
 
 
 def _deeplink_page(ref_id):
+    if not api.is_subscribed():
+        gui.ok(_.NOT_SUBSCRIBER)
     data = api.deeplink(ref_id=ref_id)
     page_id = _get_actions(data)[BROWSE]['pageId']
     data = api.page(page_id, limit=1, enhanced_limit=99)
@@ -86,11 +88,7 @@ def _deeplink_page(ref_id):
 @plugin.route()
 @plugin.pagination()
 def brands(page=1, **kwargs):
-    data = api.deeplink(ref_id='home')
-    page_id = _get_actions(data)[BROWSE]['pageId']
-    data = api.page(page_id, limit=0, enhanced_limit=0)
-    set_id = [x for x in data['containers'] if 'brand' in x['style']['name'].lower()][0]['id']
-    data = api.set(set_id, page=page)
+    data = api.set(BRANDS_ID, page=page)
     folder = _process_rows(data)
     return folder, data['pagination']['hasMore']
 
@@ -98,12 +96,8 @@ def brands(page=1, **kwargs):
 @plugin.route()
 @plugin.pagination()
 def continue_watching(page=1, **kwargs):
-    data = api.deeplink(ref_id='home')
-    page_id = _get_actions(data)[BROWSE]['pageId']
-    data = api.page(page_id, limit=0, enhanced_limit=0)
-    set_id = [x for x in data['containers'] if 'continue_watching' in x['style']['name'].lower()][0]['id']
-    data = api.set(set_id, page=page, _skip_cache=True)
-    folder = _process_rows(data, title=_.CONTINUE_WATCHING)
+    data = api.set(CONTINUE_WATCHING_ID, page=page, _skip_cache=True)
+    folder = _process_rows(data, title=_.CONTINUE_WATCHING, continue_watching=True)
     return folder, data['pagination']['hasMore']
 
 
@@ -126,12 +120,25 @@ def add_watchlist(deeplink_id, **kwargs):
 
 @plugin.route()
 def delete_watchlist(deeplink_id, **kwargs):
+    # TODO: remove list item and dont refresh
     with gui.busy():
         data = api.page('entity-{}'.format(deeplink_id.replace('entity-', '')))
         info = _get_info(data)
         api.edit_watchlist('remove', page_info=data['infoBlock'], action_info=info[ACTIONS][MODIFYSAVES]['infoBlock'])
         # above is async so wait a bit to make sure its removed from list refresh
-        time.sleep(1)
+        time.sleep(1.5)
+    gui.refresh()
+
+
+@plugin.route()
+def remove_continue_watching(deeplink_id, **kwargs):
+    # TODO: remove list item and dont refresh
+    with gui.busy():
+        data = api.page('entity-{}'.format(deeplink_id.replace('entity-', '')))
+        info = _get_info(data)
+        api.remove_continue_watching(action_info=info[ACTIONS][REMOVECONTINUEWATCHING]['infoBlock'])
+        # above is async so wait a bit to make sure its removed from list refresh
+        time.sleep(1.5)
     gui.refresh()
 
 
@@ -163,15 +170,16 @@ def set(set_id, watchlist=0, page=1, **kwargs):
 
 
 @plugin.route()
-def season(show_id, season_id, **kwargs):
+@plugin.pagination()
+def season(show_id, season_id, page=1, **kwargs):
     show_data = api.page(show_id)
-    data = api.season(season_id)
+    data = api.season(season_id, page=page)
     folder = _process_rows(data, title=show_data['visuals']['title'])
     show_art = _get_art(show_data)
     for key in show_art:
         if key != 'poster' and not folder.art.get(key):
             folder.art[key] = show_art[key]
-    return folder
+    return folder, data['pagination']['hasMore']
 
 
 def _get_actions(data):
@@ -180,6 +188,7 @@ def _get_actions(data):
         PLAYBACK: {},
         TRAILER: {},
         MODIFYSAVES: {},
+        REMOVECONTINUEWATCHING: {},
         MODAL: {},
     }
     for row in data.get('actions', []):
@@ -191,6 +200,10 @@ def _get_actions(data):
             actions[TRAILER] = row
         elif row['type'] == 'modifySaves':
             actions[MODIFYSAVES] = row
+        elif row['type'] == 'contextMenu':
+            for sub_row in row.get('actions', []):
+                if sub_row['type'] == 'removeFromContinueWatching':
+                    actions[REMOVECONTINUEWATCHING] = sub_row
         elif row['type'] == 'modal':
             actions[MODAL] = row
     actions[PLAYBACK] = actions[PLAYBACK] or actions[BROWSE]
@@ -298,7 +311,7 @@ def show(show_id, **kwargs):
     return folder
 
 
-def _process_rows(data, title=None, watchlist=False, flatten=False):
+def _process_rows(data, title=None, watchlist=False, flatten=False, continue_watching=False):
     if not data or 'visuals' not in data:
         return plugin.Folder(title)
 
@@ -341,6 +354,9 @@ def _process_rows(data, title=None, watchlist=False, flatten=False):
             if settings.SYNC_WATCHLIST.value and watchlist:
                 item.context = [x for x in item.context if x[0] != _.ADD_WATCHLIST]
                 item.context.insert(0, (_.DELETE_WATCHLIST, 'RunPlugin({})'.format(plugin.url_for(delete_watchlist, deeplink_id=row['actions'][0]['deeplinkId']))))
+            if settings.SYNC_PLAYBACK.value and continue_watching:
+                item.context = [x for x in item.context if x[0] != _.ADD_WATCHLIST]
+                item.context.insert(0, (_.REMOVE_CONTINUE_WATCHING, 'RunPlugin({})'.format(plugin.url_for(remove_continue_watching, deeplink_id=row['actions'][0]['deeplinkId']))))
             items.append(item)
 
     if flatten and len(items) == 1:
@@ -391,19 +407,41 @@ def _parse_event(data):
     actions = info[ACTIONS]
     if actions[MODAL]:
         actions = _get_actions(info[ACTIONS][MODAL])
+        info['art'] = _get_art(info[ACTIONS][MODAL])
 
     if actions[PLAYBACK].get('contentType') == 'linear':
+        start_time = arrow.get(data['visuals']['badging']['airingEventState']['timeline']['startTime']).to('local')
+        end_time = arrow.get(data['visuals']['badging']['airingEventState']['timeline']['endTime']).to('local')
+        plot = u'[B]{} - {}[/B]\n{}'.format(start_time.format('h:mmA').lower(), end_time.format('hh:mmA').lower(), info['title'])
+
+        if data['visuals'].get('episodeTitle') and data['visuals']['episodeTitle'] != info['title']:
+            try:
+                plot += u'\n\nS{}:E{}\n{}'.format(data['visuals']['seasonNumber'], data['visuals']['episodeNumber'], data['visuals']['episodeTitle'])
+            except KeyError:
+                plot += u'\n\n{}'.format(data['visuals']['episodeTitle'])
+
+        if info['plot']:
+            plot += u'\n\n{}'.format(info['plot'])
+
+        try:
+            info['art']['clearlogo'] = 'https://disney.images.edge.bamgrid.com/ripcut-delivery/v2/variant/disney/{}/scale?width=800&aspectRatio=1.78'.format(
+                data['visuals']['networkAttribution']['artwork']['brand']['logo']['2.00']['imageId'])
+        except KeyError:
+            pass
+
         resource_data = json.loads(b64decode(actions[PLAYBACK]['resourceId']).decode("utf-8"))
         item = plugin.Item(
             label = data['visuals']['networkAttribution']['ttsText'],
             info = {
-                'plot': '',
+                'plot': plot,
                 'mediatype': 'video',
             },
-            art = None,
+            art = info['art'],
             playable = True,
             path = _get_play_path(channel_id=resource_data['channelId'], _is_live=True),
         )
+        # if data['visuals'].get('episodeNumber'):
+        #     item.context.append(("Play VOD", 'RunPlugin({})'.format(_get_play_path(deeplink_id=actions[PLAYBACK]['deeplinkId']))))
     else:
         item = plugin.Item(
             label = info['title'],
@@ -523,24 +561,18 @@ def play_trailer(deeplink_id, **kwargs):
         info = _get_info(data)
         item = _parse_row(data)
 
-        if not info[ACTIONS][TRAILER]:
-            return li_trailer(item.get_li(), ignore_trailer_path=True)
+        item = plugin.get_trailer_item(item, check=not info[ACTIONS][TRAILER])
+        if info[ACTIONS][TRAILER]:
+            item.inputstream = inputstream.Widevine(
+                license_key = api.get_config()['services']['drm']['client']['endpoints']['widevineLicense']['href'],
+                manifest_type = 'hls',
+                mimetype = 'application/vnd.apple.mpegurl',
+                wv_secure = is_wv_secure(),
+            )
+            playback_data = api.playback(info[ACTIONS][TRAILER]['resourceId'], item.inputstream.wv_secure)
+            item.path = playback_data['stream']['sources'][0]['complete']['url']
+            item.headers = api.session.headers
 
-        ia = inputstream.Widevine(
-            license_key = api.get_config()['services']['drm']['client']['endpoints']['widevineLicense']['href'],
-            manifest_type = 'hls',
-            mimetype = 'application/vnd.apple.mpegurl',
-            wv_secure = is_wv_secure(),
-        )
-        playback_data = api.playback(info[ACTIONS][TRAILER]['resourceId'], ia.wv_secure)
-
-        item.update(
-            label = u"{} ({})".format(item.label, _.TRAILER),
-            playable = True,
-            path = playback_data['stream']['sources'][0]['complete']['url'],
-            inputstream = ia,
-            headers = api.session.headers,
-        )
         return item
 
 

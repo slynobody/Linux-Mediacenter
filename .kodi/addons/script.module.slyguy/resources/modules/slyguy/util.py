@@ -33,6 +33,10 @@ from slyguy.exceptions import Error
 from slyguy.constants import *
 
 
+def get_qr_img(qr_data, size=324):
+    return 'http://api.qrserver.com/v1/create-qr-code/?data={}&size={}x{}'.format(qr_data, size, size)
+
+
 def run_plugin(path, wait=False):
     if wait:
         dirs, files = xbmcvfs.listdir(path)
@@ -41,15 +45,20 @@ def run_plugin(path, wait=False):
         xbmc.executebuiltin('RunPlugin({})'.format(path))
         return [], []
 
+
 def fix_url(url):
     parse = urlparse(url)
-    parse = parse._replace(path=re.sub('/{2,}','/',parse.path))
-    return urlunparse(parse)
+    if not parse.path.lower().startswith(('/https://', '/http://')):
+        parse = parse._replace(path=re.sub('/{2,}','/',parse.path))
+    url = urlunparse(parse)
+    return url
+
 
 def add_url_args(url, params=None):
     req = PreparedRequest()
     req.prepare_url(url, params)
     return req.url
+
 
 def check_port(port=0, default=False):
     try:
@@ -59,6 +68,7 @@ def check_port(port=0, default=False):
             return s.getsockname()[1]
     except:
         return default
+
 
 def kodi_db(name):
     options = []
@@ -404,11 +414,18 @@ def process_brightcove(data):
             art = False,
         )
     elif source['type'] == 'widevine':
-        return plugin.Item(
+        item = plugin.Item(
             path = source['source']['src'],
             inputstream = inputstream.Widevine(license_key=source['source']['key_systems']['com.widevine.alpha']['license_url'], mimetype=source['mimetype'], manifest_type='mpd' if source['mimetype'] == 'application/dash+xml' else 'hls'),
             art = False,
         )
+
+        try:
+            item.headers = {'Authorization': 'Bearer {}'.format(source['source']['key_systems']['authorization']['token'])}
+        except KeyError:
+            pass
+
+        return item
     else:
         raise Error(_.NO_BRIGHTCOVE_SRC)
 

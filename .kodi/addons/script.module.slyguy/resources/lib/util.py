@@ -67,6 +67,7 @@ def check_updates(force=False):
     xbmc.executebuiltin('UpdateAddonRepos')
     return pending_updates
 
+
 def check_repo():
     addon = get_addon(REPO_ADDON_ID, install=True, required=True)
     update_time = settings.getDict('_updates', {}).get(REPO_ADDON_ID)
