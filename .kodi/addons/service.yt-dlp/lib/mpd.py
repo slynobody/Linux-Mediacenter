@@ -5,6 +5,84 @@ from iapc import Client
 from nuttig import getSetting, localizedString
 
 
+# codecs -----------------------------------------------------------------------
+
+__none_codec__ = "none"
+
+__codecs__ = {
+    "avc1": {"contentType": "video", "label": 33101, "names": ("avc1", )},
+    "mp4a": {"contentType": "audio", "label": 33102, "names": ("mp4a", )},
+    "vp09": {"contentType": "video", "label": 33103, "names": ("vp09", "vp9")},
+    "opus": {"contentType": "audio", "label": 33104, "names": ("opus", )},
+    "av01": {
+        "contentType": "video",
+        "label": 33105,
+        "names": ("av01", ),
+        "experimental": True
+    }
+}
+
+
+def __contentType_codecs__(contentType):
+    return set(
+        key for key, codec in __codecs__.items()
+        if (
+            (codec["contentType"] == contentType) and
+            (not codec.get("experimental", False))
+        )
+    )
+
+__video_codecs__ = __contentType_codecs__("video")
+__audio_codecs__ = __contentType_codecs__("audio")
+
+def __excludes__(exclude):
+    exclude = set(exclude)
+    if __video_codecs__ <= exclude:
+        exclude.remove("avc1") # fallback to h264
+    if __audio_codecs__ <= exclude:
+        exclude.remove("mp4a") # fallback to aac
+    return tuple(
+        name for names in (
+            __codecs__[codec]["names"]
+            for codec in exclude
+            if codec in __codecs__
+        ) for name in names
+    )
+
+
+def __include__(contentType, codec, ocodec, exclude):
+    if (
+        codec and
+        (codec != __none_codec__) and
+        (ocodec == __none_codec__) and
+        (not codec.startswith(exclude))
+    ):
+        return contentType
+        #return (contentType, codec)
+
+def __filter__(vcodec, acodec, exclude):
+    return (
+        __include__("video", vcodec, acodec, exclude) or
+        __include__("audio", acodec, vcodec, exclude)
+    )
+
+def __dash__(formats, exclude):
+    return (
+        fmt for fmt in formats
+        if (
+            fmt.get("container", "").endswith("_dash") and
+            fmt.setdefault(
+                "__contentType__",
+                __filter__(fmt.get("vcodec"), fmt.get("acodec"), exclude)
+            )
+            #fmt.setdefault(
+            #    "__stream_args__",
+            #    __filter__(fmt.get("vcodec"), fmt.get("acodec"), exclude)
+            #)
+        )
+    )
+
+
 # ------------------------------------------------------------------------------
 # YtDlpMpd
 
@@ -38,20 +116,23 @@ class YtDlpMpd(object):
         "none":  {"label": 32203, "values": __NoFramerate__()}
     }
 
-    __codecs__ = {
-        "avc1": {"label": 33101, "names": ("avc1", )},
-        "mp4a": {"label": 33102, "names": ("mp4a", )},
-        "vp09": {"label": 33103, "names": ("vp09", "vp9")},
-        "opus": {"label": 33104, "names": ("opus", )},
-        "av01": {"label": 33105, "names": ("av01", )}
+    __heights__ = {
+        2160: {"label": 34101, "width": 3840},
+        1440: {"label": 34102, "width": 2560},
+        1080: {"label": 34103, "width": 1920},
+        720:  {"label": 34104, "width": 1280},
+        480:  {"label": 34105, "width": 854},
+        360:  {"label": 34106, "width": 640},
+        0:    {"label": 90011, "width": 0}
     }
+
+    # --------------------------------------------------------------------------
 
     def __init__(self, logger):
         self.logger = logger.getLogger(component="mpd")
         self.__manifests__ = Client(self.__service_id__)
         self.__streamTypes__ = {
-            "video": self.__video_stream__,
-            "audio": self.__audio_stream__
+            "video": self.__video_stream__, "audio": self.__audio_stream__
         }
         self.__supportedSubtitles__ = ("vtt",)
 
@@ -74,70 +155,79 @@ class YtDlpMpd(object):
         if (exclude := getSetting("codecs.exclude")):
             self.__exclude__ = exclude.split(",")
             labels = ", ".join(
-                localizedString(self.__codecs__[codec]["label"])
+                localizedString(__codecs__[codec]["label"])
                 for codec in self.__exclude__
             )
         self.logger.info(f"{localizedString(33100)}: {labels}")
+        # preferred resolution
+        self.__height__ = getSetting("prefs.height", int)
+        self.logger.info(
+            f"{localizedString(34100)}: "
+            f"{localizedString(self.__heights__[self.__height__]['label'])}"
+        )
 
     def __stop__(self):
         self.logger.info("stopped")
 
     # --------------------------------------------------------------------------
 
-    def __excludes__(self, exclude):
-        return tuple(
-            name for codec in exclude
-            for name in self.__codecs__[codec]["names"]
-        )
-
-    def __video_stream__(self, fmt, fps_limit=0, fps_hint="int", **kwargs):
-        fmt_fps = fmt["fps"]
-        if ((not fps_limit) or (fmt_fps <= fps_limit)):
-            return {
-                "lang": None,
-                "averageBitrate": int(fmt["vbr"] * 1000),
+    def __video_stream__(
+        self, fmt, fps_limit=0, fps_hint="int", height=None, **kwargs
+    ):
+        fps = fmt["fps"]
+        if ((not fps_limit) or (fps <= fps_limit)):
+            stream = {
+                "codecs": fmt["vcodec"],
+                "bandwidth": int(fmt["vbr"] * 1000),
                 "width": fmt["width"],
                 "height": fmt["height"],
-                "frameRate": self.__fps_hints__[fps_hint]["values"][fmt_fps]
+                "frameRate": self.__fps_hints__[fps_hint]["values"][fps]
             }
+            if (
+                height and
+                (
+                    (fmt.get("height", 0) == height) or
+                    (
+                        (height := self.__heights__.get(height, {})) and
+                        fmt.get("width", 0) == height["width"]
+                    )
+                )
 
-    def __audio_stream__(self, fmt, **kwargs):
-        return {
+            ):
+                stream["default"] = True
+            return stream
+
+    def __audio_stream__(self, fmt, inputstream="adaptive", **kwargs):
+        stream = {
+            "codecs": fmt["acodec"],
+            "bandwidth": int(fmt["abr"] * 1000),
             "lang": fmt["language"],
-            "averageBitrate": int(fmt["abr"] * 1000),
             "audioSamplingRate": fmt["asr"],
             "audioChannels": fmt.get("audio_channels", 2)
         }
-
-    def __stream__(self, contentType, codecs, fmt, exclude=None, **kwargs):
-        if (
-            ((not exclude) or (not codecs.startswith(exclude))) and
-            (stream := self.__streamTypes__[contentType](fmt, **kwargs))
-        ):
-            return dict(
-                stream,
-                contentType=contentType,
-                mimeType=f"{contentType}/{fmt['ext']}",
-                id=fmt["format_id"],
-                codecs=codecs,
-                #averageBitrate=int(fmt["tbr"] * 1000),
-                url=fmt["url"],
-                indexRange=fmt.get("indexRange", {}),
-                initRange=fmt.get("initRange", {})
+        if inputstream == "adaptive": # isa custom attributes
+            stream.update(
+                original=fmt.get("audioIsOriginal", False),
+                default=fmt.get("audioIsDefault", False),
+                impaired=fmt.get("audioIsDescriptive", False)
             )
+        return stream
 
-    def __streams__(self, formats, **kwargs):
-        for fmt in formats:
-            if fmt.get("container", "").endswith("_dash"):
-                args = None
-                vcodec = fmt.get("vcodec")
-                acodec = fmt.get("acodec")
-                if (vcodec and (vcodec != "none") and (acodec == "none")):
-                    args = ("video", vcodec)
-                elif (acodec and (acodec != "none") and (vcodec == "none")):
-                    args = ("audio", acodec)
-                if args and (stream := self.__stream__(*args, fmt, **kwargs)):
-                    yield stream
+    # --------------------------------------------------------------------------
+
+    def __streams__(self, formats, exclude=None, **kwargs):
+        for fmt in __dash__(formats, exclude or tuple()):
+            contentType = fmt["__contentType__"]
+            if (stream := self.__streamTypes__[contentType](fmt, **kwargs)):
+                yield dict(
+                    stream,
+                    contentType=contentType,
+                    mimeType=f"{contentType}/{fmt['ext']}",
+                    id=fmt["format_id"],
+                    url=fmt["url"],
+                    indexRange=fmt.get("indexRange", {}),
+                    initRange=fmt.get("initRange", {})
+                )
 
     def __subtitles__(self, subtitles):
         for lang, subs in subtitles.items():
@@ -162,23 +252,36 @@ class YtDlpMpd(object):
     # manifest -----------------------------------------------------------------
 
     def manifest(
-        self, *args, exclude=None, fps_limit=None, fps_hint=None, **kwargs
+        self,
+        *args,
+        exclude=None,
+        fps_limit=None,
+        fps_hint=None,
+        height=None,
+        inputstream=None,
+        **kwargs
     ):
+        exclude = exclude if exclude is not None else self.__exclude__
+        fps_limit = fps_limit if fps_limit is not None else self.__fps_limit__
+        fps_hint = fps_hint if fps_hint is not None else self.__fps_hint__
+        height = height or self.__height__
+        inputstream = inputstream if inputstream is not None else "adaptive"
         self.logger.info(
             f"manifest("
                 f"exclude={exclude}, "
                 f"fps_limit={fps_limit}, "
                 f"fps_hint={fps_hint}, "
+                f"height={height}, "
+                f"inputstream={inputstream}, "
                 f"kwargs={kwargs}"
             f")"
         )
-        exclude = exclude if exclude is not None else self.__exclude__
-        fps_limit = fps_limit if fps_limit is not None else self.__fps_limit__
-        fps_hint = fps_hint if fps_hint is not None else self.__fps_hint__
         return self.__manifest__(
             *args,
-            exclude=self.__excludes__(exclude) if exclude else None,
+            exclude=__excludes__(exclude) if exclude else None,
             fps_limit=fps_limit,
             fps_hint=fps_hint,
+            height=height,
+            inputstream=inputstream,
             **kwargs
         )

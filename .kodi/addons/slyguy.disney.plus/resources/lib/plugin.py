@@ -3,7 +3,7 @@ import time
 from base64 import b64decode
 
 import arrow
-from slyguy import plugin, gui, userdata, signals, inputstream
+from slyguy import plugin, gui, userdata, signals, inputstream, monitor
 from slyguy.exceptions import PluginError
 from slyguy.constants import KODI_VERSION, NO_RESUME_TAG, ROUTE_RESUME_TAG
 from slyguy.drm import is_wv_secure
@@ -870,8 +870,10 @@ def _play(family_id=None, content_id=None, deeplink_id=None, channel_id=None, **
 @plugin.route()
 def login(**kwargs):
     options = [
-        [_.EMAIL_PASSWORD, _email_password],
+       [_.EMAIL_PASSWORD, _email_password],
     ]
+    if KODI_VERSION >= 19: # Python3 only due to aes lib
+        options.insert(0, [_.DEVICE_CODE, _device_code])
 
     index = 0 if len(options) == 1 else gui.context_menu([x[0] for x in options])
     if index == -1 or not options[index][1]():
@@ -881,6 +883,20 @@ def login(**kwargs):
     gui.refresh()
 
 
+def _device_code():
+    timeout = 600
+    with api.device_login() as (code, ws):
+        with gui.progress_qr(DEVICE_CODE_URL, _(_.DEVICE_LINK_STEPS, code=code, url=DEVICE_CODE_URL), heading=_.DEVICE_CODE) as progress:
+            for i in range(timeout):
+                if progress.iscanceled() or not ws.is_alive() or monitor.waitForAbort(1):
+                    break
+
+                progress.update(int((i / float(timeout)) * 100))
+
+            ws.stop()
+            return ws.result
+
+
 def _email_password():
     email = gui.input(_.ASK_EMAIL, default=userdata.get('username', '')).strip()
     if not email:
@@ -888,7 +904,7 @@ def _email_password():
 
     userdata.set('username', email)
 
-    token = api.register_device()
+    token = api.register_device()[0]['token']['accessToken']
     next_step = api.check_email(email, token)
 
     if next_step.lower() == 'register':

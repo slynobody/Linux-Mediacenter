@@ -26,6 +26,16 @@ class MyYtDlp(object):
         "av01": 48315
     }
 
+    __heights__ = {
+        2160: 48411,
+        1440: 48412,
+        1080: 48413,
+        720: 48414,
+        480: 48415,
+        360: 48416,
+        0: 90011
+    }
+
     def __init__(self, logger):
         self.logger = logger.getLogger(component="ytdlp")
         self.__infos__ = YoutubeDL()
@@ -57,6 +67,12 @@ class MyYtDlp(object):
                 for codec in self.__exclude__
             )
         self.logger.info(f"{localizedString(48310)}: {labels}")
+        # preferred resolution
+        self.__height__ = getSetting("prefs.height", int)
+        self.logger.info(
+            f"{localizedString(48410)}: "
+            f"{localizedString(self.__heights__[self.__height__])}"
+        )
 
     def __stop__(self):
         self.__infos__ = self.__infos__.close()
@@ -64,14 +80,16 @@ class MyYtDlp(object):
 
     # --------------------------------------------------------------------------
 
-    def video(self, url):
+    def video(self, url, **kwargs):
         #self.logger.info(f"video(url={url})")
         return self.__client__.video(
             url,
             captions=self.__captions__,
             exclude=self.__exclude__,
             fps_limit=self.__fps_limit__,
-            fps_hint=self.__fps_hint__
+            fps_hint=self.__fps_hint__,
+            height=self.__height__,
+            **kwargs
         )
 
     def extract(self, url):

@@ -8,7 +8,7 @@ from slyguy.settings.types import BaseSettings
 
 
 setting = BaseSettings.KEEP_ALIVE
-
+enabled = BaseSettings.KEEP_ALIVE_ENABLED
 
 class KeepAlive(object):
     def __init__(self):
@@ -40,15 +40,14 @@ class KeepAlive(object):
             self.clear()
             return
 
+        self._update_keep_alive(force=True)
         log.debug("Calling keep-alive method: {}".format(self._func.__name__))
         try:
             self._func()
         except Exception as e:
-            self.log.warning("Keep-alive failed: {}. Trying again in 1 hour".format(e))
-            # try again in an hour
+            log.exception(e)
+            log.warning("Keep-alive failed: {}. Trying again in 1 hour".format(e))
             self._update_keep_alive(3600, force=True)
-        finally:
-            self._update_keep_alive(force=True)
 
 
 keep_alive = KeepAlive()
@@ -58,16 +57,29 @@ def call_keep_alives():
     # TODO: check kodi is awake / has internet?
     query = (
         Settings
-        .select(Settings.addon_id)
+        .select(Settings.addon_id, Settings.key, Settings.value)
         .where(
-            (Settings.key == setting.id) &
-            (Settings.value != setting._default) &
-            (Settings.value < int(time()))
+            (
+                (Settings.key == setting.id) &
+                (Settings.value > 0) &
+                (Settings.value < int(time()))
+            ) |
+            (
+                (Settings.key == enabled.id) &
+                (Settings.value == False)
+            )
         )
-        .distinct()
-        .order_by(Settings.value.asc()) # oldest value first
+        .order_by(Settings.value.asc())  # oldest value first
     )
-    addon_ids = [x.addon_id for x in query]
+
+    ignore = set()
+    addon_ids = set()
+    for row in query:
+        addon_ids.add(row.addon_id)
+        if row.key == 'keep_alive_enabled':
+            ignore.add(row.addon_id)
+
+    addon_ids = [x for x in addon_ids if x not in ignore]
     if not addon_ids:
         return
 

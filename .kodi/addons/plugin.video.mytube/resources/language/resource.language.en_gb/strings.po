@@ -263,6 +263,39 @@ msgid "AV1"
 msgstr ""
 
 
+msgctxt "#48400"
+msgid "Preferences"
+msgstr ""
+
+msgctxt "#48410"
+msgid "Resolution"
+msgstr ""
+
+msgctxt "#48411"
+msgid "2160p"
+msgstr ""
+
+msgctxt "#48412"
+msgid "1440p"
+msgstr ""
+
+msgctxt "#48413"
+msgid "1080p"
+msgstr ""
+
+msgctxt "#48414"
+msgid "720p"
+msgstr ""
+
+msgctxt "#48415"
+msgid "480p"
+msgstr ""
+
+msgctxt "#48416"
+msgid "360p"
+msgstr ""
+
+
 # Extras settings
 
 msgctxt "#49000"
@@ -374,4 +407,8 @@ msgstr ""
 
 msgctxt "#90006"
 msgid "==>"
+msgstr ""
+
+msgctxt "#90011"
+msgid "No preference"
 msgstr ""

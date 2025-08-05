@@ -1,16 +1,8 @@
 <settings>
-    <setting id="autoscroll" type="bool">true</setting>
+    <setting id="tvshow_onclick_playnext" type="bool">false</setting>
     <setting id="homemenunomusicbutton" type="bool">false</setting>
     <setting id="show_profilename" type="bool">false</setting>
     <setting id="show_musicvideoposter" type="bool">false</setting>
-    <setting id="tvshow_onclick_browse" type="bool">false</setting>
-    <setting id="tvshow_onclick_continuewatching" type="bool">false</setting>
-    <setting id="tvshow_onclick_playnext" type="bool">false</setting>
-    <setting id="tvshow_onclick_playfrombeginning" type="bool">false</setting>
-    <setting id="tvshow_onclick_queue" type="bool">false</setting>
-    <setting id="album_onclick_browse" type="bool">false</setting>
-    <setting id="album_onclick_play" type="bool">true</setting>
-    <setting id="no_fanart" type="bool">false</setting>
     <setting id="album_onclick_playnext" type="bool">false</setting>
     <setting id="homemenunomoviebutton" type="bool">false</setting>
     <setting id="album_onclick_queue" type="bool">false</setting>
@@ -38,10 +30,14 @@
     <setting id="homemenunovideosbutton" type="bool">false</setting>
     <setting id="movieset_onclick_queue" type="bool">false</setting>
     <setting id="homemenunotvshowbutton" type="bool">true</setting>
-    <setting id="WeatherFanart.path" type="string"></setting>
-    <setting id="WeatherFanart.ext" type="string"></setting>
-    <setting id="WeatherFanart.name" type="string"></setting>
-    <setting id="MovieGenreFanart.Name" type="string"></setting>
+    <setting id="tvshow_onclick_continuewatching" type="bool">false</setting>
+    <setting id="tvshow_onclick_browse" type="bool">false</setting>
+    <setting id="autoscroll" type="bool">true</setting>
+    <setting id="tvshow_onclick_playfrombeginning" type="bool">false</setting>
+    <setting id="tvshow_onclick_queue" type="bool">false</setting>
+    <setting id="album_onclick_play" type="bool">true</setting>
+    <setting id="no_fanart" type="bool">false</setting>
+    <setting id="album_onclick_browse" type="bool">false</setting>
     <setting id="HomeFanart.name" type="string"></setting>
     <setting id="homefanart.path" type="string"></setting>
     <setting id="background_overlay" type="string">1</setting>
@@ -49,4 +45,8 @@
     <setting id="MovieGenreFanart.path" type="string"></setting>
     <setting id="osdautoclosetime" type="string"></setting>
     <setting id="MovieGenreFanart.ext" type="string"></setting>
+    <setting id="WeatherFanart.path" type="string"></setting>
+    <setting id="WeatherFanart.ext" type="string"></setting>
+    <setting id="WeatherFanart.name" type="string"></setting>
+    <setting id="MovieGenreFanart.Name" type="string"></setting>
 </settings>

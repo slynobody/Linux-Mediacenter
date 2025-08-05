@@ -57,7 +57,7 @@ class MyService(Service):
     @public
     def video(self, **kwargs):
         if (videoId := kwargs.pop("videoId", None)):
-            return self.__session__.video(videoId)
+            return self.__session__.video(videoId, **kwargs)
         self.logger.error(f"Invalid videoId: {videoId}", notify=True)
 
     # folders ------------------------------------------------------------------

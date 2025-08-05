@@ -116,12 +116,14 @@ class ProgressQR(Progress):
 
 
 @contextmanager
-def busy():
-    xbmc.executebuiltin('ActivateWindow(busydialognocancel)')
+def busy(show=1):
+    if int(show):
+        xbmc.executebuiltin('ActivateWindow(busydialognocancel)')
     try:
         yield
     finally:
-        xbmc.executebuiltin('Dialog.Close(busydialognocancel)')
+        if int(show):
+            xbmc.executebuiltin('Dialog.Close(busydialognocancel)')
 
 
 @contextmanager

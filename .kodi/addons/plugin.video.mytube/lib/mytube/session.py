@@ -229,10 +229,11 @@ class MySession(__MySession__):
     # cached -------------------------------------------------------------------
 
     @cached("videos")
-    def video(self, videoId):
+    def video(self, videoId, **kwargs):
         return MyVideo(
             self.__ytdlp__.video(
-                buildUrl(self.__url__, "watch", v=videoId, **self.__params__)
+                buildUrl(self.__url__, "watch", v=videoId, **self.__params__),
+                **kwargs
             )
         )
 

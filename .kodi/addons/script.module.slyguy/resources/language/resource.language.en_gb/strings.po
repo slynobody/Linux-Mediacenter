@@ -350,10 +350,6 @@ msgctxt "#32038"
 msgid "Select Widevine CDM version to install"
 msgstr ""
 
-msgctxt "#32039"
-msgid "Service Start Delay (0 = Random 10s-60s)"
-msgstr ""
-
 msgctxt "#32040"
 msgid "MD5 checksum failed for file: {filename}\n"
 "{local_md5} != {remote_md5}"
@@ -378,10 +374,6 @@ msgstr ""
 
 msgctxt "#32045"
 msgid "HTTP Retries"
-msgstr ""
-
-msgctxt "#32046"
-msgid "WebOS does not currently support Widevine playback on Kodi"
 msgstr ""
 
 msgctxt "#32048"
@@ -1131,4 +1123,8 @@ msgstr ""
 
 msgctxt "#32230"
 msgid "Remove framerate hints from manifests"
+msgstr ""
+
+msgctxt "#32231"
+msgid "Keep-alive login"
 msgstr ""

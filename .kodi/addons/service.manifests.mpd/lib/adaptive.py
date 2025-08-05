@@ -1,9 +1,18 @@
 # -*- coding: utf-8 -*-
 
 
+import collections
 import io
 import math
 import xml.etree.ElementTree as ET
+
+
+# ------------------------------------------------------------------------------
+# Options
+
+Options = collections.namedtuple(
+    "Options", ("lang", "original", "default", "impaired")
+)
 
 
 # ------------------------------------------------------------------------------
@@ -90,7 +99,7 @@ class Representation(DashElement):
         if (codecs := data.get("codecs")):
             kwargs["codecs"] = codecs
         #bandwidth
-        if (bandwidth := data.get("averageBitrate", 0)):
+        if (bandwidth := data.get("bandwidth", 0)):
             kwargs["bandwidth"] = str(bandwidth)
         # width
         if (width := data.get("width", 0)):
@@ -125,15 +134,19 @@ class AdaptationSet(DashElement):
         #"bitstreamSwitching": "true"
     }
 
-    def __init__(self, id, contentType, mimeType, lang, data):
+    def __init__(self, id, contentType, mimeType, options, data):
         kwargs = {
             "id": id,
             "contentType": contentType,
             "mimeType": mimeType
         }
-        # lang
-        if lang:
-            kwargs["lang"] = lang
+        if any(options):
+            kwargs.update(
+                {
+                    k: v if isinstance(v, str) else str(v).lower()
+                    for k, v in options._asdict().items() if v
+                }
+            )
         super(AdaptationSet, self).__init__(**kwargs)
         self.extend(Representation(d) for d in data)
 
@@ -180,7 +193,16 @@ class MPD(DashElement):
 def manifest(duration, streams):
     data = {}
     for stream in streams:
-        data.setdefault(
-            (stream["contentType"], stream["mimeType"], stream["lang"]), []
-        ).append(stream)
+        key = (
+            stream["contentType"],
+            stream["mimeType"],
+            Options(
+                stream.get("lang"),
+                stream.get("original", False),
+                stream.get("default", False),
+                stream.get("impaired", False)
+
+            )
+        )
+        data.setdefault(key, []).append(stream)
     return MPD(duration, data).toString()

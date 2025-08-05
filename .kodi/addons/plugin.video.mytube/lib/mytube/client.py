@@ -30,8 +30,7 @@ class MyClient(object):
             if (item and sb and addonIsEnabled("service.sponsorblock")):
                 item.setProperty("SB:videoID", video["videoId"])
             return (
-                (item, video["manifestType"]),
-                {"mimeType": video["mimeType"], "language": video["language"]}
+                (item, video["manifestType"]), {"mimeType": video["mimeType"]}
             )
         return ((None, None), {})
 

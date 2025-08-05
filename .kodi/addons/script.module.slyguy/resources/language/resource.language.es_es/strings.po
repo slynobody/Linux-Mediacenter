@@ -301,10 +301,6 @@ msgctxt "#32038"
 msgid "Select Widevine CDM version to install"
 msgstr "Selecciona la versión de Widevine CDM a instalar"
 
-msgctxt "#32039"
-msgid "Service Start Delay (0 = Random 10s-60s)"
-msgstr "Espera al Iniciar Servicio (0 = Aleatorio 10s-60s)"
-
 msgctxt "#32040"
 msgid "MD5 checksum failed for file: {filename}\n"
 "{local_md5} != {remote_md5}"

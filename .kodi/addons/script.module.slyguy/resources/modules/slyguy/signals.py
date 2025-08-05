@@ -9,14 +9,14 @@ _signals = defaultdict(list)
 _skip = defaultdict(int)
 
 
-ON_ENTRY        = 'on_entry'
-AFTER_RESET     = 'after_reset'
-ON_SERVICE      = 'on_service'
+ON_ENTRY = 'on_entry'
+AFTER_RESET = 'after_reset'
 BEFORE_DISPATCH = 'before_dispatch'
-AFTER_DISPATCH  = 'after_dispatch'
-ON_ERROR        = 'on_error'
-ON_EXCEPTION    = 'on_exception'
-ON_CLOSE        = 'on_close'
+AFTER_DISPATCH = 'after_dispatch'
+ON_ERROR = 'on_error'
+ON_EXCEPTION = 'on_exception'
+ON_PLUGIN_EXCEPTION = 'on_plugin_exception'
+ON_CLOSE = 'on_close'
 ON_DONOR_SET = 'on_donor_set'
 ON_DONOR_UNSET = 'on_donor_unset'
 ON_EXIT = 'on_exit'
@@ -49,12 +49,15 @@ def emit(signal, *args, **kwargs):
 
 
 @contextmanager
-def throwable():
+def throwable(plugin_caller=False):
     try:
         yield 
     except Exit as e:
         pass
-    except Error as e:
-        emit(ON_ERROR, e)
     except Exception as e:
-        emit(ON_EXCEPTION, e)
+        if plugin_caller:
+            emit(ON_PLUGIN_EXCEPTION, e)
+        elif isinstance(e, Error):
+            emit(ON_ERROR, e)
+        else:
+            emit(ON_EXCEPTION, e)

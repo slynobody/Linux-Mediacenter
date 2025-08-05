@@ -18,6 +18,7 @@ from slyguy.drm import is_wv_secure
 def get_id():
     return IA_ADDON_ID
 
+
 def get_ia_addon(required=False, install=False):
     addon_id = get_id()
     if required:
@@ -31,6 +32,7 @@ def get_ia_addon(required=False, install=False):
             raise InputStreamError(_(_.ADDON_REQUIRED, addon_id=addon_id))
 
     return addon
+
 
 class InputstreamItem(object):
     manifest_type = ''
@@ -190,7 +192,7 @@ def require_version(required_version, required=False):
 
     return ia_addon if result else False
 
-def install_widevine(reinstall=False):
+def install_widevine(reinstall=False, license_failed=False):
     DST_FILES = {
         'Linux': 'libwidevinecdm.so',
         'Darwin': 'libwidevinecdm.dylib',
@@ -203,17 +205,23 @@ def install_widevine(reinstall=False):
     if KODI_VERSION < 18:
         raise InputStreamError(_.IA_KODI18_REQUIRED)
 
-    ia_addon = require_version(IA_WV_MIN_VER, required=True)
     system, arch = get_system_arch()
     log.info('Widevine - System: {} | Arch: {}'.format(system, arch))
 
-    if system == 'Android':
+    if system == 'WebOS':
+        # WV L3 support for WebOS added in 22.2.7
+        req_version = '22.2.7'
+    else:
+        req_version = IA_WV_MIN_VER
+    ia_addon = require_version(req_version, required=True)
+
+    if system in ('Android', 'WebOS'):
         if KODI_VERSION > 18:
             value = 'false' if is_wv_secure() else 'true'
             log.debug('Setting NOSECUREDECODER to: {}'.format(value))
             ia_addon.setSetting('NOSECUREDECODER', value)
 
-        log.debug('Widevine - Android: Builtin Widevine')
+        log.debug('Widevine - {}: Builtin Widevine'.format(system))
         return True
 
     if system not in DST_FILES:
@@ -235,16 +243,13 @@ def install_widevine(reinstall=False):
         elif system == 'TVOS':
             raise InputStreamError(_.IA_TVOS_ERROR)
 
-        elif system == 'WebOS':
-            raise InputStreamError(_.IA_WEBOS_ERROR)
-
         elif arch == 'armv6':
             raise InputStreamError(_.IA_ARMV6_ERROR)
 
         else:
             reinstall = True
 
-    if not reinstall and time.time() - last_check < IA_CHECK_EVERY:
+    if not reinstall and not license_failed and time.time() - last_check < IA_CHECK_EVERY:
         log.debug('Widevine - Already installed and no check required')
         return True
 
@@ -290,6 +295,10 @@ def install_widevine(reinstall=False):
             wv['label'] = _(_.WV_INSTALLED, label=wv['label'])
         elif wv['compatible'] and not wv.get('hidden'):
             has_compatible = True
+
+    # license_failed and there is another possible or we not latest then show dialog!
+    if license_failed and (has_compatible or wv_versions[0] != current):
+        reinstall = True
 
     new_wv_hash = hash_6(json.dumps([x for x in wv_versions if not x.get('hidden')]))
     if new_wv_hash != settings.get('_wv_latest_hash') and (current and not current['compatible'] and has_compatible):

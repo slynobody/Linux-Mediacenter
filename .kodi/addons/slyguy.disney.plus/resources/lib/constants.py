@@ -1,16 +1,14 @@
+APP_VERSION = '4.11.0-rc2-2025.07.10.0'
+CLIENT_VERSION = '10.1.0'
+SDK_VERSION = '6.0'
+EXPLORE_VERSION = 'v1.10'
 CLIENT_ID = 'disney-svod-3d9324fc'
-CLIENT_VERSION = '9.10.0'
 
 API_KEY = 'ZGlzbmV5JmFuZHJvaWQmMS4wLjA.bkeb0m230uUhv8qrAXuNu39tbE_mD5EEhM_NAcohjyA'
-CONFIG_URL = 'https://bam-sdk-configs.bamgrid.com/bam-sdk/v5.0/{}/android/v{}/google/tv/prod.json'.format(CLIENT_ID, CLIENT_VERSION)
-
+CONFIG_URL = 'https://bam-sdk-configs.bamgrid.com/bam-sdk/v{}/{}/android/v{}/google/tv/prod.json'.format(SDK_VERSION, CLIENT_ID, CLIENT_VERSION)
 DEVICE_CODE_URL = 'https://www.disneyplus.com/begin'
-PAGE_SIZE_SETS = 15
-PAGE_SIZE_CONTENT = 30
-SEARCH_QUERY_TYPE = 'ge'
-BAM_PARTNER = 'disney'
-EXPLORE_VERSION = 'v1.9'
 
+BAM_PARTNER = 'disney'
 BRANDS_ID = '552e2219-3eba-4bbd-94df-e99fca24553a'
 CONTINUE_WATCHING_ID = '76aed686-1837-49bd-b4f5-5d2a27c0c8d4'
 SUGGESTED_ID = '3cd8f37d-5480-46fb-9eeb-5002123abe53'
@@ -30,11 +28,12 @@ CONTAINERS = 'CONTAINERS'
 ACTIONS = 'ACTIONS'
 
 HEADERS = {
-    'User-Agent': 'BAMSDK/v{} ({} 2.26.2-rc1.0; v5.0/v{}; android; tv)'.format(CLIENT_VERSION, CLIENT_ID, CLIENT_VERSION),
+    'User-Agent': 'BAMSDK/v{} ({} {}; v{}/v{}; android; tv)'.format(CLIENT_VERSION, CLIENT_ID, APP_VERSION, SDK_VERSION, CLIENT_VERSION),
     'x-application-version': 'google',
     'x-bamsdk-platform-id': 'android-tv',
     'x-bamsdk-client-id': CLIENT_ID,
-    'x-bamsdk-platform': 'android-tv',
+    'x-bamsdk-platform': 'android/google/tv',
     'x-bamsdk-version': CLIENT_VERSION,
     'Accept-Encoding': 'gzip',
+    'x-bamsdk-platform': 'android/google/tv',
 }

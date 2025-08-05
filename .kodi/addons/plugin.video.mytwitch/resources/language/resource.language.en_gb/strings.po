@@ -1,0 +1,38 @@
+# Addon Name: MyTwitch
+# Addon id: plugin.video.mytwitch
+msgid ""
+msgstr ""
+"Project-Id-Version: plugin.video.mytwitch\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: en_GB\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+msgctxt "#30000"
+msgid "MyTwitch"
+msgstr ""
+
+msgctxt "#30001"
+msgid "Channel"
+msgstr ""
+
+msgctxt "#30002"
+msgid "Add channel"
+msgstr ""
+
+msgctxt "#30003"
+msgid "Channel: {channel}"
+msgstr ""
+
+msgctxt "#30004"
+msgid "Rename"
+msgstr ""
+
+msgctxt "#30005"
+msgid "Remove"
+msgstr ""
+
+msgctxt "#30006"
+msgid "Ads playing..."
+msgstr ""

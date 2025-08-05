@@ -24,6 +24,7 @@ from slyguy.exceptions import Exit
 from slyguy.session import RawSession
 from slyguy.router import add_url_args
 from slyguy.smart_urls import get_dns_rewrites
+from slyguy.inputstream import install_widevine
 
 H264 = 'H.264'
 H265 = 'H.265'
@@ -62,6 +63,10 @@ class Redirect(Exception):
         self.url = url
 
 
+class ProxyException(Exception):
+    pass
+
+
 def middleware_regex(response, pattern, **kwargs):
     data = response.stream.content.decode('utf8')
     match = re.search(pattern, data)
@@ -91,11 +96,10 @@ def middleware_plugin(response, url, **kwargs):
         shutil.copy(real_path, real_path+'.in')
 
     url = add_url_args(url, _path=path)
-    dirs, files = run_plugin(url, wait=True)
-    data = json.loads(unquote_plus(files[0]))
+    data = run_plugin(url)
 
     if not os.path.exists(real_path):
-        raise Exception('No data returned from plugin')
+        raise ProxyException('No data returned from plugin')
 
     with open(real_path, 'rb') as f:
         response.stream.content = f.read()
@@ -132,6 +136,14 @@ class RequestHandler(BaseHTTPRequestHandler):
 
     def log_message(self, format, *args):
         return
+
+    def handle(self):
+        try:
+            BaseHTTPRequestHandler.handle(self)
+        except Exception as e:
+            log.error("PROXY ERROR: {}".format(e))
+            self.send_response(204) # stop retries
+            self.end_headers()
 
     def setup(self):
         BaseHTTPRequestHandler.setup(self)
@@ -224,14 +236,13 @@ class RequestHandler(BaseHTTPRequestHandler):
             url = add_url_args(url, _path=path)
 
         url = add_url_args(url, _headers=json.dumps(self._headers))
+        data = run_plugin(url)
 
-        dirs, files = run_plugin(url, wait=True)
-        data = json.loads(unquote_plus(files[0]))
         for key in data.get('headers', {}):
             self._headers[key.lower()] = data['headers'][key]
 
         if 'url' not in data:
-            raise Exception('No data returned from plugin')
+            raise ProxyException('No data returned from plugin')
 
         return data['url']
 
@@ -306,7 +317,8 @@ class RequestHandler(BaseHTTPRequestHandler):
             response.headers['location'] = e.url
             response.stream.content = b''
         except Exception as e:
-            log.exception(e)
+            if type(e) != Exit:
+                log.error("PROXY ERROR: {}".format(e))
 
             def output_error(url):
                 response.status_code = 200
@@ -514,8 +526,7 @@ class RequestHandler(BaseHTTPRequestHandler):
         try:
             root = parseString(data.encode('utf8'))
         except Exception as e:
-            log.error('Failed to parse dash: {}'.format(data))
-            raise
+            raise ProxyException('Failed to parse dash: {}'.format(data))
 
         if ADDON_DEV:
             pretty = root.toprettyxml(encoding='utf-8')
@@ -1300,7 +1311,7 @@ class RequestHandler(BaseHTTPRequestHandler):
 
         is_master = False
         if '#EXTM3U' not in m3u8:
-            raise Exception('Invalid m3u8: {}'.format(m3u8))
+            raise ProxyException('Invalid m3u8: {}'.format(m3u8))
 
         if '#EXT-X-STREAM-INF' in m3u8:
             is_master = True
@@ -1361,7 +1372,7 @@ class RequestHandler(BaseHTTPRequestHandler):
                 with open(real_path, 'rb') as f:
                     response.stream.content = f.read()
             else:
-                raise Exception("File not found: {}".format(real_path))
+                raise ProxyException("File not found: {}".format(real_path))
 
             return response
 
@@ -1393,7 +1404,7 @@ class RequestHandler(BaseHTTPRequestHandler):
             response = self._session['session'].request(method=method, url=url, headers=self._headers, data=self._post_data, allow_redirects=False, stream=True)
         except Exception as e:
             log.exception(e)
-            raise
+            raise ProxyException(e)
 
         log.debug('REQUEST TIME: {}'.format(time.time() - start))
         log.debug('RESPONSE IN: {} ({})'.format(url, response.status_code))
@@ -1465,7 +1476,7 @@ class RequestHandler(BaseHTTPRequestHandler):
     def do_POST(self):
         url = self._get_url('POST')
 
-        for i in range(3):
+        for i in range(4):
             response = self._proxy_request('POST', url)
             if url != self._session.get('license_url'):
                 break
@@ -1481,7 +1492,8 @@ class RequestHandler(BaseHTTPRequestHandler):
             if response.ok and license_data:
                 log.info('WV License response OK and returned data')
                 self._session['license_init'] = True
-                break
+                self._output_response(response)
+                return
 
             if not license_data:
                 license_data = b'None'
@@ -1491,14 +1503,17 @@ class RequestHandler(BaseHTTPRequestHandler):
             except:
                 license_data = '...'
 
-            log.error('WV License attempt: {}/3 failed: {}'.format(i+1, license_data))
-            time.sleep(0.5)
-        else:
-            # only show error on initial license fail
-            if not self._session.get('license_init'):
-                gui.notification(_.PLAYBACK_FAILED_CHECK_LOG, heading=_.WV_FAILED, icon=xbmc.getInfoLabel('Player.Icon'))
+            log.error('WV License attempt: {}/4 failed: {}'.format(i+1, license_data))
+            time.sleep(0.1)
 
+        # stop IA/CDM retrying by returning an OK status
+        response.status_code = 204
         self._output_response(response)
+
+        # only show error on initial license fail
+        if not self._session.get('license_init'):
+            gui.notification(_.PLAYBACK_FAILED_CHECK_LOG, heading=_.WV_FAILED, icon=xbmc.getInfoLabel('Player.Icon'))
+            install_widevine(license_failed=True)
 
 class Response(object):
     def __init__(self):
@@ -1526,7 +1541,7 @@ class ResponseStream(object):
     @content.setter
     def content(self, _bytes):
         if not type(_bytes) is bytes:
-            raise Exception('Only bytes allowed when setting content')
+            raise ProxyException('Only bytes allowed when setting content')
 
         self._bytes = _bytes
         self._response.headers['content-length'] = str(len(_bytes))
@@ -1592,7 +1607,7 @@ class Proxy(object):
             gui.error(error)
             return
 
-        settings.PROXY_PORT._set_value(port)
+        settings.PROXY_PORT.store_value(port)
         self._server.allow_reuse_address = True
         self._httpd_thread = threading.Thread(target=self._server.serve_forever)
         self._httpd_thread.start()
@@ -1619,4 +1634,4 @@ class Proxy(object):
             log.exception(e)
 
         settings.set('_proxy_path', '')
-        log.debug("Proxy: Stopped")
+        log.debug("Proxy Stopped")

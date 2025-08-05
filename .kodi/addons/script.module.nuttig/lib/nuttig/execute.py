@@ -5,7 +5,8 @@ __all__ = [
     "executeBuiltin", "executeJSONRPC", "getCondition", "getInfoLabel",
     "containerRefresh", "containerUpdate", "playMedia", "runScript",
     "addFavourite", "getAddons", "addonInstalled", "addonEnabled",
-    "hasAddon", "addonIsEnabled", "activateWindow"
+    "hasAddon", "addonIsEnabled", "activateWindow",
+    "getApplicationProperty", "getKodiVersion"
 ]
 
 
@@ -62,6 +63,12 @@ def getInfoLabel(infotag):
     return xbmc.getInfoLabel(infotag)
 
 
+# __getApplicationProperties__ -------------------------------------------------
+
+def __getApplicationProperties__(*args):
+    return executeJSONRPC("Application.GetProperties", properties=list(args))
+
+
 # misc execute utils -----------------------------------------------------------
 
 # containerRefresh
@@ -107,3 +114,11 @@ def addonIsEnabled(addonid):
 # activateWindow
 def activateWindow(*args, **kwargs):
     executeBuiltin("ActivateWindow", *args, **kwargs)
+
+# getApplicationProperty
+def getApplicationProperty(name):
+    return __getApplicationProperties__(name)[name]
+
+# getKodiVersion
+def getKodiVersion():
+    return getApplicationProperty("version")

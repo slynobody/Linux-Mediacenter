@@ -130,10 +130,6 @@ class Setting(object):
         return self._image
 
     @property
-    def is_default(self):
-        return self.value == self._default
-
-    @property
     def is_enabled(self):
         enabled = self._get_bool_condition(self._enable)
         if enabled and self._parent:
@@ -165,7 +161,7 @@ class Setting(object):
     def _set_value(self, value):
         if not self._is_valid_value(value) or not self._before_save(value):
             return
-        self._set_value(value)
+        self.store_value(value)
         self._after_save(value)
 
     def _get_value_owner(self):
@@ -186,7 +182,7 @@ class Setting(object):
     def can_bulk_clear(self):
         return self.can_clear() and not self.confirm_clear
 
-    def _set_value(self, value):
+    def store_value(self, value):
         STORAGE.set(self.owner, self.id, value)
 
     def clear(self):
@@ -333,7 +329,7 @@ class AutoText(Text):
         owner, value = super(AutoText, self)._get_value_owner()
         if value == DBStorage.NO_ENTRY:
             value = str(self.generator())
-            self._set_value(value)
+            self.store_value(value)
         return owner, value
 
     def select(self):
@@ -555,7 +551,7 @@ def migrate(settings):
                 value = setting._default
 
             if value != setting._default:
-                setting._set_value(value)
+                setting.store_value(value)
                 log.info("Migrate: '{}' -> '{}' -> '{}'".format(key, setting.id, value))
                 count += 1
             else:
@@ -590,6 +586,7 @@ class BaseSettings(object):
     USERDATA = Dict('userdata', visible=False, override=False, inherit=False) #LEGACY
     BOOKMARKS_DATA = List('bookmarks_data', visible=False, override=False, inherit=False)
     KEEP_ALIVE = Number('keep_alive', default=0, visible=False, override=False, inherit=False)
+    KEEP_ALIVE_ENABLED = Bool('keep_alive_enabled', _.KEEP_ALIVE_ENABLED, default=True, visible=lambda: BaseSettings.KEEP_ALIVE.value > 0, override=False, inherit=False, order=999)
     SETTINGS = {}
 
     def __init__(self, addon_id=ADDON_ID):

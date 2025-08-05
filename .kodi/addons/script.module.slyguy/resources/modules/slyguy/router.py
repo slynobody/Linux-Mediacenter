@@ -126,7 +126,7 @@ def dispatch(url=None):
         else:
             url = sys.argv[0] + sys.argv[2]
 
-    with signals.throwable():
+    with signals.throwable(plugin_caller='_run_plugin=1' in url.lower()):
         signals.emit(signals.BEFORE_DISPATCH)
         function, params = parse_url(url)
 

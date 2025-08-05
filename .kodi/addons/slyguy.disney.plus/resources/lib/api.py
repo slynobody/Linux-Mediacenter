@@ -1,5 +1,6 @@
 import uuid
 from time import time
+from contextlib import contextmanager
 
 from slyguy import userdata, mem_cache, log
 from slyguy.session import Session
@@ -53,12 +54,14 @@ class API(object):
         if not force and userdata.get('expires', 0) > time():
             self._set_authentication(userdata.get('access_token'))
             return
+        self._refresh_token(userdata.get('refresh_token'))
 
+    def _refresh_token(self, refresh_token):
         payload = {
             'operationName': 'refreshToken',
             'variables': {
                 'input': {
-                    'refreshToken': userdata.get('refresh_token'),
+                    'refreshToken': refresh_token,
                 },
             },
             'query': queries.REFRESH_TOKEN,
@@ -102,9 +105,10 @@ class API(object):
         }
 
         endpoint = self.get_config()['services']['orchestration']['client']['endpoints']['registerDevice']['href']
-        data = self._session.post(endpoint, json=payload, headers={'authorization': API_KEY}).json()
+        resp = self._session.post(endpoint, json=payload, headers={'authorization': API_KEY})
+        data = resp.json()
         self._check_errors(data)
-        return data['extensions']['sdk']['token']['accessToken']
+        return data['extensions']['sdk'], resp.headers.get('x-bamtech-region')
 
     def check_email(self, email, token):
         payload = {
@@ -189,6 +193,72 @@ class API(object):
         data = self._session.post(endpoint, json=payload, headers={'authorization': token}).json()
         self._check_errors(data)
         self._set_auth(data['extensions']['sdk'])
+
+    @contextmanager
+    def device_login(self):
+        from .ws import DeviceLogin # python3 only
+
+        sdk_data, region = self.register_device()
+
+        payload = {
+            'variables': {},
+            'query': queries.REQUEST_DEVICE_CODE,
+        }
+
+        endpoint = self.get_config()['services']['orchestration']['client']['endpoints']['query']['href']
+        data = self._session.post(endpoint, json=payload, headers={'authorization': 'Bearer {}'.format(sdk_data['token']['accessToken'])}).json()
+        self._check_errors(data)
+        code = data['data']['requestLicensePlate']['licensePlate']
+
+        payload = {
+            'algorithm': 'Felix',
+            'application': {
+                'id': 'com.disney.disneyplus',
+                'name': 'Disney+',
+                'version': APP_VERSION,
+            },
+            'device': {
+                'manufacturer': 'NVIDIA',
+                'model': 'SHIELD Android TV',
+                'operatingSystem': 'Android v11',
+                'operatingSystemVersion': '11',
+            }
+        }
+
+        config = self.get_config()['services']['connectionPairing']['client']
+        endpoint_name = config['extras']['regionalEndpointMapping'][region]
+        endpoint = config['endpoints'][endpoint_name]['href']
+        ws_data = self._session.post(endpoint, json=payload, headers={'authorization': 'Bearer {}'.format(sdk_data['token']['accessToken'])}).json()
+        self._check_errors(ws_data)
+
+        config = self.get_config()['services']['socket']['client']
+        endpoint_name = config['extras']['pairedConnectionEndpointMapping'][region]
+        endpoint = config['endpoints'][endpoint_name]['href']
+
+        ws = DeviceLogin(url=endpoint, ws_data=ws_data, session_id=sdk_data['session']['sessionId'])
+
+        try:
+            ws.connect()
+            yield code, ws
+        finally:
+            ws.stop()
+
+        if not ws.result:
+            return
+
+        token_data = ws.token_data()
+        payload = {
+            'grant_type': 'urn:ietf:params:oauth:grant-type:token-exchange',
+            'subject_token': token_data['refreshToken'],
+            'subject_token_type': 'urn:ietf:params:oauth:token-type:refresh_token',
+            'actor_token': sdk_data['token']['refreshToken'],
+            'actor_token_type': 'urn:ietf:params:oauth:token-type:refresh_token',
+            'platform': 'android-tv',
+        }
+        endpoint = self.get_config()['services']['token']['client']['endpoints']['exchange']['href']
+        token_data = self._session.post(endpoint, data=payload, headers={'authorization': API_KEY}).json()
+        self._check_errors(token_data)
+        self._refresh_token(token_data['refresh_token'])
 
     def _check_errors(self, data, error=_.API_ERROR, raise_on_error=True):
         if not type(data) is dict:

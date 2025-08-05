@@ -13,11 +13,10 @@ streams = [ # list of streams
     {
         'contentType': 'video',
         'mimeType': 'video/mp4',
-        'lang': None,
         'id': 'av1',
         'url': 'http://...',
         'codecs': 'av01.0.08M.08',
-        'averageBitrate': 1134143,
+        'bandwidth': 1134143,
         'width': 1920,
         'height': 1080,
         'frameRate': 25,
@@ -27,11 +26,10 @@ streams = [ # list of streams
     {
         'contentType': 'video',
         'mimeType': 'video/mp4',
-        'lang': None,
         'id': 'h264',
         'url': 'http://...',
         'codecs': 'avc1.640028',
-        'averageBitrate': 1564778,
+        'bandwidth': 1564778,
         'width': 1920,
         'height': 1080,
         'frameRate': 25,
@@ -41,11 +39,10 @@ streams = [ # list of streams
     {
        'contentType': 'video',
        'mimeType': 'video/webm',
-       'lang': None,
        'id': 'vp9',
        'url': 'http://...',
        'codecs': 'vp09.00.40.08',
-       'averageBitrate': 1349664,
+       'bandwidth': 1349664,
        'width': 1920,
        'height': 1080,
        'frameRate': 25,
@@ -60,11 +57,14 @@ streams = [ # list of streams
         'id': '140',
         'url': 'http://...',
         'codecs': 'mp4a.40.2',
-        'averageBitrate': 129473,
+        'bandwidth': 129473,
         'audioSamplingRate': 44100,
         'audioChannels': 2,
         'indexRange': {'end': '2727', 'start': '632'},
-        'initRange': {'end': '631', 'start': '0'}
+        'initRange': {'end': '631', 'start': '0'},
+        'original': True, # optional inputstream.adaptive custom attribute
+        'default': True, # optional inputstream.adaptive custom attribute
+        'impaired': False # optional inputstream.adaptive custom attribute
     },
     {
         'contentType': 'audio',
@@ -73,11 +73,14 @@ streams = [ # list of streams
         'id': '251',
         'url': 'http://...',
         'codecs': 'opus',
-        'averageBitrate': 102114,
+        'bandwidth': 102114,
         'audioSamplingRate': 48000,
         'audioChannels': 2,
         'indexRange': {'end': '3222', 'start': '266'},
-        'initRange': {'end': '265', 'start': '0'}
+        'initRange': {'end': '265', 'start': '0'},
+        'original': True, # optional inputstream.adaptive custom attribute
+        'default': True, # optional inputstream.adaptive custom attribute
+        'impaired': False # optional inputstream.adaptive custom attribute
     },
     # subtitles
     {

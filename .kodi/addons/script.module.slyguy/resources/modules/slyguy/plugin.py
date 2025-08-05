@@ -8,10 +8,10 @@ from six.moves.urllib_parse import quote_plus
 
 from kodi_six import xbmc, xbmcplugin, xbmcaddon
 
-from slyguy import monitor, router, gui, settings, userdata, inputstream, signals, migrate, bookmarks, mem_cache, is_donor, log, _, keep_alive
+from slyguy import router, gui, settings, userdata, inputstream, signals, migrate, bookmarks, mem_cache, is_donor, log, _, keep_alive
 from slyguy.constants import *
 from slyguy.exceptions import Error, PluginError, CancelDialog
-from slyguy.util import set_kodi_string, get_addon, remove_file, user_country
+from slyguy.util import set_kodi_string, get_addon, remove_file, user_country, remove_kodi_formatting
 from slyguy.settings.types import Category
 
 
@@ -99,6 +99,7 @@ def plugin_middleware():
     log.debug('@plugin.plugin_middleware() is deprecated. Use @plugin.plugin_request() instead')
     return plugin_request()
 
+
 # @plugin.plugin_request()
 def plugin_request():
     def decorator(func):
@@ -113,45 +114,46 @@ def plugin_request():
             if '_headers' in kwargs:
                 kwargs['_headers'] = json.loads(kwargs['_headers'])
 
-            try:
-                data = func(*args, **kwargs)
-            except Exception as e:
-                log.exception(e)
-                data = None
+            result = func(*args, **kwargs) or {}
 
             folder = Folder(show_news=False)
             folder.add_item(
-                path = quote_plus(json.dumps(data or {})),
+                path = quote_plus(json.dumps({'result': result})),
             )
             return folder
         return decorated_function
     return lambda func: decorator(func)
+
 
 # @plugin.merge()
 def merge():
     def decorator(f):
         @wraps(f)
         def decorated_function(*args, **kwargs):
-            result = False
-            try:
-                require_update()
-                message = f(*args, **kwargs) or ''
-            except Error as e:
-                log.debug(e, exc_info=True)
-                message = e.message
-            except Exception as e:
-                log.exception(e)
-                message = str(e)
-            else:
-                result = True
+            require_update()
+            result = f(*args, **kwargs) or ''
 
             folder = Folder(show_news=False)
             folder.add_item(
-                path = quote_plus(u'{}{}'.format(int(result), message)),
+                path = quote_plus(json.dumps({'result': result})),
             )
             return folder
         return decorated_function
     return lambda f: decorator(f)
+
+
+@signals.on(signals.ON_PLUGIN_EXCEPTION)
+def _plugin_exception(e):
+    mem_cache.empty()
+    _close()
+
+    log.exception(e)
+    folder = Folder(show_news=False)
+    folder.add_item(
+        path = quote_plus(json.dumps({'error': str(e)}))
+    )
+    folder.display()
+
 
 # @plugin.search()
 def search(key=None):
@@ -277,7 +279,8 @@ def _error(e):
     _close()
 
     log.error(e, exc_info=True)
-    gui.ok(e.message, heading=e.heading)
+    if e.show_dialog:
+        gui.ok(e.message, heading=e.heading)
     resolve()
 
 
@@ -286,11 +289,11 @@ def _exception(e):
     mem_cache.empty()
     _close()
 
-    if not isinstance(e, CancelDialog):
+    if isinstance(e, CancelDialog):
+        log.debug(e)
+    else:
         log.exception(e)
         gui.exception()
-    else:
-        log.debug(e)
 
     resolve()
 
@@ -490,14 +493,6 @@ def _context(**kwargs):
     raise PluginError(_.NO_CONTEXT_METHOD)
 
 
-@route(ROUTE_SERVICE)
-def _service(**kwargs):
-    try:
-        signals.emit(signals.ON_SERVICE)
-    except Exception as e:
-        #catch all errors so dispatch doesn't show error
-        log.exception(e)
-
 # @route()
 # def views(content=None, **kwargs):
 #     choices = [['Movies', 'movies'], ['Shows', 'tvshows'], ['Mixed', 'mixed'], ['Menus', 'menus']]
@@ -551,24 +546,6 @@ def _service(**kwargs):
 #     userdata.delete('view_{}'.format(content))
 #     gui.notification('Reset')
 #     gui.refresh()
-
-def service(interval=ROUTE_SERVICE_INTERVAL):
-    delay = settings.getInt('service_delay', 0) or random.randint(10, 60)
-    monitor.waitForAbort(delay)
-
-    last_run = 0
-    while not monitor.abortRequested():
-        if time.time() - last_run >= interval:
-
-            try:
-                signals.emit(signals.ON_SERVICE)
-            except Exception as e:
-                #catch all errors so dispatch doesn't show error
-                log.exception(e)
-
-            last_run = time.time()
-
-        monitor.waitForAbort(5)
 
 
 def _handle():
@@ -1015,12 +992,12 @@ def process_news():
 
 
 def get_trailer_item(item, check=True):
-    title = item.label
+    title = remove_kodi_formatting(item.info.get('title') or item.label)
     year = item.info.get('year')
-    media_type = item.info.get('mediatype')
+    mediatype = item.info.get('mediatype')
 
     if check:
-        if not title or not year or media_type not in ('tvshow', 'movie'):
+        if not title or not year or mediatype not in ('tvshow', 'movie'):
             gui.notification(_.TRAILER_NOT_FOUND)
             return
 
@@ -1028,7 +1005,7 @@ def get_trailer_item(item, check=True):
 
     item.update(
         label = u"{} ({})".format(item.label, _.TRAILER),
-        path = router.build_url('/by_title_year', title=title, year=year, media_type=media_type, _addon_id=TRAILERS_ADDON_ID),
+        path = router.build_url('/by_title_year', mediatype=mediatype, title=title, year=year, _addon_id=TRAILERS_ADDON_ID),
         playable = True,
     )
     return item

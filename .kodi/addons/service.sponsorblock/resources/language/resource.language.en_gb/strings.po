@@ -1,0 +1,38 @@
+# Addon Name: SponsorBlock service
+# Addon id: service.sponsorblock
+msgid ""
+msgstr ""
+"Project-Id-Version: service.sponsorblock\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: en_GB\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+msgctxt "#30000"
+msgid "SponsorBlock service"
+msgstr ""
+
+msgctxt "#30001"
+msgid "Skip"
+msgstr ""
+
+
+# Session settings
+
+msgctxt "#41000"
+msgid "Session"
+msgstr ""
+
+msgctxt "#41100"
+msgid "Connection"
+msgstr ""
+
+msgctxt "#41110"
+msgid "Timeout"
+msgstr ""
+
+
+msgctxt "#42110"
+msgid "Threshold"
+msgstr ""

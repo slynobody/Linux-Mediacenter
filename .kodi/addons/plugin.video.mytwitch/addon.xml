@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="plugin.video.mytwitch"
+       name="MyTwitch"
+       version="2.4.16"
+       provider-name="lekma">
+
+    <requires>
+        <import addon="xbmc.python" version="3.0.1" />
+        <import addon="xbmc.addon" version="20.2.0" />
+        <import addon="script.module.requests" version="2.31.0" />
+        <import addon="script.module.nuttig" version="1.4.6" />
+        <import addon="script.module.iapc" version="2.4.2" />
+        <import addon="service.yt-dlp" version="1.4.6" />
+    </requires>
+
+    <extension point="xbmc.python.pluginsource" library="lib/plugin.py">
+        <provides>video</provides>
+    </extension>
+
+    <extension point="xbmc.service" library="lib/service.py" />
+
+    <extension point="xbmc.python.script" library="lib/scripts.py" />
+
+    <extension point="xbmc.addon.metadata">
+        <reuselanguageinvoker>true</reuselanguageinvoker>
+        <summary lang="en_GB">MyTwitch</summary>
+        <description lang="en_GB">MyTwitch</description>
+        <license>Unlicense</license>
+        <platform>all</platform>
+        <source>https://github.com/lekma/plugin.video.mytwitch</source>
+        <assets>
+            <icon>resources/media/icon.png</icon>
+        </assets>
+    </extension>
+
+</addon>
