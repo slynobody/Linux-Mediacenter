@@ -3,7 +3,7 @@
 
 ## Steam Deck
 
-> git clone https://github.com/slynobody/SteamOS-Mediacenter
+> git clone https://github.com/slynobody/Linux-Mediacenter
 > 
 > cd SteamOS-Mediacenter
 >
@@ -12,7 +12,7 @@
 > ./install.sh
 
 ## Linux, install preconfig (kodi installed, if not see below)
-> git clone https://github.com/slynobody/SteamOS-Mediacenter
+> git clone https://github.com/slynobody/Linux-Mediacenter
 > 
 > cd SteamOS-Mediacenter
 > 
