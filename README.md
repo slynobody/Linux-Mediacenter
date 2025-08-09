@@ -1,27 +1,6 @@
 # Mediacenter for Linux / Steam-Deck ('kodi', preconfigured for streaming / privacy)
 <img src="/kodi.png"/>
 
-## Steam Deck
-
-> git clone https://github.com/slynobody/Linux-Mediacenter
-> 
-> cd SteamOS-Mediacenter
->
->  chmod +x *.sh
->
-> ./install.sh
-
-## Linux, install preconfig (kodi installed, if not see below)
-> git clone https://github.com/slynobody/Linux-Mediacenter
-> 
-> cd SteamOS-Mediacenter
-> 
-> mv ~/.kodi ~/.kodi_old
-> 
-> cp -R ./.kodi ~
-
-### have fun.
-
 # Turn your steamdeck* to a media-center - a button-press away (game-mode)!
 
  Streaming, Music, Movies, Pictures, Radio, TV – central, one place. (relatively privacy-friendly, <a href="https://github.com/slynobody/SteamOS-Privacy">also see)</a>
@@ -35,6 +14,27 @@
  extend : choose between hundreds of other preinstalled addons & install them easily.
 
 *<sub>the .kodi-dir from this repo can be used in any other linux-distro.</sub>
+
+## Steam Deck
+
+> git clone https://github.com/slynobody/Linux-Mediacenter
+> 
+> cd SteamOS-Mediacenter
+>
+>  chmod +x *.sh
+>
+> ./install.sh
+
+## Linux, install preconfig (kodi already installed, if not see below)
+> git clone https://github.com/slynobody/Linux-Mediacenter
+> 
+> cd SteamOS-Mediacenter
+> 
+> mv ~/.kodi ~/.kodi_old
+> 
+> cp -R ./.kodi ~
+
+### have fun.
 
 # FAQ
 ## I am on Linux, how do i install Kodi?
