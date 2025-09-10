@@ -1,7 +1,7 @@
 # Mediacenter for Linux / Steam-Deck ('kodi', preconfigured for streaming / privacy)
 <img src="/kodi.png"/>
 
-# Turn your steamdeck* to a media-center - a button-press away (game-mode)!
+# easily turn your linux-machine / steamdeck* to a media-center - a button-press away (game-mode)!
 
  Streaming, Music, Movies, Pictures, Radio, TV – central, one place. (relatively privacy-friendly, <a href="https://github.com/slynobody/SteamOS-Privacy">also see)</a>
 
@@ -25,7 +25,7 @@
 >
 > ./install.sh
 
-## Linux, install preconfig (kodi already installed, if not see below)
+## Linux, install preconfig (if kodi is already installed, if not see below)
 > git clone https://github.com/slynobody/Linux-Mediacenter
 > 
 > cd SteamOS-Mediacenter
