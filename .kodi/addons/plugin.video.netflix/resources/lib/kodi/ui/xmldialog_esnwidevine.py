@@ -118,7 +118,7 @@ class ESNWidevine(xbmcgui.WindowXMLDialog):
             if not esn.startswith(('NFANDROID1-PRV-', 'NFANDROID2-PRV-')) or esn.count('-') < 5:
                 return False
         else:
-            if esn.count('-') != 3 or len(esn) != 40:
+            if esn.count('-') != 2 or len(esn) != 40:
                 return False
         return True
 

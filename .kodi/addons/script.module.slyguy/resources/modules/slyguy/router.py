@@ -129,6 +129,8 @@ def dispatch(url=None):
     with signals.throwable(plugin_caller='_run_plugin=1' in url.lower()):
         signals.emit(signals.BEFORE_DISPATCH)
         function, params = parse_url(url)
+        if '_run_plugin=1' in url.lower():
+            params['_run_plugin'] = 1
 
         if hasattr(sys, 'listitem'):
             params['listitem'] = sys.listitem

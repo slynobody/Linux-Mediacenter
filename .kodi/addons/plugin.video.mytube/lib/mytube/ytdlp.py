@@ -14,6 +14,15 @@ class MyYtDlp(object):
 
     __service_id__ = "service.yt-dlp"
 
+    __params__ = {
+        "verbose": False,
+        "extractor_args": {
+            "youtube": {
+                "player_client": ["default", "tv_simply"]
+            }
+        }
+    }
+
     __fps_limits__ = {0: 48211, 30: 48212}
 
     __fps_hints__ = {"int": 48221, "float": 48222, "none": 48223}
@@ -89,6 +98,7 @@ class MyYtDlp(object):
             fps_limit=self.__fps_limit__,
             fps_hint=self.__fps_hint__,
             height=self.__height__,
+            #params=self.__params__,
             **kwargs
         )
 

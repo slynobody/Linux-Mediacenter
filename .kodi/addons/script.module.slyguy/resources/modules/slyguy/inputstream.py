@@ -79,6 +79,9 @@ class HLS(InputstreamItem):
         self.force = force
         self.live  = live
 
+        if self.live and 'manifest_config' not in self.properties:
+            self.properties['manifest_config'] = '{"hls_ignore_endlist":true,"hls_fix_mediasequence":true,"hls_fix_discsequence":true}'
+
     def do_check(self):
         hls_live = settings.getBool('use_ia_hls_live', False)
         hls_vod = settings.getBool('use_ia_hls_vod', False)

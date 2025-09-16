@@ -315,7 +315,8 @@ class Item(object):
 
         def redirect_url(url):
             while urlparse(url).netloc.lower() in REDIRECT_HOSTS and is_http(url):
-                new_url = Session().head(url).headers.get('location')
+                # only want to get first redirect away from hosts in case of them redirecting / cookies etc
+                new_url = Session().head(url, allow_redirects=False).headers.get('location')
                 if not new_url:
                     break
                 url = new_url
@@ -413,9 +414,10 @@ class Item(object):
             proxy_data['path_subs'][proxy_url] = url
             return u'{}{}'.format(proxy_path, proxy_url)
 
+        self.manifest = self.path
         if self.path and playing:
-            self.path = redirect_url(fix_url(self.path))
-            final_path = get_url(self.path)
+            self.manifest = self.path = redirect_url(fix_url(self.path))
+            final_path = get_url(self.manifest)
 
             parse = urlparse(final_path.lower())
             if parse.scheme == 'plugin':
@@ -431,7 +433,7 @@ class Item(object):
                         mimetype = 'application/vnd.ms-sstr+xml'
 
                 proxy_data = {
-                    'manifest': self.path,
+                    'manifest': self.manifest,
                     'slug': '{}-{}'.format(ADDON_ID, self.slug),
                     'license_url': license_url,
                     'session_id': hash_6(time.time()),

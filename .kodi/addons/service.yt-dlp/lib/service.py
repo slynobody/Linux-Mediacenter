@@ -128,7 +128,7 @@ class YtDlpService(Service):
             if video["url"]:
                 #self.logger.info(f"url: {video['url']}")
                 video["manifestType"] = "hls"
-                video["mimeType"] = None
+                video["mimeType"] = "application/x-mpegURL"
             else:
                 video["url"] = self.__mpd__.manifest(
                     video["duration"], formats, subtitles, **kwargs

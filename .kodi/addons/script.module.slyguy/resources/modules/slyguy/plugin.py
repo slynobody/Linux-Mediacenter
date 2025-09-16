@@ -730,13 +730,25 @@ class Item(gui.Item):
         set_kodi_string('_slyguy_play_data', json.dumps(play_data))
 
         # check supporter on final url
-        if self.path.lower().startswith('http'):
+        if self.manifest.lower().startswith('http'):
             process_support()
 
-        if handle > 0:
+        if kwargs.get('_run_plugin', None):
+            data = {
+                'url': self.manifest,
+                'headers': self.headers,
+                #'cookies': self.cookies, # TODO?
+            }
+            folder = Folder(show_news=False)
+            folder.add_item(
+                path = quote_plus(json.dumps({'result': data})),
+            )
+            folder.display()
+        elif handle > 0:
             xbmcplugin.setResolvedUrl(handle, True, li)
         else:
             xbmc.Player().play(self.path, li)
+
 
 #Plugin.Folder()
 class Folder(object):

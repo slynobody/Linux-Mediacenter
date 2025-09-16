@@ -4,6 +4,8 @@
 from collections import deque
 from urllib.parse import urljoin
 
+import re
+
 import requests
 
 from iapc import Client
@@ -41,13 +43,10 @@ class MyPlaylist(dict):
 
     def __redirect__(self, playlists, channel, url, headers):
         for p in playlists:
-            if (
-                (p.stream_info.resolution is not None) and
-                (p.stream_info.video is not None)
-            ):
-                self[(quality := p.stream_info.video)] = (p.uri, headers)
-                p.uri = buildUrl(url, "stream", channel=channel, quality=quality)
-                yield p
+            quality = (p.stream_info.video or p.stream_info.audio)
+            self[quality] = (p.uri, headers)
+            p.uri = buildUrl(url, "stream", channel=channel, quality=quality)
+            yield p
 
     def __variant__(self, playlist, channel, url, headers):
         playlist.playlists = PlaylistList(
@@ -168,27 +167,19 @@ class MyChannel(object):
     # --------------------------------------------------------------------------
 
     __protocol__ = (
-        protocol.ext_m3u,
-        protocol.ext_x_media,
-        protocol.ext_x_stream_inf,
-        protocol.ext_x_version,
-        protocol.ext_x_targetduration,
-        protocol.ext_x_media_sequence,
-        protocol.ext_x_start,
-        protocol.ext_x_map,
-        protocol.extinf,
-        protocol.ext_x_endlist
+        protocol.ext_x_discontinuity_sequence,
+        protocol.ext_x_discontinuity
     )
 
     def __parser__(self, line, lineno, data, state):
         if line.startswith(self.__protocol__):
-            return False
-        return True
+            return True
+        return False
 
-    def __m3u8__(self, response):
+    def __m3u8__(self, text, response):
         try:
             playlist = M3U8(
-                response.text,
+                text,
                 base_uri=urljoin(response.url, "."),
                 custom_tags_parser=self.__parser__
             )
@@ -198,9 +189,38 @@ class MyChannel(object):
         except Exception as error:
             self.logger.error(error)
 
+    # --------------------------------------------------------------------------
+
+    __pattern__ = re.compile(r"CODECS=\"([^,]+)(?:,[^\"]*)?\"")
+
+    def __fix_text__(self, lines):
+        for line in lines:
+            if ("audio_only" in line):
+                #line = line.replace(
+                #    "VIDEO", "AUDIO"
+                #).replace(
+                #    "AUTOSELECT=NO", "AUTOSELECT=YES"
+                #).replace(
+                #    "DEFAULT=NO", "DEFAULT=YES"
+                #)
+                line = line.replace("VIDEO", "AUDIO").replace("NO", "YES")
+            elif (line.startswith(protocol.ext_x_stream_inf)):
+                line = re.sub(
+                    self.__pattern__,
+                    f"CODECS=\"{self.__pattern__.search(line).group(1)}\"",
+                    line
+                )
+            yield line
+
+    def __fix_playlist__(self, text):
+        if ("audio_only" in text):
+            return "".join(self.__fix_text__(text.splitlines(True)))
+        return text
+
     def __playlist__(self, video):
         if (response := self.__get__(video["url"], video["headers"])):
-            return self.__m3u8__(response)
+            #self.logger.info(f"__playlist__(), response: {response.text}")
+            return self.__m3u8__(self.__fix_playlist__(response.text), response)
 
     def __stream__(self, quality):
         reset = False
@@ -210,11 +230,13 @@ class MyChannel(object):
                 notify(30006, icon=ICONWARNING, time=10000)
                 response = self.__get__(*self.playlist["360p30"])
         if response:
-            return (self.__m3u8__(response), reset)
+            #self.logger.info(f"__stream__(), response: {response.text}")
+            return (self.__m3u8__(response.text, response), reset)
 
     # --------------------------------------------------------------------------
 
     def stream(self, quality=None):
         if quality:
             return self.__stream__(quality)
+        #self.logger.info(f"self.playlist: {self.playlist.dumps()}")
         return (self.playlist, False)

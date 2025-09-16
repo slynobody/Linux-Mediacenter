@@ -141,6 +141,7 @@ class RequestHandler(BaseHTTPRequestHandler):
         try:
             BaseHTTPRequestHandler.handle(self)
         except Exception as e:
+            log.exception(e)
             log.error("PROXY ERROR: {}".format(e))
             self.send_response(204) # stop retries
             self.end_headers()
@@ -968,6 +969,7 @@ class RequestHandler(BaseHTTPRequestHandler):
                     return
 
                 url = e.getAttribute(attrib)
+                # TODO: replace relative paths as well like we now do in m3u8 parser
                 if '://' in url:
                     e.setAttribute(attrib, self.proxy_path + url)
                 else:
@@ -1330,15 +1332,11 @@ class RequestHandler(BaseHTTPRequestHandler):
         else:
             m3u8 = self._parse_m3u8_sub(m3u8, response.url)
 
-        base_url = urljoin(response.url, '/')
-
         def relative_replace(match):
             return match.group(0).replace(match.group(1), urljoin(response.url, match.group(1)))
 
-        m3u8 = re.sub(r'^/', r'{}'.format(base_url), m3u8, flags=re.I|re.M)
-        m3u8 = re.sub(r'^(\.\./.*)$', relative_replace, m3u8, flags=re.I|re.M)
-        m3u8 = re.sub(r'URI="(\.\./.*)"', relative_replace, m3u8, flags=re.I|re.M)
-        m3u8 = re.sub(r'URI="/', r'URI="{}'.format(base_url), m3u8, flags=re.I|re.M)
+        m3u8 = re.sub(r'^(?!https?://)(?!#)(.*)$', relative_replace, m3u8, flags=re.I|re.M)
+        m3u8 = re.sub(r'URI="(?!https?://)(.*)"', relative_replace, m3u8, flags=re.I|re.M)
 
         ## Convert to proxy paths
         m3u8 = re.sub(r'^(https?)://', r'{}\1://'.format(self.proxy_path), m3u8, flags=re.I|re.M)

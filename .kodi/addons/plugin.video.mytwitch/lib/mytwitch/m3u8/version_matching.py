@@ -1,10 +1,8 @@
-from typing import List
-
 from . import protocol
 from .version_matching_rules import VersionMatchingError, available_rules
 
 
-def get_version(file_lines: List[str]):
+def get_version(file_lines: list[str]):
     for line in file_lines:
         if line.startswith(protocol.ext_x_version):
             version = line.split(":")[1]
@@ -15,7 +13,7 @@ def get_version(file_lines: List[str]):
 
 def valid_in_all_rules(
     line_number: int, line: str, version: float
-) -> List[VersionMatchingError]:
+) -> list[VersionMatchingError]:
     errors = []
     for rule in available_rules:
         validator = rule(version, line_number, line)
@@ -26,7 +24,7 @@ def valid_in_all_rules(
     return errors
 
 
-def validate(file_lines: List[str]) -> List[VersionMatchingError]:
+def validate(file_lines: list[str]) -> list[VersionMatchingError]:
     found_version = get_version(file_lines)
     if found_version is None:
         return []

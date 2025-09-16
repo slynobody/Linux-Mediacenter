@@ -3,7 +3,9 @@
 
 from sys import argv
 
-from nuttig import action, parseQuery, Plugin
+from inputstreamhelper import Helper
+
+from nuttig import action, parseQuery, Plugin, getKodiVersion
 
 from mytwitch.client import MyClient
 from mytwitch.items import addChannelItem
@@ -32,7 +34,10 @@ class MyPlugin(Plugin):
         #    f"mimeType={mimeType}"
         #)
         if item:
-            item.setProperty("mimetype", mimeType)
+            if (getKodiVersion()["major"] > 20):
+                if not Helper(manifestType).check_inputstream():
+                    return False
+                item.setProperty("inputstream", "inputstream.adaptive")
             return super(MyPlugin, self).playItem(item, mimeType=mimeType)
         return False
 

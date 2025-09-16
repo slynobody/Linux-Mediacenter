@@ -35,8 +35,8 @@ PAGE_ITEMS_INFO = [
     'models/userInfo/data/isKids',
     'models/userInfo/data/pinEnabled',
     'models/serverDefs/data/BUILD_IDENTIFIER',
-    'models/esnGeneratorModel/data/esn',
-    'models/memberContext/data/geo/preferredLocale',
+    'models/esnAccessor/data/esn',
+    'models/geo/data/preferredLocale',
     'models/truths/data/isAdsPlan'
 ]
 
@@ -89,7 +89,13 @@ def extract_session_data(content, validate=False, update_profiles=False):
     G.LOCAL_DB.set_value('build_identifier', user_data.get('BUILD_IDENTIFIER'), TABLE_SESSION)
     if not get_website_esn():
         set_website_esn(user_data['esn'])
-    G.LOCAL_DB.set_value('locale_id', user_data.get('preferredLocale').get('id', 'en-US'))
+    pref_locale = user_data.get('preferredLocale', {}).get('id')
+    if pref_locale:
+        G.LOCAL_DB.set_value('locale_id', pref_locale)
+    else:
+        G.LOCAL_DB.set_value('locale_id', 'en-US')
+        LOG.error('Cannot extract the "preferredLocale" string. Fallback to: en-US')
+
     # Extract the client version from assets core
     result = search(r'-([0-9\.]+)\.js.*$', api_data.pop('asset_core'))
     if not result:
