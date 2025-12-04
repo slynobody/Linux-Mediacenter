@@ -192,7 +192,12 @@ class MySession(__MySession__):
 
     def __setup__(self):
         super(MySession, self).__setup__()
-        self.__ytdlp__.__setup__()
+        lang_header = "*;q=0.5"
+        if (hl := self.__params__["hl"]) != "en":
+            lang_header = f"{hl},en;q=0.75,{lang_header}"
+        else:
+            lang_header = f"en,{lang_header}"
+        self.__ytdlp__.__setup__(headers={"Accept-Language": lang_header})
         self.__cache__.clear()
 
     def __stop__(self):

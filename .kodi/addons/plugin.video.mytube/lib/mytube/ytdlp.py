@@ -3,6 +3,8 @@
 
 from yt_dlp import YoutubeDL
 
+from deno import name, path, version
+
 from iapc import Client
 from nuttig import getSetting, localizedString
 
@@ -15,12 +17,9 @@ class MyYtDlp(object):
     __service_id__ = "service.yt-dlp"
 
     __params__ = {
-        "verbose": False,
-        "extractor_args": {
-            "youtube": {
-                "player_client": ["default", "tv_simply"]
-            }
-        }
+        "verbose": True,
+        "js_runtimes": {"deno": {"path": path()}},
+        "remote_components": ["ejs:github"]
     }
 
     __fps_limits__ = {0: 48211, 30: 48212}
@@ -45,12 +44,42 @@ class MyYtDlp(object):
         0: 90011
     }
 
+    __tracks__ = {
+        None: 90200,
+        "ar": 90201,
+        "bn": 90202,
+        "de": 90203,
+        "en": 90204,
+        "es": 90205,
+        "fr": 90206,
+        "he": 90207,
+        "hi": 90208,
+        "id": 90209,
+        "it": 90210,
+        "ja": 90211,
+        "ko": 90212,
+        "ml": 90213,
+        "nl": 90214,
+        "pa": 90215,
+        "pl": 90216,
+        "pt": 90217,
+        "ro": 90218,
+        "ru": 90219,
+        "tr": 90220,
+        "uk": 90221,
+        "vi": 90222,
+        "zh": 90223
+    }
+
     def __init__(self, logger):
         self.logger = logger.getLogger(component="ytdlp")
         self.__infos__ = YoutubeDL()
         self.__client__ = Client(self.__service_id__)
 
-    def __setup__(self):
+    def __setup__(self, headers=None):
+        if headers:
+            self.__params__["http_headers"] = headers
+        self.logger.info(f"{localizedString(90012)}: {name()} {version()}")
         # include automatic captions
         self.__captions__ = getSetting("subs.captions", bool)
         self.logger.info(f"{localizedString(48110)}: {self.__captions__}")
@@ -82,6 +111,12 @@ class MyYtDlp(object):
             f"{localizedString(48410)}: "
             f"{localizedString(self.__heights__[self.__height__])}"
         )
+        # preferred audio track
+        self.__track__ = getSetting("prefs.track", str) or None
+        self.logger.info(
+            f"{localizedString(48420)}: "
+            f"{localizedString(self.__tracks__[self.__track__])}"
+        )
 
     def __stop__(self):
         self.__infos__ = self.__infos__.close()
@@ -98,7 +133,8 @@ class MyYtDlp(object):
             fps_limit=self.__fps_limit__,
             fps_hint=self.__fps_hint__,
             height=self.__height__,
-            #params=self.__params__,
+            track=self.__track__,
+            params=self.__params__,
             **kwargs
         )
 

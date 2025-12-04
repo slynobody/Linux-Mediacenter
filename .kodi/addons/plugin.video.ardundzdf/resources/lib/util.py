@@ -11,8 +11,8 @@
 #	02.11.2019 Migration Python3 Modul future
 #	17.11.2019 Migration Python3 Modul kodi_six + manuelle Anpassungen
 # 	
-# 	<nr>125</nr>										# Numerierung für Einzelupdate
-#	Stand: 23.03.2025
+# 	<nr>146</nr>										# Numerierung für Einzelupdate
+#	Stand: 17.11.2025
 
 # Python3-Kompatibilität:
 from __future__ import absolute_import
@@ -28,25 +28,28 @@ PYTHON2 = sys.version_info.major == 2
 PYTHON3 = sys.version_info.major == 3
 if PYTHON2:					
 	from urllib import quote, unquote, quote_plus, unquote_plus, urlencode, urlretrieve 
-	from urllib2 import Request, urlopen, URLError 
+	from urllib2 import Request, urlopen, URLError, HTTPRedirectHandler
+
 	from urlparse import urljoin, urlparse, urlunparse , urlsplit, parse_qs
 	LOG_MSG = xbmc.LOGNOTICE 				# s. PLog
 elif PYTHON3:				
 	from urllib.parse import quote, unquote, quote_plus, unquote_plus, urlencode, urljoin, urlparse, urlunparse, urlsplit, parse_qs  
-	from urllib.request import Request, urlopen, urlretrieve
+	from urllib.request import Request, urlopen, urlretrieve, HTTPRedirectHandler
+
 	from urllib.error import URLError
 	LOG_MSG = xbmc.LOGINFO 					# s. PLog
 	try:									
 		xbmc.translatePath = xbmcvfs.translatePath
 	except:
 		pass
-
 try:
-	import httplib2			# https://httplib2.readthedocs.io/en/latest/libhttplib2.html
-except:
-	httplib2=""	
+	import requests							# ab Aug. 2025 via addon.xml, Redirect-Probleme mit httplib2
+	requests_modul="true"
+except Exception as exception:				# möglich: "future feature annotations is not defined"
+	requests_modul = ""						# s. getRedirect
+				
 import time, datetime
-from time import sleep  # PlayVideo
+from time import sleep  	# PlayVideo
 
 from threading import Thread	
 from threading import Timer	# KeyListener
@@ -62,7 +65,7 @@ import re				# u.a. Reguläre Ausdrücke, z.B. in CalculateDuration
 import string, textwrap
 
 import shlex			# Parameter-Expansion für subprocess.Popen (os != windows)
-	
+
 # Globals
 NAME			= 'ARD und ZDF'
 KODI_VERSION 	= xbmc.getInfoLabel('System.BuildVersion')
@@ -85,10 +88,18 @@ ICON = xbmc.translatePath('special://home/addons/' + ADDON_ID + '/icon.png')
 ICON_TOOLS 				= "icon-tools.png"
 ICON_WARNING 			= "icon-warning.png"
 
+# nfo-Template - wie strm-Modul, hier für Downloads:
+NFO1 = '<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>\n'		
+NFO2 = '<movie>\n<title>%s</title>\n<uniqueid type="tmdb" default="true"></uniqueid>\n'
+NFO3 = '<thumb spoof="" cache="" aspect="poster">%s</thumb>\n'
+NFO4 = '<plot>%s</plot>\n<weburl>%s</weburl>\n</movie>'					# Tag weburl (inoff.) für Abgleich
+NFO = NFO1+NFO2+NFO3+NFO4												#	 vorh. / nicht mehr vorh.
+
 # Github-Icons zum Nachladen aus Platzgründen
 ICON_MAINXL 	= 'https://github.com/rols1/PluginPictures/blob/master/ARDundZDF/TagesschauXL/tagesschau.png?raw=true'
 
-ARDStartCacheTime = 300								# 5 Min.
+ARDStartCacheTime 	= 300							# 5 Min.
+ZDF_CacheTime_Start = 300							# 5 Min.
 
 #---------------------------------------------------------------- 
 # prüft addon.xml auf mark - Rückgabe True, False
@@ -168,7 +179,7 @@ def PLog(msg, dummy=''):
 	xbmc.log("%s --> %s" % ('ARDundZDF', msg), LOG_MSG)
 	if dummy:		# Debug (s.o.)
 		xbmc.log("%s --> %s" % ('PLog_dummy', dummy), LOG_MSG)
-		
+	
 #---------------------------------------------------------------- 
 # 08.04.2020 Konvertierung 3-zeiliger Dialoge in message (Multiline)
 #  	Anlass: 23-03-2020 Removal of deprecated features (PR) - siehe:
@@ -709,6 +720,7 @@ def up_low(line, mode='up'):
 # 	18.04.2022 Erweiterung Kontextmenüs "Abgleich Videotitel mit Medienbibliothek" 
 #	05.02.2023 Erweiterung Kontextmenüs EPG (Menü TV-Livestreams)
 #	10.11.2023 ShowFavs verhindert "Hinzufügen" im Kontextmenü
+#	10.06.2025 Erweiterung Kontextmenüs RadioEPG (Radio-Livestreams, Audiothek-Livestreams)
 #
 def addDir(li, label, action, dirID, fanart, thumb, fparams, summary='', tagline='', mediatype='',\
 		cmenu=True, merkname='', start_end='', EPG_ID='', ShowFavs=''):
@@ -780,38 +792,60 @@ def addDir(li, label, action, dirID, fanart, thumb, fparams, summary='', tagline
 		fparams_do_folder=''; fparams_rename=''; 
 		fparams_playlist_add=''; fparams_playlist_rm='';fparams_playlist_play=''
 		fparams_strm=''; fparams_exist_inlib=''; fparams_EPG='';
-		fparams_ShowSumm=""
+		fparams_ShowSumm=""; fparams_RadioEPG="";fparams_ShowSeason="";
 		
 		if EPG_ID:														# EPG für Sender zeigen
 			EPG_ID = py2_encode(EPG_ID)
 			fp = {'title': label, 'ID': EPG_ID, 'mode': 'context'}
 			fparams_EPG = "&fparams={0}".format(fp)
 			PLog("fparams_EPG: " + fparams_EPG[:80])
+		
+		if dirID == "AudioStartLive":									# Radio-EPG für Sender zeigen
+			dirPars = unquote(fparams)
+			pub_id = stringextract("pub_id': '", "'", dirPars)
+			sender = stringextract("sender': '", "'", dirPars)
+			fp = {'pub_id': pub_id, 'sender': sender, 'mode': 'context'}
+			fparams_RadioEPG = "&fparams={0}".format(fp)
+			PLog("fparams_RadioEPG: " + fparams_RadioEPG)
+			
 				
-		if mediatype == "video":										# Inhaltstext für Video zeigen
+		if mediatype == "video":										# Inhaltstext für Video / Serie zeigen
 			items = ["api.ardmediathek|ARD", "zdf-prod-futura|ZDF",		# unterstützte Sender
-					"www.3sat.de|3sat"]
-			org_id=""
+					"www.3sat.de|3sat", "www.zdf.de|ZDF"]
+			found=False
 			for item in items:
-				org, org_id  = item.split("|")
-				if org in fparams:
+				surl, org_id  = item.split("|")
+				if surl in fparams:
+					found=True
 					break
-			if org_id and EPG_ID == "":									# Inhaltstext nicht bei Livestreams
+			PLog("found: %s, surl: %s, org_id: %s" % (str(found),surl, org_id))
+			
+			if found and EPG_ID == "":									# Inhaltstext nicht bei Livestreams
 				try:
+					img=""
 					s = fparams.split("&fparams=")[1]
 					json_string = s.replace("'", "\"")
 					f = json.loads(json_string)
-					path = f["path"]
+					path = f["path"]									# bei Bedarf "url" ergänzen
 					title = f["title"]
+					if "img" in f:
+						img = f["img"]
+					if "thumb" in f:
+						img = f["thumb"]
 					path=py2_encode(path); title=py2_encode(title)		# PY2
+					img=py2_encode(img)
 				except Exception as exception:
 					PLog("fparams_error: " +  str(exception))
-					path=""
-				
+					path=""			
 				if path:												# sinnlos ohne path
-					fp = {'title': title, 'path': path, 'ID': org_id, 'mode': 'ShowSumm'}
-					fparams_ShowSumm = "&fparams={0}".format(fp)
-					PLog("fparams_ShowSumm: " + fparams_ShowSumm[:80])											
+					if SETTINGS.getSetting('pref_show_season') == 'true':	# default
+						fp = {'title': title, 'path': path, 'ID': org_id, 'mode': 'ShowSumm'}
+						fparams_ShowSumm = "&fparams={0}".format(fp)		# -> Inhaltstext
+						PLog("fparams_ShowSumm: " + fparams_ShowSumm[:80])	
+						fp = {'title': title, 'path': path, 'img': img, 'mode': 'ShowSeason'}
+						fparams_ShowSeason = "&fparams={0}".format(fp)		# -> Serie zeigen
+						PLog("fparams_ShowSeason: " + fparams_ShowSeason[:80])	
+															
 
 		if SETTINGS.getSetting('pref_exist_inlib') == 'true':			# Abgleich Medienbibliothek
 			if mediatype == "video":
@@ -1084,6 +1118,13 @@ def addDir(li, label, action, dirID, fanart, thumb, fparams, summary='', tagline
 			dirID = "resources.lib.EPG.EPG"
 			commands.append(('EPG zeigen', 'RunScript(%s, %s, ?action=dirList&dirID=%s%s)' \
 					% (MY_SCRIPT, HANDLE, dirID, fparams_EPG)))
+					
+		if fparams_RadioEPG:															# Radio-EPG für Sender anzeigen
+			MY_SCRIPT=xbmc.translatePath('special://home/addons/%s/resources/lib/EPG.py' % (ADDON_ID))
+			PLog("MY_SCRIPT_EPG:" + MY_SCRIPT)		
+			dirID = "resources.lib.EPG.EPG"
+			commands.append(('Radio-EPG zeigen', 'RunScript(%s, %s, ?action=dirList&dirID=%s%s)' \
+					% (MY_SCRIPT, HANDLE, dirID, fparams_RadioEPG)))
 
 		if fparams_ShowSumm:															# Inhaltstext für Video zeigen
 			MY_SCRIPT=xbmc.translatePath('special://home/addons/%s/resources/lib/EPG.py' % (ADDON_ID))
@@ -1091,6 +1132,17 @@ def addDir(li, label, action, dirID, fanart, thumb, fparams, summary='', tagline
 			dirID = "resources.lib.EPG.EPG"
 			commands.append((u'Inhaltstext für Video zeigen', 'RunScript(%s, %s, ?action=dirList&dirID=%s%s)' \
 					% (MY_SCRIPT, HANDLE, dirID, fparams_ShowSumm)))
+
+		if fparams_ShowSeason:															# Serie für Video zeigen
+			# Aufruf Haupt-PRG, da dessen Funktionen im Script nicht importierbar sind ->
+			#	resources.lib.tools.Context -> Zielfunktion via RunAddon
+			MY_SCRIPT=xbmc.translatePath('special://home/addons/%s/ardundzdf.py' % (ADDON_ID))
+			PLog("MY_SCRIPT_ShowSeason:" + MY_SCRIPT)
+			PLog(fparams_ShowSeason)
+			mtitle = u"Serie zum Video zeigen"		
+			fparams_ShowSeason=quote(fparams_ShowSeason)								# quoting für router erf.
+			commands.append((mtitle, 'RunScript(%s, %s, ?action=dirList&dirID=resources.lib.tools.Context%s)' \
+				% (MY_SCRIPT, HANDLE, fparams_ShowSeason)))
 
 		li.addContextMenuItems(commands)				
 	
@@ -1105,11 +1157,17 @@ def addDir(li, label, action, dirID, fanart, thumb, fparams, summary='', tagline
 def get_page(path, header='', cTimeout=None, JsonPage=False, GetOnlyRedirect=False, do_safe=True, decode=True):
 	PLog('get_page:'); PLog("path: " + path); PLog("do_safe: " + str(do_safe)); 
 
+	msg=''; page=''; 
+	if path.startswith("http") == False:		# Irrläufer-Url
+		msg = "url_without_http"
+		PLog(msg)
+		return "", msg
+		
 	if header:									# dict auspacken
 		header = unquote(header);  
 		header = header.replace("'", "\"")		# json.loads-kompatible string-Rahmen
 		header = json.loads(header)
-		PLog("header: " + str(header)[:100]);
+		PLog("header: " + str(header))
 		
 	path_org=path
 	# path = transl_umlaute(path)				# Umlaute z.B. in Podcast "Bäckerei Fleischmann"
@@ -1123,7 +1181,7 @@ def get_page(path, header='', cTimeout=None, JsonPage=False, GetOnlyRedirect=Fal
 		path = quote(path, safe="#@:?,&=/")	# s.o.
 	PLog("safe_path: " + path)
 
-	msg=''; page=''; compressed=''	
+	compressed=''	
 	new_url=path													# dummy
 	UrlopenTimeout = 10
 
@@ -1189,7 +1247,7 @@ def get_page(path, header='', cTimeout=None, JsonPage=False, GetOnlyRedirect=Fal
 	if page == '':
 		try:
 			PLog("get_page3:")											# 3. Versuch mit requests
-			import requests												# kann fehlen 
+			import requests												# ab Aug. 2025 via addon.xml 
 			if header:
 				r = requests.get(path, headers=header, timeout=UrlopenTimeout)	
 			else:
@@ -1256,70 +1314,52 @@ def getHeaders(response):						# z.Z.  nicht genutzt
 			headers = parse_headers(str(response.info()))
 		
 	return headers
+
 # ----------------------------------------------------------------------
 # 02.11.2024 für PYTHON2 bei Redirect-Errors unveränderte Rückgabe (neuer
 #	Versuch in get_page (get_page3) mit requests (falls vorh.)
 #   Für PYTHON3 bei Redirect-Errors Umstellung auf httplib2.
+#	HTTPRedirectHandler funktioniert bei den ZDF-Urls nicht.
 #	Debug 308_Error: www.ardaudiothek.de/rubrik/42914694 (ohne /-Ende)
-# 12.03.2025 für arte.EPG_Today: Check auf Error 309-399
-#	
-def getRedirect(path, header=""):		
+# 12.03.2025 für arte.EPG_Today (url_check): Check auf Error 309-399
+# 04.08.2025 Umstellung für Redirects httplib2 -> requests (addon.xml),
+# Param stream erforderlich für mp4-Urls, Fallback=path falls requests 
+#	fehlt oder fehlschlägt.
+#
+def getRedirect(path, header="", stream=False):		
 	PLog('getRedirect: '+ path)
 	PLog("header: " + str(header))
+	PLog("stream: " + str(stream))
+	
 	page=""; msg=""
 	parsed = urlparse(path)
 
+	if not requests_modul:
+		PLog("requests_modul_missing | no_getRedirect")
+		return path, msg											# Fallback
+		
 	try:
+		addon_id='script.module.requests'; cmd="openSettings"
+		inp_vers = xbmcaddon.Addon(addon_id).getAddonInfo('version')
+		PLog("Version_requests-Modul: " + inp_vers)
 		if header:
-			req = Request(path, headers=header)	
+			r = requests.get(path, headers=header, stream=stream)	
 		else:
-			req = Request(path)
-		r = urlopen(req)
-		new_url = r.geturl()
+			r = requests.get(path, stream=stream)
+		PLog("Status_r: " + str(r.status_code))
+		new_url = r.url
 		if new_url.startswith("http") == False:						# z.B. /rubrik/sportschau/..
 			new_url = 'https://%s%s' % (parsed.netloc, new_url) 	# Serveradr. ergänzen
-		PLog("new_url: " + new_url)
+		if path in new_url:
+			PLog("not_redirected") 
+		else:
+			PLog("redirected_to: " + new_url)
 		return new_url, msg
 	except Exception as e:
 		PLog("redirect_error: "  + str(e))
 		err=str(e)		
-		
-	try:
-		PLog("analyze_http_error:")
-		err = re.search(r'HTTP Error (\d+):', err).group(1)
-		err = int(err)
-		if err >= 309 and err <= 399:							#  Die Statuscodes 309 bis 399 nicht zugewiesen
-			PLog("ignore_309_to_399")
-			return path, msg
-		PLog(str(err))
-		if "308" in str(err) or "307" in str(err) or "301" in str(err):	# Permanent-Redirect-Url
-			if PYTHON2:											# -> get_page (s.o.)
-				PLog("PY2_give_up")
-				return path, msg
-			else:
-				if httplib2 == "":								# nicht geladen?
-					return path, msg
-				# import httplib2								# s. Modulkopf, hier häufige Kodi-Abstürze
-				h = httplib2.Http()								# class httplib2.Http, Cache nicht erford.
-				h.follow_all_redirects = True
-				r = h.request(path, "GET")[0]
-				new_url = r['content-location']
-				PLog("httplib2_url: " + new_url)
-				PLog(type(new_url)); PLog(new_url)
-				PLog(parsed.netloc)
-				if new_url.startswith("http") == False:			# s.o.
-					new_url = 'https://%s%s' % (parsed.netloc, new_url)
-					PLog("HTTP308_301_new_url: " + new_url)
-				if path in new_url:		# Debug
-					PLog("same_new_url_path: " + new_url) 
-				return new_url, msg
-	except Exception as e:
-		PLog("r_error: "  + str(e))
-		PLog(str(e))
-		page=path, msg=str(e)									# Fallback übergebener path
+		return path, msg											# Fallback übergebener path
 
-	return page, msg	
-	
 # ----------------------------------------------------------------------
 # iteriert durch das Objekt	und liefert Restobjekt ab path
 # bei leerem Pfad wird jsonObject unverändert zurückgegeben
@@ -1531,6 +1571,7 @@ def repl_dop(liste):
 #	doppelte utf-8-Enkodierung führt an manchen Stellen zu Sonderzeichen
 #  	14.04.2019 entfernt: (':', ' ')
 # 	07.11.2024 entfernt html-utf-8-Icons (Symbole Popcorn, TV usw)
+# 	22.09.2025 Steuerzeichen \t aufgenommen 
 def repl_json_chars(line):	
 	line_ret = line
 	#PLog(type(line_ret))
@@ -1539,6 +1580,7 @@ def repl_json_chars(line):
 		, (u'„', u'>'), (u'“', u'<'), (u'”', u'>'),(u'°', u' Grad'), (u'u00b0', u' Grad')
 		, (u'\r', u''), (u'#', u'*'), (u'u003e', u''), (u'❤', u'love'), (u'%C3%A9', u'é')		# u'u003e' 	-> u'®'
 		, (u'uD83C', u''), (u'uDF7F', u''), (u'uD63D', u''), (u'uDF7A', u'')					# 🍿,  📺
+		, (u'\t', u' ')
 		):
 		line_ret = line_ret.replace(*r)
 	
@@ -1550,10 +1592,12 @@ def repl_json_chars(line):
 # valid_chars: Umlaute plus routerkompatible Zeichen, auch einige der in unescape
 #	übersetzte Zeichen (hier ab &)
 # S. docs.python.org/3/library/string.html
+# 28.06.2025 Sonderbehandlung no-break-Space (vor join erforderlich)
 #
 def valid_title_chars(line):
 	#PLog("valid_title_chars:")
 
+	line = line.replace(u"\u00A0", ' ')		# no-break-Space 
 	printable = string.printable
 	#  cut ab &: &\'()*+,-./:;<=>?@[\\]^_`{|}~ \t\n\r\x0b\x0c
 	printable = printable.split('&')[0]
@@ -1563,8 +1607,8 @@ def valid_title_chars(line):
 	# Hochkommata, dto urlkodiert - nicht erfasst in valid_chars: 
 	line_ret = (line_ret.replace(u'"', '').replace(u"'", '')\
 	.replace(u"%27", '').replace(u"%22", '').replace(u"%5B", '')\
-	 .replace(u"%5D", '').replace(u"&", '+'))
-
+	.replace(u"%5D", '').replace(u"&", '+'))
+	 
 	return line_ret
 #---------------------------------------------------------------- 
 # statt json.dumps: 
@@ -1602,7 +1646,7 @@ def mystrip(line):
 def DirectoryNavigator(settingKey, mytype, heading, shares='files', useThumbs=False, \
 	treatAsFolder=False, path=''):
 	PLog('DirectoryNavigator:')
-	PLog(settingKey); PLog(mytype); PLog(heading); PLog(path);
+	PLog(settingKey); PLog(mytype); PLog(heading); PLog(shares); PLog(path);
 	
 	dialog = xbmcgui.Dialog()
 	d_ret = dialog.browseSingle(int(mytype), heading, shares, '', False, False, path)	
@@ -1715,7 +1759,8 @@ def exist_in_list(insert, my_items):
 # Groß-/Kleinschreibung egal
 # bei Fehlschlag mString unverändert zurück
 def make_mark(mark, mString, color='red', bold=''):	
-	PLog("make_mark:")	
+	PLog("make_mark:")
+
 	mark=py2_decode(mark); mString=py2_decode(mString)
 	mS = up_low(mString); ma = up_low(mark)	# beide -> lower
 	pos1 = mS.find(ma)
@@ -2087,7 +2132,6 @@ def time_translate(timecode, add_hour=True, day_warn=False, add_hour_only=""):
 	# summer_time aus www.ptb.de, konvertiert zum date_format (s.u.):
 	#	Aktualisierung jeweils 29.01.
 	summer_time = [	
-					"2022-03-27T01:00:00Z|2022-10-30T01:00:00Z",
 					"2023-03-26T01:00:00Z|2023-10-29T01:00:00Z",
 					"2024-03-31T01:00:00Z|2024-10-27T01:00:00Z",
 					"2025-03-30T01:00:00Z|2025-10-26T01:00:00Z",
@@ -2181,6 +2225,33 @@ def time_to_minutes(time_str):
 	return str(minutes)
 
 #---------------------------------------------------------------- 
+# Gibt Differenz zwischen 2 timestrings zurück
+# Format passend für ZDF-EPG
+# tstr1=enddate, tstr2=startdate
+# now_check=True wenn now zwischen tstr1 und tstr2
+#
+def time_calc_diff(tstr1, tstr2):
+	PLog('time_calc_diff:')
+	
+	# ZDF-String ab "+" kappen: 2025-09-02T05:30:00+02:00
+	tstr1=tstr1[:19]; tstr2=tstr2[:19];
+	PLog('tstr1: %s | tstr2: %s' % (tstr1, tstr2))
+	date_format = "%Y-%m-%dT%H:%M:%S"
+	
+	# s. time_translate (Sommerzeit) 
+	start = datetime.datetime.fromtimestamp(time.mktime(time.strptime(tstr1, date_format)))
+	end = datetime.datetime.fromtimestamp(time.mktime(time.strptime(tstr2, date_format)))	
+	now = datetime.datetime.now()
+	
+	now_check=False
+	if now < start and now > end:			# start / end hier vertauscht
+		now_check=True
+		PLog("now_check_true: now: %s, start: %s, end: %s" % (str(now)[:19], end, start))
+	
+	secs = int((start- end).total_seconds())
+	return seconds_translate(secs), now_check
+
+#---------------------------------------------------------------- 
 # 03.01.2025 transl_pubDate entfernt - übersetzte für alte Audiothek
 #	Zeitformat "Fri, 06 Jul 2018 06:58:00 GMT" -> 06.07.2018, 06:58 Uhr
 # def transl_pubDate(pubDate):
@@ -2233,27 +2304,6 @@ def getOnline(datestamp, onlycheck=False):
 		return check_state
 	else:
 		return online
-	
-# ----------------------------------------------------------------------
-# Prüft datestamp auf Vergangenheit, Gegenwart, Zukunft
-# Aufrufer: getOnline
-# Format datestamp: "2020-01-26 11:15:00" 19 stel., in
-#	getOnline auf 16 Stellen reduz. (o. Sek.)
-# 03.01.2025 Ermittlung Param start optimiert
-def time_state(checkstamp):
-	PLog("time_state: " + checkstamp)		
-	date_format = "%Y-%m-%d %H:%M"
-
-	start = datetime.datetime.strptime(checkstamp, date_format)
-	now = datetime.datetime.now()
-	if start < now:
-		check_state = '' 	# 'Vergangenheit'
-	elif start > now:
-		check_state = "[B][COLOR red]%s[/COLOR][/B]" % 'Zukunft'
-	else:
-		check_state = 'jetzt'
-	
-	return check_state
 # ----------------------------------------------------------------------
 # Wochentage engl./deutsch wg. Problemen mit locale-Setting 
 #	für VerpasstWoche, EPG
@@ -2477,8 +2527,9 @@ def get_summary_pre(path,ID='ZDF',skip_verf=False,skip_pubDate=False,pattern='',
 	PLog(skip_verf); PLog(skip_pubDate); PLog(duration); 
 	duration_org=duration
 
-	
-	path, msg = getRedirect(path)					# ZDF, s.o.
+	newpath = url_check(path, caller="get_summary_pre", dialog=False)		# ZDF, s.o.
+	if newpath:										# False od. redirect-path
+		path=newpath
 	
 	fname = path.split('/')[-1]
 	fname = fname.replace('.html', '')				# .html bei ZDF-Links entfernen
@@ -2490,22 +2541,9 @@ def get_summary_pre(path,ID='ZDF',skip_verf=False,skip_pubDate=False,pattern='',
 	
 	page=""; summ=''; pubDate=''
 	save_new = False
-	
-	'''										# Debug: Cache ausschalten
-	if os.path.exists(fpath):					# Text lokal laden + zurückgeben
-		page=''
-		PLog('lade_aus_Cache:') 
-		page =  RLoad(fpath, abs_path=True)
-		if page.startswith("V5.1.2_summ:"):		# neues Cache-Format?
-			page = page.replace("V5.1.2_summ:", "")
-			PLog('ret_page: ' + page[:80])		# summary
-			return page
-		else:
-			save_new = True
-	'''
 
-	if page == '':
-		PLog('lade_extern:') 
+	if not page:
+		PLog('lade_extern:')
 		page, msg = get_page(path)				# extern laden, HTTP Error 404 möglich
 		save_new = True
 	if page == '' or "Error in handler" in page:# ARD: {"error":"Error in handler ..
@@ -2530,64 +2568,59 @@ def get_summary_pre(path,ID='ZDF',skip_verf=False,skip_pubDate=False,pattern='',
 	if 	ID == 'ZDF':
 		# 18.03.2025 vorerst unberücksichtig: skip_verf, skip_pubDate
 		# transl_json, valid_title_chars
-		page = page.replace('\\"', '"')
-		page = page.replace('\\"', '*').replace('\\*', '*')
-
-		head = stringextract('"leadParagraph":"', '"', page)			# Web: unter dem Titel, kann fehlen
-		PLog("head: " + head)
+		# Graphql nicht verwendbar (FSK16: 22:00-6:00h kein Output)
 		
-		#summ0 = stringextract('>Details<', 'ZDF auf YouTube', page)	# ev. Darsteller formatieren
-		summ0 = stringextract('>Details<', '>Darsteller<', page)
-		if summ0 == "":
-			summ0 = stringextract('"infoText":"', '"', page)			# kann fehlen	
-		PLog("summ0_1: " + summ0)
-		if 'description":"' in page:
-			descr =  stringextract('"description":"', '"', page)
-			if descr and summ0 and descr in summ0 == False:				# Doppel möglich
-				summ0 = "%s\n%s" % (summ0, descr)
-		PLog("summ0_2: " + summ0)
-			
-		mark = 'longInfoText":{"items'; len_mark = len(mark)			# Web: Box Details	
-		pos = page.find(mark)
-		PLog(page[pos:pos+200])		
-		summ1 = stringextract(mark, 'style"', page[pos:])
-		summ1 = stringextract('text":"', '"', summ1)
-		PLog("summ1: " + summ1)
+		html = stringextract('class="p4fzw5k tyrgmig m1iv7h85', 'Darsteller', page)
+		extras=[]
+		bl = blockextract('class="p4fzw5k tyrgmig m1iv7h85', html, '</p')	# Web oben, Bsp. Herr der Ringe
+		for item in bl:
+			if "Darsteller<" in item:								# Team am häufigsten im json-Teil, s.u.
+				break
+			line = stringextract('m1iv7h85">', '</p', item)
+			if line:
+				extras.append(line)
+		extras = "\n\n".join(extras)
+		extras = extras.replace('<br/><br/>',"\n\n")
+		PLog("extras: " + extras)			
 	
-		summ3 = stringextract('PageViewHistory"]', '"])</script>', page)# 
-		PLog(summ3[:80])
-		if len(summ3) <= 10 or "[" in summ3:							# Bsp. Zukunftspreis 2012: \n40:Ta4c,
-			summ3=""													# od. jung-radikal-organisiert
+		
+		pos = page.find('remoteConfigUrl')							# wie ZDF_Graphql_WebDetails
+		page = page[pos:]			
+		page = page.replace('\\"', '"')			
+				
+		descr = stringextract('"description","content":"', '"', page)
+		longinfo = stringextract('"longInfoText"', '"Darsteller', page)
+		longinfo = stringextract('"text":"', '"', longinfo)		
+		
+		summ = descr
+		if longinfo:
+			summ =  "%s\n%s" % (summ, longinfo)
+		if extras:
+			summ =  "%s\n%s" % (summ, extras)
+		
+		PLog("summ: " + summ)		
+		
+		if "loadRecommendations" in page:
+			team = stringextract('Darsteller"', 'loadRecommendations', page)	# Darsteller + Stab
 		else:
-			summ3 = stringextract('PageViewHistory"]', 'next_f.push([1,"9', page)	# summ3 ausdehnen
-			summ3 = summ3[10:]											# skip \n40:T6c3 o.ä. java-Marke
-		if summ3 == "":													# 
-			summ3 = stringextract('"EpisodePage"', '</script>', page)	# Lebensmitteltricks
-			summ3 = "\n\n" + summ3[11:]											# skip \n43:T4bf, o.ä. java-Marke		
-			
-		PLog("summ3: " + summ3)		
+			team = stringextract('Darsteller"', 'VideoAvailability', page)	# Darsteller + Stab
+		artists = stringextract('"text":"', '"', team)
+		stab = team.split('"Stab"')[-1]
+		PLog("stab: " + stab)
+		stab = stringextract('text":"', '"', stab)
 		
-		summ = "%s\n\n%s\n\n%s" % (summ0, summ1, summ3)
-		summ=""
-		if head:
-			summ = summ + head + "\n"
-		if summ0:
-			summ = summ + summ0 
-		if summ1:
-			summ = summ + summ1 
-		if summ3:
-			summ = summ + summ3
-		summ = summ.replace('\\u003c',"").replace('\\u003e',"")			# <br>
-		summ = summ.replace('<br/><br/>',"\n\n").replace('br/'," \n")	
-		summ = summ.replace('"])</script><script>self.__next_f.push([1,"', " ")	# java-Verkettung innerhalb Text
-		summ = summ.replace('"])</script><script>self.__', " ")			# Textende s.o.: ..self.__next_f.push([1,"9
-		summ = summ.replace('/button>',"")
-		summ = unescape(summ)
-		
-		s = stringextract('<h2 class="', '"', summ)
-		s = '<h2 class="%s"' % s
-		summ = summ.replace(s, "")
-		summ = cleanhtml(summ)
+		if artists:	
+			summ = "%s\n\n[B]Darsteller:[/B] %s" % (summ, artists)
+		if stab:	
+			summ = "%s\n\n[B]Stab:[/B] %s" % (summ, stab)	
+				
+		PLog("summ_raw: " + summ)
+		summ = summ.replace('\\u003cul',"")
+		summ = summ.replace('\\u003e',"")
+		summ = summ.replace('\\u003cli',"\n")
+		summ = summ.replace('\\u003c',"")
+		summ = (summ.replace('/li'," ").replace('/ul',"").replace('ulli',""))
+		summ = summ.replace('&quot;','"')
 
 		PLog("summ_zdf: " + summ)			
 					
@@ -2635,7 +2668,8 @@ def get_summary_pre(path,ID='ZDF',skip_verf=False,skip_pubDate=False,pattern='',
 				duration = stringextract('"durationSeconds":', ',', page)	# Sekunden
 				if duration == '0':									# auch bei Einzelbeitrag möglich
 					duration=''
-				duration = seconds_translate(duration)
+				if duration:
+					duration = seconds_translate(duration)
 				
 			verf = s[0]["availableTo"]							# "2025-08-11T21:59:00Z"
 			pubDate = s[0]["broadcastedOn"]						# "2024-08-12T21:49:00Z"
@@ -2974,6 +3008,11 @@ def get_streamurl_ut(streamurl):
 def get_playlist_img(hrefsender):
 	PLog('get_playlist_img: ' + hrefsender); 
 	playlist_img=''; link=''; EPG_ID=''; img_streamlink=''
+	
+	zdf_streamlinks = get_ZDFstreamlinks(skip_log=True)
+	ard_streamlinks = get_ARDstreamlinks(skip_log=True)
+	iptv_streamlinks = get_IPTVstreamlinks()	
+	
 	playlist = RLoad(PLAYLIST)		
 	playlist = blockextract('<item>', playlist)
 	for p in playlist:
@@ -2990,7 +3029,6 @@ def get_playlist_img(hrefsender):
 				link =  stringextract('link>', '</link', p)
 				
 				if "ZDFsource" in link:								# Anpassung für ZDF-Sender
-					zdf_streamlinks = get_ZDFstreamlinks(skip_log=True)
 					link=''	
 					# Zeile zdf_streamlinks: "webtitle|href|thumb|tagline"
 					for line in zdf_streamlinks:
@@ -3005,7 +3043,6 @@ def get_playlist_img(hrefsender):
 						PLog('%s: ZDF-Streamlink fehlt' % title_sender)	
 						
 				if "ARDclassicSource" in link:						# Anpassung für ARD-Clasic-Sender
-					ard_streamlinks = get_ARDstreamlinks(skip_log=True)
 					link=''	
 					# Zeile ard_streamlinks: "webtitle|href|thumb|tagline"
 					for line in ard_streamlinks:
@@ -3019,7 +3056,6 @@ def get_playlist_img(hrefsender):
 						PLog('%s: ARD-Streamlink fehlt' % title_sender)	
 								
 				if "IPTVSource" in link:							# Anpassung für IPTV-Sender
-					iptv_streamlinks = get_IPTVstreamlinks()
 					link=''	
 					# Zeile ard_streamlinks: "webtitle|href|thumb|tagline"
 					for line in iptv_streamlinks:
@@ -3045,6 +3081,8 @@ def get_playlist_img(hrefsender):
 	return playlist_img, link, EPG_ID
 
 ####################################################################################################
+# Erzeugung Textdatei für Download-Video / -Podcast
+#	Extraktion in DownloadsList, MakeJpegNfo
 def MakeDetailText(title, summary,tagline,quality,thumb,url):	# Textdatei für Download-Video / -Podcast
 	PLog('MakeDetailText:')
 	title=py2_encode(title); summary=py2_encode(summary);
@@ -3067,7 +3105,68 @@ def MakeDetailText(title, summary,tagline,quality,thumb,url):	# Textdatei für D
 	detailtxt = detailtxt + "%15s" % 'Adresse: ' + "'" + url + "'"  + '\r\n'
 		
 	return detailtxt
+#-----------------------------------------------
+# Umkehrung von MakeDetailText - Erzeugung Params title, tagline usw.
+# Aufruf: DownloadsList, MakeJpegNfo (<- thread_getfile)
+#	txt: bereits geladener Text
+def GetDetailText(pathtextfile, txt=""):
+	PLog('GetDetailText: ' + pathtextfile)
+	PLog("txt: %s" % txt[:80])
+	
+	if not txt:
+		txt = RLoad(txtpath, abs_path=True)		# Text laden - fehlt bei Sammeldownload
+	else:
+		title = stringextract("Titel: '", "'", txt)
+		tagline = stringextract("ung1: '", "'", txt)
+		summary = stringextract("ung2: '", "'", txt)
+		quality = stringextract("taet: '", "'", txt)
+		thumb = stringextract("Bildquelle: '", "'", txt)
+		httpurl = stringextract("Adresse: '", "'", txt)
 		
+		if tagline and quality:
+			tagline = "%s | %s" % (tagline, quality)
+			
+		# Falsche Formate korrigieren:
+		summary=py2_decode(summary); tagline=py2_decode(tagline);
+		summary=repl_json_chars(summary); tagline=repl_json_chars(tagline); 
+		summary=summary.replace('\n', ' | '); tagline=tagline.replace('\n', ' | ')
+		summary=summary.replace('|  |', ' | '); tagline=tagline.replace('|  |', ' | ')
+	
+	return title,tagline,summary,quality,thumb,httpurl
+	
+#-----------------------------------------------
+# Ergänzende jpeg- und nfo-Datei für Download-Video
+# Aufruf thread_getfile, Code teilw. aus xbmcvfs_store
+#
+def MakeJpegNfo(pathtextfile, storetxt):
+	PLog('MakeJpegNfo: ' + pathtextfile)
+	PLog(storetxt)
+
+	title,tagline,summary,quality,thumb,httpurl = GetDetailText(pathtextfile, txt=storetxt)
+	dlpath=pathtextfile.split(".")[0]
+
+	if thumb:
+		if thumb.startswith("http"):
+			fname = "%s.jpeg" % dlpath
+			urlretrieve(thumb, fname)
+		else:							# Lokales Bild, z.B. icon-bild-fehlt_wide.png
+			fname=""
+		PLog("local_thumb: " + fname)
+
+	fname = "%s.nfo" % dlpath
+	strm_type = "movie"					# ev. Setting für Genre-Typen ergänzen
+	Plot = "%s\n%s\n%s\n%s" % (title.strip(),tagline,summary,quality)
+	nfo = NFO.replace("<movie>", "<%s>" % strm_type); 	# Anpassung Template
+	nfo = nfo.replace("</movie>", "</%s>" % strm_type)
+	nfo = nfo % (title, thumb, Plot, httpurl)
+	nfo = py2_encode(nfo)
+	msg = RSave(fname, nfo)	
+	if msg:
+		PLog("nfo_save_error")
+		return False
+	else:
+		return True
+	
 #---------------------------------------------------------------------------------------------------
 # 30.08.2018 Start Recording TV-Live
 #	Kopfdoku + Code zu Plex-Problemen entfernt (bei Bedarf s. Github) -
@@ -3089,6 +3188,8 @@ def MakeDetailText(title, summary,tagline,quality,thumb,url):	# Textdatei für D
 # 30.08.2020 experimentelles m3u8-Verfahren entf. - s. changelog.txt
 # 12.03.2023 popen-Rückmeldung "None args" für LibreElec 11 ergänzt
 # 17.04.2024 Ausfilterung spezieller Sender in TVLiveRecordSender
+# 13.10.2025 url_correction für Nimble-Streamer (z.B. LEIPZIG
+#	FERNSEHEN) entfernt (obsolet).
 #
 def LiveRecord(url, title, duration, laenge, epgJob='', JobID=''):
 	PLog('LiveRecord:')
@@ -3137,7 +3238,6 @@ def LiveRecord(url, title, duration, laenge, epgJob='', JobID=''):
 	
 	if ":" in sender:
 		sender = sender.split(":")[0] 
-	url = url_correction(url, sender)				# Url-Korrektur, z.B. für LEIPZIG_FERNSEHEN 
 	
 	if check_Setting('pref_LiveRecord_ffmpegCall') == False:	
 		return
@@ -3195,27 +3295,17 @@ def LiveRecord(url, title, duration, laenge, epgJob='', JobID=''):
 		return li	
 		
 #--------------------------------------------------
-# Url-Korrektur für Url vonNimble Streamer , z.B. für LEIPZIG_FERNSEHEN
-#	nur private Sender betroffen.
-# ffmpeg: Input/output error - Header-Test, manuelle Zuordnung des 
-#	ersten Streams, Veränd. ffmpeg-Param. o.Ergebnis.
-# Austausch https -> http OK
+# Globale Textviewer-Funktion
 # 
-def url_correction(url, sender):
-	PLog('url_correction:')
-	if url.startswith('http') == False:				# lokale + rtmp unangetastet
-		return url
+def textviewer(title, page, usemono=True):
+	PLog('textviewer:')
 	
-	# OK BadenTV
-	TV_Liste = ["münchen.tv", "Leipzig Fernsehen",
-				"Rhein-Neckar Fernsehen", "Franken Fernsehen"]
-	new_url = url
-	for tv in TV_Liste:
-		if up_low(sender) in up_low(tv):
-			PLog("Url_Korrektur: %s" % sender)
-			new_url = url.replace('https:', 'http:')
+	if PYTHON3:
+		xbmcgui.Dialog().textviewer(title, page, usemono=usemono)
+	else:
+		xbmcgui.Dialog().textviewer(title, page)
 	
-	return new_url
+	return
 
 #---------------------------------------------------------------------------------------------------
 def check_Setting(ID):
@@ -3308,8 +3398,11 @@ def switch_Setting(ID, msg1,msg2,icon,delay):
 def PlayVideo_Direct(HLS_List, MP4_List, title, thumb, Plot, sub_path=None, playlist='', HBBTV_List='', ID=''):	
 	PLog('PlayVideo_Direct:')
 	PLog(title); PLog(ID)
+	if not HLS_List:								# Irrläufer strm-Modul? nur Log
+		PLog("HLS_List_missing")		
+			
 	PLog(len(HLS_List)); PLog(len(MP4_List)); PLog(len(HBBTV_List));
-	#PLog(str(HLS_List)); PLog(str(MP4_List)); PLog(str(HBBTV_List)); # Debug
+	# PLog(str(HLS_List)); PLog(str(MP4_List)); PLog(str(HBBTV_List)); # Debug
 	myform = SETTINGS.getSetting('pref_direct_format')
 	myqual = SETTINGS.getSetting('pref_direct_quality')
 	PLog("myform: %s, myqual: %s" % (myform, myqual))
@@ -3369,34 +3462,43 @@ def PlayVideo_Direct(HLS_List, MP4_List, title, thumb, Plot, sub_path=None, play
 	PLog(myqual)
 	PLog(Stream_List)
 	if mode_hls:				
-		if myqual.find('auto') >= 0:
+		if "auto" in myqual:								# Setting: auto
 			mode = 'Sofortstart: HLS/auto'
-			Default_Url = Stream_List[0].split('#')[-1]		# master.m3u8 Pos. 1
-			PLog("Default_Url1: %s" % Default_Url)
-		else:
+			Default_Url = Stream_List[0].split('#')[-1]		# master.m3u8 Pos. 1 in HLS_List
+			PLog("Default_Url1a: %s" % Default_Url)
+		else:												# Setting: Auflösungen
 			mode = 'HLS/Einzelstream'
-			if "** auto **" in Stream_List[0]:				# sonst sort_error für Auflösung 
-				if len(Stream_List) == 1:
-					Default_Url = Stream_List[0].split('#')[-1]	# einzigen Stream bewahren
-				del Stream_List[0]
-	else: 
+			if u"Auflösung" not in str(Stream_List):		# nur auto-Streams, z.B. zwei Sprachversionen
+				Default_Url = Stream_List[0].split('#')[-1]	# nur 1. Stream (standard/deu)
+				PLog("Default_Url1b: %s" % Default_Url)
+				Stream_List=[]								# Rest nicht benötigt
+
+			else:											# HLS mit Auflösungen
+				if "** auto **" in Stream_List[0]:			# auto-Stream löschen, sonst sort_error 
+					if len(Stream_List) == 1:
+						Default_Url = Stream_List[0].split('#')[-1]	# auto-Stream -> Default
+						PLog("Default_Url1c: %s" % Default_Url)
+						del Stream_List[0]					# Rest wird sortiert
+
+	else: 													# Setting MP4, Webm, VP8/Vorbis, VP9/Opus
 		mode = 'MP4'
 	PLog("mode: " + mode)
 	
 	if Default_Url == '':								# besetzt: HLS/auto
 		# Sortierung Stream_List wieder nach Auflösung (verlässlicher) - wie StreamsShow
 		# höchste Auflös. nach unten, x-Param.: Auflösung
-		try:
-			if u"Auflösung" in str(Stream_List):
+		if u"Auflösung" in str(Stream_List):
+			try:
 				Stream_List = sorted(Stream_List,key=lambda x: int(re.search(r'sung (\d+)x', x).group(1)))	
-		except Exception as exception:					# bei HLS/"auto", problemlos da vorsortiert durch Sender
-			PLog("sort_error: " + str(exception))
-			myqual = "auto"								# verwende Default_Url - kein Abgleich mit width
+			except Exception as exception:					# bei HLS/"auto", problemlos da vorsortiert durch Sender
+				PLog("sort_error: " + str(exception))
+				myqual = "auto"								# verwende Default_Url - kein Abgleich mit width
 
-		if len(Stream_List) > 0:						# Default: höchste Url
-			Default_Url = Stream_List[-1].split('#')[-1]	# Fallback: master.m3u8 Pos. 1
-			PLog("Default_Url2: %s" % Default_Url)
+			if len(Stream_List) > 0:						# Default: letzte Url=höchste Auflösung
+				Default_Url = Stream_List[-1].split('#')[-1]	# Fallback: master.m3u8 Pos. 1
+				PLog("Default_Url2: %s" % Default_Url)
 	
+
 	PLog("Default_Url3: %s" % Default_Url)
 	url = Default_Url 
 	PLog(str(Stream_List)[:80])
@@ -3441,15 +3543,14 @@ def PlayVideo_Direct(HLS_List, MP4_List, title, thumb, Plot, sub_path=None, play
 	#	kann sich zeitlich weiter vorn befinden (s. FLAG_OnlyUrl).
 	PLog('Direct: %s | %s' % (mode, url))
 	PLog(FLAG_OnlyUrl)								# Flagdatei
-	if os.path.isfile(FLAG_OnlyUrl):				# Rückgabe Url -> strm-Modul, kein Start
-		PLog("FLAG_OnlyUrl")
-		os.remove(FLAG_OnlyUrl)						# zusätzl. Leichenbehandl. im Haupt-PRG
+	if os.path.exists(FLAG_OnlyUrl):				# Rückgabe Url -> strm-Modul, kein Start
+		PLog("FLAG_OnlyUrl")						# Leichenbehandl. im Haupt-PRG
 		RSave(STRM_URL, url)						# indirekte Rückgabe 	-> 
 		return url									# direkte Rückgabe 		-> strm-Modul
 		exit(0)
 	else:											# default
 		PlayVideo(url, title, thumb, Plot, sub_path)
-	return ''
+	return ''										# streamurl -> strm.get_streamurl
 
 #---------------------------------------------------------------------------------------------------
 # PlayVideo: 
@@ -3499,6 +3600,12 @@ def PlayVideo_Direct(HLS_List, MP4_List, title, thumb, Plot, sub_path=None, play
 def PlayVideo(url, title, thumb, Plot, sub_path=None, playlist='', seekTime=0, Merk="", live=""):	
 	PLog('PlayVideo:'); PLog(url); PLog(title);	 PLog(Plot[:100]); 
 	PLog(sub_path); PLog(seekTime); PLog("live: " + live); PLog(playlist)
+	
+	PLog("FLAG_OnlyUrl_detect: " + str(os.path.exists(FLAG_OnlyUrl)))
+	if os.path.exists(FLAG_OnlyUrl):					# Thread-Irrläufer strm-Modul, Abbruch
+		return 0,0										# play_time,video_dur
+		exit(0)
+
 	import sqlite3										# Abfrage MyVideos*.db
 
 	Plot=transl_doubleUTF8(Plot)
@@ -3711,9 +3818,10 @@ def PlayVideo(url, title, thumb, Plot, sub_path=None, playlist='', seekTime=0, M
 								PLog("Player_Subtitles: %s" % sub_list[0])
 								xbmc.Player().setSubtitles(sub_list[0])
 					else:  										# Freeze in Windows bei späterem Einschalten 
-							if sub_path:						# Abschalten nur mit sub_path, i.d.R. nicht bei Live
-								PLog("Player_Subtitles: off")
-								xbmc.Player().showSubtitles(False)
+						pass									# ab 12.10.2025 Verzicht auf showSubtitles(False)
+						#if sub_path:
+							#PLog("Player_Subtitles: off")
+							#xbmc.Player().showSubtitles(False)
 					player_detect=True
 					break
 			if i >= max_secs:
@@ -3926,7 +4034,7 @@ def PlayAudio(url, title, thumb, Plot, header=None, FavCall=''):
 		if url.startswith('smb://') == False:	# keine Share
 			url = os.path.abspath(url)
 	else:										# 14.01.2022 Bsp. HTTP Error 404 NDR Schlager
-		url = url_check(url, caller='PlayAudio')# False oder Redirect-Url
+		url = url_check(url, caller='PlayAudio')
 		if url == False:
 			return
 		
@@ -4015,10 +4123,11 @@ def PlayAudio(url, title, thumb, Plot, header=None, FavCall=''):
 # 04.03.2022 Header für ZDF-Url erforderl. (Error "502 Bad Gateway")
 # 21.01.2023 dialog optional für add_UHD_Streams (ohne Dialog)
 # Rückage url oder False
-# 14.03.2025 Header auf user-agent (curl) beschränkt 
+# 14.03.2025 Header auf user-agent (curl) beschränkt
+# 06.08.2025 Param stream ergänzt für requests in getRedirect 
 #
 def url_check(url, caller='', dialog=True):
-	PLog('url_check: ' + url)
+	PLog('url_check: %s | %s' % (url, caller))
 
 	if url.startswith('http') == False:		# lokale Datei
 		if  os.path.exists(url):
@@ -4034,6 +4143,16 @@ def url_check(url, caller='', dialog=True):
 				MyDialog(msg1, msg2, "")		 			 	 
 			return False
 
+	# 05.08,2025 stream=True für mp4-Dateien u.ä. sonst Klemmer
+	#	in requests
+	stream=False
+	format_list = [".mp4", ".webm", ".vp9", ".mp3"]
+	for form in format_list:
+		if form in url:
+			stream=True
+			PLog("urlcheck_stream")
+			break
+
 	#-----------------------------------------
 	# hier bei Bedarf ein SessionTimeout verwenden, Bsp.
 	#	blog.apify.com/python-requests-timeout/
@@ -4043,7 +4162,7 @@ def url_check(url, caller='', dialog=True):
 	# url='http://feeds.soundcloud.com/x'		# HTTP Error 405: Method Not Allowed
 	header = {'user-agent': 'curl/7.81.0'}
 
-	page, msg = getRedirect(url, header)			
+	page, msg = getRedirect(url, header, stream)			
 	if page:
 		return page							# ermittelte Url	
 	else:
@@ -4051,7 +4170,8 @@ def url_check(url, caller='', dialog=True):
 		msg1= '%s: Quelle nicht erreichbar - Url:' % caller
 		msg2 = url
 		msg3 = msg
-		PLog(msg3)
+		PLog("%s | %s | %s" % (msg1, msg2, msg3))
+		
 		if dialog:
 			MyDialog(msg1, msg2, msg3)		 			 	 
 		return False
@@ -4068,8 +4188,8 @@ def open_addon(addon_id, cmd):
 #----------------------------------------------------------------
 # Zeigt bei Livestreams die Abspielposition von inputstream.adaptive 
 #	als Zeitangabe
-# Aufruf: PlayAudio (direkt, indirekt)
-# Player vor Aufruf bereits aktiviert (s. PlayAudio->Player_Subtitles:)
+# Aufruf: PlayVideo (direkt, indirekt)
+# Player vor Aufruf bereits aktiviert (s. PlayVideo->Player_Subtitles:)
 # notification-Aufruf zu ungenau für float-Werte.
 # ZDF-Werte beim Start: 
 #		Pufferanzeige: Wert1 / Wert2 ->
@@ -4565,6 +4685,7 @@ def get_streams_from_link(medialink):
 	xbmcplugin.endOfDirectory(HANDLE, cacheToDisc=True)	
 	
 #----------------------------------------------------------------
+
 
 
 

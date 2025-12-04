@@ -162,7 +162,8 @@ def set_drm_level(*args, **kwargs):
 
         if not wv_level:
             wv_mode = 'fallback'
-            wv_level = WV_L3
+            # assume L1 for webos otherwise L3
+            wv_level = WV_L1 if get_system() == 'WebOS' else WV_L3
 
         if not hdcp_level:
             hdcp_mode = 'fallback'
@@ -211,7 +212,7 @@ class Donor(Text):
         else:
             value = _(value, _color='red')
 
-        if expires:
+        if expires and self.value:
             value = _(_.VALID_TO, supporter_id=value, expires=expires.to('local').format('D MMMM YYYY'))
 
         label = u'{}: {}'.format(self._label, value)

@@ -248,6 +248,41 @@
                     <control type="spinner" format="string" />
                 </setting>
 
+                <setting id="prefs.track" type="string" label="48420" help="">
+                    <level>0</level>
+                    <default />
+                    <constraints>
+                        <allowempty>true</allowempty>
+                        <options>
+                            <option label="90200"><![CDATA[]]></option>
+                            <option label="90201">ar</option>
+                            <option label="90202">bn</option>
+                            <option label="90203">de</option>
+                            <option label="90204">en</option>
+                            <option label="90205">es</option>
+                            <option label="90206">fr</option>
+                            <option label="90207">he</option>
+                            <option label="90208">hi</option>
+                            <option label="90209">id</option>
+                            <option label="90210">it</option>
+                            <option label="90211">ja</option>
+                            <option label="90212">ko</option>
+                            <option label="90213">ml</option>
+                            <option label="90214">nl</option>
+                            <option label="90215">pa</option>
+                            <option label="90216">pl</option>
+                            <option label="90217">pt</option>
+                            <option label="90218">ro</option>
+                            <option label="90219">ru</option>
+                            <option label="90220">tr</option>
+                            <option label="90221">uk</option>
+                            <option label="90222">vi</option>
+                            <option label="90223">zh</option>
+                        </options>
+                    </constraints>
+                    <control type="list" format="string" />
+                </setting>
+
             </group>
 
         </category>

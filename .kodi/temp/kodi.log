@@ -1,0 +1,756 @@
+﻿2025-12-04 15:53:19.759 T:8        info <general>: -----------------------------------------------------------------------
+2025-12-04 15:53:19.759 T:8        info <general>: Starting Kodi from Debian (21.3 Debian package version: 2:21.3+dfsg-1+b1). Platform: Linux x86 64-bit
+2025-12-04 15:53:19.759 T:8        info <general>: Using Release Kodi from Debian x64
+2025-12-04 15:53:19.759 T:8        info <general>: Kodi from Debian compiled 2025-11-09 by GCC 15.2.0 for Linux x86 64-bit version 6.17.7 (397575)
+2025-12-04 15:53:19.759 T:8        info <general>: Running on Debian GNU/Linux forky/sid n/a, kernel: Linux x86 64-bit version 6.17.10-x64v3-xanmod1
+2025-12-04 15:53:19.759 T:8        info <general>: FFmpeg version/source: 7.1.3-1
+2025-12-04 15:53:19.759 T:8        info <general>: Host CPU: Intel(R) Core(TM) i5-7400 CPU @ 3.00GHz, 4 cores available
+2025-12-04 15:53:19.759 T:8        info <general>: special://xbmc/ is mapped to: /usr/share/kodi
+2025-12-04 15:53:19.759 T:8        info <general>: special://xbmcbin/ is mapped to: /usr/lib/x86_64-linux-gnu/kodi
+2025-12-04 15:53:19.759 T:8        info <general>: special://xbmcbinaddons/ is mapped to: /usr/lib/x86_64-linux-gnu/kodi/addons
+2025-12-04 15:53:19.759 T:8        info <general>: special://masterprofile/ is mapped to: /home/localhost/.kodi/userdata
+2025-12-04 15:53:19.759 T:8        info <general>: special://envhome/ is mapped to: /home/localhost
+2025-12-04 15:53:19.759 T:8        info <general>: special://home/ is mapped to: /home/localhost/.kodi
+2025-12-04 15:53:19.759 T:8        info <general>: special://temp/ is mapped to: /home/localhost/.kodi/temp
+2025-12-04 15:53:19.759 T:8        info <general>: special://logpath/ is mapped to: /home/localhost/.kodi/temp
+2025-12-04 15:53:19.759 T:8        info <general>: Webserver extra whitelist paths: 
+2025-12-04 15:53:19.759 T:8        info <general>: The executable running is: /usr/lib/x86_64-linux-gnu/kodi/kodi.bin
+2025-12-04 15:53:19.759 T:28      debug <general>: CPipewireProxy::Bound - id=38
+2025-12-04 15:53:19.759 T:28      debug <general>: CPipewireProxy::Bound - id=70
+2025-12-04 15:53:19.759 T:28      debug <general>: CPipewireProxy::Bound - id=71
+2025-12-04 15:53:19.759 T:8        info <general>: Local hostname: localhost
+2025-12-04 15:53:19.759 T:8        info <general>: Log File is located: /home/localhost/.kodi/temp/kodi.log
+2025-12-04 15:53:19.759 T:8        info <general>: -----------------------------------------------------------------------
+2025-12-04 15:53:19.759 T:8        info <general>: loading settings
+2025-12-04 15:53:19.760 T:8        info <general>: special://profile/ is mapped to: special://masterprofile/
+2025-12-04 15:53:19.765 T:8        info <general>: No settings file to load (special://xbmc/system/advancedsettings.xml)
+2025-12-04 15:53:19.765 T:8        info <general>: No settings file to load (special://masterprofile/advancedsettings.xml)
+2025-12-04 15:53:19.765 T:8        info <general>: Default Video Player: VideoPlayer
+2025-12-04 15:53:19.765 T:8        info <general>: Default Audio Player: paplayer
+2025-12-04 15:53:19.765 T:8        info <general>: Disabled debug logging due to GUI setting. Level 0.
+2025-12-04 15:53:19.765 T:8        info <general>: Log level changed to "info"
+2025-12-04 15:53:19.765 T:8        info <general>: CMediaSourceSettings: loading media sources from special://masterprofile/sources.xml
+2025-12-04 15:53:19.767 T:8        info <general>: New Cache GUI Settings (replacement of cache in advancedsettings.xml) are:
+                                                     Buffer Mode: 4
+                                                     Memory Size: 20 MB
+                                                     Read Factor: 4.00 x 
+                                                     Chunk Size : 131072 bytes
+2025-12-04 15:53:19.767 T:8        info <general>: creating subdirectories
+2025-12-04 15:53:19.767 T:8        info <general>: userdata folder: special://masterprofile/
+2025-12-04 15:53:19.767 T:8        info <general>: recording folder: 
+2025-12-04 15:53:19.767 T:8        info <general>: screenshots folder: 
+2025-12-04 15:53:19.769 T:8        info <general>: Running database version Addons33
+2025-12-04 15:53:19.896 T:8     warning <general>: CAddonMgr::FindAddons: Addon 'game.controller.keyboard' already present with higher version 1.1.47 at '/usr/share/kodi/addons/game.controller.keyboard/' - other version 1.1.43 at '/home/localhost/.kodi/addons/game.controller.keyboard/' will be ignored
+2025-12-04 15:53:19.898 T:8     warning <general>: CAddonMgr::FindAddons: Addon 'game.controller.snes' already present with higher version 1.0.46 at '/usr/share/kodi/addons/game.controller.snes/' - other version 1.0.43 at '/home/localhost/.kodi/addons/game.controller.snes/' will be ignored
+2025-12-04 15:53:19.910 T:8        info <general>: CAddonMgr::FindAddons: audioencoder.kodi.builtin.aac v1.0.2 installed
+2025-12-04 15:53:19.910 T:8        info <general>: CAddonMgr::FindAddons: audioencoder.kodi.builtin.wma v1.0.2 installed
+2025-12-04 15:53:19.910 T:8        info <general>: CAddonMgr::FindAddons: game.controller.default v1.0.46 installed
+2025-12-04 15:53:19.910 T:8        info <general>: CAddonMgr::FindAddons: game.controller.keyboard v1.1.47 installed
+2025-12-04 15:53:19.910 T:8        info <general>: CAddonMgr::FindAddons: game.controller.mouse v1.0.30 installed
+2025-12-04 15:53:19.911 T:8        info <general>: CAddonMgr::FindAddons: game.controller.snes v1.0.46 installed
+2025-12-04 15:53:19.911 T:8        info <general>: CAddonMgr::FindAddons: inputstream.adaptive v21.5.14 installed
+2025-12-04 15:53:19.911 T:8        info <general>: CAddonMgr::FindAddons: inputstream.ffmpegdirect v21.3.8 installed
+2025-12-04 15:53:19.911 T:8        info <general>: CAddonMgr::FindAddons: kodi.binary.global.audioengine v1.1.1 installed
+2025-12-04 15:53:19.911 T:8        info <general>: CAddonMgr::FindAddons: kodi.binary.global.filesystem v1.1.9 installed
+2025-12-04 15:53:19.911 T:8        info <general>: CAddonMgr::FindAddons: kodi.binary.global.general v1.0.5 installed
+2025-12-04 15:53:19.911 T:8        info <general>: CAddonMgr::FindAddons: kodi.binary.global.gui v5.15.0 installed
+2025-12-04 15:53:19.911 T:8        info <general>: CAddonMgr::FindAddons: kodi.binary.global.main v2.0.2 installed
+2025-12-04 15:53:19.911 T:8        info <general>: CAddonMgr::FindAddons: kodi.binary.global.network v1.0.4 installed
+2025-12-04 15:53:19.911 T:8        info <general>: CAddonMgr::FindAddons: kodi.binary.global.tools v1.0.4 installed
+2025-12-04 15:53:19.911 T:8        info <general>: CAddonMgr::FindAddons: kodi.binary.instance.audiodecoder v4.0.0 installed
+2025-12-04 15:53:19.911 T:8        info <general>: CAddonMgr::FindAddons: kodi.binary.instance.audioencoder v3.0.0 installed
+2025-12-04 15:53:19.911 T:8        info <general>: CAddonMgr::FindAddons: kodi.binary.instance.game v3.0.2 installed
+2025-12-04 15:53:19.911 T:8        info <general>: CAddonMgr::FindAddons: kodi.binary.instance.imagedecoder v3.0.1 installed
+2025-12-04 15:53:19.911 T:8        info <general>: CAddonMgr::FindAddons: kodi.binary.instance.inputstream v3.3.0 installed
+2025-12-04 15:53:19.912 T:8        info <general>: CAddonMgr::FindAddons: kodi.binary.instance.peripheral v3.0.2 installed
+2025-12-04 15:53:19.912 T:8        info <general>: CAddonMgr::FindAddons: kodi.binary.instance.pvr v8.3.0 installed
+2025-12-04 15:53:19.912 T:8        info <general>: CAddonMgr::FindAddons: kodi.binary.instance.screensaver v2.2.0 installed
+2025-12-04 15:53:19.912 T:8        info <general>: CAddonMgr::FindAddons: kodi.binary.instance.vfs v3.0.1 installed
+2025-12-04 15:53:19.912 T:8        info <general>: CAddonMgr::FindAddons: kodi.binary.instance.videocodec v2.1.0 installed
+2025-12-04 15:53:19.912 T:8        info <general>: CAddonMgr::FindAddons: kodi.binary.instance.visualization v4.0.0 installed
+2025-12-04 15:53:19.912 T:8        info <general>: CAddonMgr::FindAddons: kodi.resource v1.0.0 installed
+2025-12-04 15:53:19.912 T:8        info <general>: CAddonMgr::FindAddons: metadata.album.universal v3.1.16 installed
+2025-12-04 15:53:19.912 T:8        info <general>: CAddonMgr::FindAddons: metadata.artists.universal v4.3.18 installed
+2025-12-04 15:53:19.912 T:8        info <general>: CAddonMgr::FindAddons: metadata.common.allmusic.com v3.2.2 installed
+2025-12-04 15:53:19.912 T:8        info <general>: CAddonMgr::FindAddons: metadata.common.fanart.tv v3.6.4 installed
+2025-12-04 15:53:19.912 T:8        info <general>: CAddonMgr::FindAddons: metadata.common.musicbrainz.org v2.2.4 installed
+2025-12-04 15:53:19.912 T:8        info <general>: CAddonMgr::FindAddons: metadata.common.theaudiodb.com v2.0.3 installed
+2025-12-04 15:53:19.912 T:8        info <general>: CAddonMgr::FindAddons: metadata.generic.albums v1.0.18 installed
+2025-12-04 15:53:19.912 T:8        info <general>: CAddonMgr::FindAddons: metadata.generic.artists v1.0.18 installed
+2025-12-04 15:53:19.913 T:8        info <general>: CAddonMgr::FindAddons: metadata.local v1.0.1 installed
+2025-12-04 15:53:19.913 T:8        info <general>: CAddonMgr::FindAddons: metadata.themoviedb.org.python v3.1.1 installed
+2025-12-04 15:53:19.913 T:8        info <general>: CAddonMgr::FindAddons: metadata.tvshows.themoviedb.org.python v1.7.3 installed
+2025-12-04 15:53:19.913 T:8        info <general>: CAddonMgr::FindAddons: peripheral.joystick v21.1.23 installed
+2025-12-04 15:53:19.913 T:8        info <general>: CAddonMgr::FindAddons: plugin.audio.arteconcert v2.0.1 installed
+2025-12-04 15:53:19.913 T:8        info <general>: CAddonMgr::FindAddons: plugin.audio.deutschlandfunk v2.0.8 installed
+2025-12-04 15:53:19.913 T:8        info <general>: CAddonMgr::FindAddons: plugin.audio.soundcloud v4.1.0 installed
+2025-12-04 15:53:19.913 T:8        info <general>: CAddonMgr::FindAddons: plugin.video.amazon-test v1.1.6+matrix.1 installed
+2025-12-04 15:53:19.913 T:8        info <general>: CAddonMgr::FindAddons: plugin.video.ardundzdf v5.2.1+nexus installed
+2025-12-04 15:53:19.913 T:8        info <general>: CAddonMgr::FindAddons: plugin.video.crunchyroll v3.3.0 installed
+2025-12-04 15:53:19.913 T:8        info <general>: CAddonMgr::FindAddons: plugin.video.filmarkivet v3.3.0+matrix.1 installed
+2025-12-04 15:53:19.913 T:8        info <general>: CAddonMgr::FindAddons: plugin.video.filmfriend v1.0.0 installed
+2025-12-04 15:53:19.913 T:8        info <general>: CAddonMgr::FindAddons: plugin.video.invidious v3.2.7 installed
+2025-12-04 15:53:19.913 T:8        info <general>: CAddonMgr::FindAddons: plugin.video.joyn v2.5.39+matrix.1 installed
+2025-12-04 15:53:19.913 T:8        info <general>: CAddonMgr::FindAddons: plugin.video.mubi v1.0.3 installed
+2025-12-04 15:53:19.914 T:8        info <general>: CAddonMgr::FindAddons: plugin.video.mytube v3.4.24 installed
+2025-12-04 15:53:19.914 T:8        info <general>: CAddonMgr::FindAddons: plugin.video.mytwitch v2.4.26 installed
+2025-12-04 15:53:19.914 T:8        info <general>: CAddonMgr::FindAddons: plugin.video.nasa v3.0.3+matrix.1 installed
+2025-12-04 15:53:19.914 T:8        info <general>: CAddonMgr::FindAddons: plugin.video.netflix v1.23.5+matrix.1 installed
+2025-12-04 15:53:19.914 T:8        info <general>: CAddonMgr::FindAddons: plugin.video.tyl0re.arte v1.1.3+matrix.1 installed
+2025-12-04 15:53:19.914 T:8        info <general>: CAddonMgr::FindAddons: plugin.video.weltspiegel v1.0.0 installed
+2025-12-04 15:53:19.914 T:8        info <general>: CAddonMgr::FindAddons: pvr.dvblink v21.1.3 installed
+2025-12-04 15:53:19.914 T:8        info <general>: CAddonMgr::FindAddons: repository.castagnait v2.0.1 installed
+2025-12-04 15:53:19.914 T:8        info <general>: CAddonMgr::FindAddons: repository.debian.languages v1.0.0 installed
+2025-12-04 15:53:19.914 T:8        info <general>: CAddonMgr::FindAddons: repository.kodinerds v7.0.1.7 installed
+2025-12-04 15:53:19.914 T:8        info <general>: CAddonMgr::FindAddons: repository.lekma v4.0.1 installed
+2025-12-04 15:53:19.914 T:8        info <general>: CAddonMgr::FindAddons: repository.mtr81 v1.0 installed
+2025-12-04 15:53:19.914 T:8        info <general>: CAddonMgr::FindAddons: repository.sandmann79.plugins v1.0.4+matrix installed
+2025-12-04 15:53:19.914 T:8        info <general>: CAddonMgr::FindAddons: repository.slyguy v0.0.9 installed
+2025-12-04 15:53:19.914 T:8        info <general>: CAddonMgr::FindAddons: repository.xbmc.org v3.4.0 installed
+2025-12-04 15:53:19.915 T:8        info <general>: CAddonMgr::FindAddons: resource.images.weathericons.default v1.1.9 installed
+2025-12-04 15:53:19.915 T:8        info <general>: CAddonMgr::FindAddons: resource.language.en_gb v2.0.2 installed
+2025-12-04 15:53:19.915 T:8        info <general>: CAddonMgr::FindAddons: resource.timezone v1.0.0 installed
+2025-12-04 15:53:19.915 T:8        info <general>: CAddonMgr::FindAddons: resource.uisounds.kodi v1.0.1 installed
+2025-12-04 15:53:19.915 T:8        info <general>: CAddonMgr::FindAddons: screensaver.shadertoy v21.0.2 installed
+2025-12-04 15:53:19.915 T:8        info <general>: CAddonMgr::FindAddons: screensaver.xbmc.builtin.black v1.0.34 installed
+2025-12-04 15:53:19.915 T:8        info <general>: CAddonMgr::FindAddons: screensaver.xbmc.builtin.dim v1.0.66 installed
+2025-12-04 15:53:19.915 T:8        info <general>: CAddonMgr::FindAddons: script.module.addon.signals v0.0.6+matrix.1 installed
+2025-12-04 15:53:19.915 T:8        info <general>: CAddonMgr::FindAddons: script.module.amazoncaptcha v0.5.11+matrix.1 installed
+2025-12-04 15:53:19.915 T:8        info <general>: CAddonMgr::FindAddons: script.module.beautifulsoup4 v4.12.2 installed
+2025-12-04 15:53:19.915 T:8        info <general>: CAddonMgr::FindAddons: script.module.certifi v2023.5.7 installed
+2025-12-04 15:53:19.915 T:8        info <general>: CAddonMgr::FindAddons: script.module.chardet v5.1.0 installed
+2025-12-04 15:53:19.915 T:8        info <general>: CAddonMgr::FindAddons: script.module.feedparser v6.0.11 installed
+2025-12-04 15:53:19.915 T:8        info <general>: CAddonMgr::FindAddons: script.module.iapc v2.4.2 installed
+2025-12-04 15:53:19.915 T:8        info <general>: CAddonMgr::FindAddons: script.module.idna v3.10.0 installed
+2025-12-04 15:53:19.916 T:8        info <general>: CAddonMgr::FindAddons: script.module.inputstreamhelper v0.7.0 installed
+2025-12-04 15:53:19.916 T:8        info <general>: CAddonMgr::FindAddons: script.module.kodi-six v0.1.3.1 installed
+2025-12-04 15:53:19.916 T:8        info <general>: CAddonMgr::FindAddons: script.module.libarte v2.0.2 installed
+2025-12-04 15:53:19.916 T:8        info <general>: CAddonMgr::FindAddons: script.module.libmediathek4 v1.0.0 installed
+2025-12-04 15:53:19.916 T:8        info <general>: CAddonMgr::FindAddons: script.module.mechanicalsoup v1.0.0+matrix.1 installed
+2025-12-04 15:53:19.916 T:8        info <general>: CAddonMgr::FindAddons: script.module.myconnpy v8.0.33 installed
+2025-12-04 15:53:19.916 T:8        info <general>: CAddonMgr::FindAddons: script.module.nuttig v1.4.8 installed
+2025-12-04 15:53:19.916 T:8        info <general>: CAddonMgr::FindAddons: script.module.pil v5.1.0 installed
+2025-12-04 15:53:19.916 T:8        info <general>: CAddonMgr::FindAddons: script.module.pyautogui v0.9.51+matrix.1 installed
+2025-12-04 15:53:19.916 T:8        info <general>: CAddonMgr::FindAddons: script.module.pycryptodome v3.4.3 installed
+2025-12-04 15:53:19.916 T:8        info <general>: CAddonMgr::FindAddons: script.module.pysocks v1.7.0+matrix.1 installed
+2025-12-04 15:53:19.916 T:8        info <general>: CAddonMgr::FindAddons: script.module.pyxbmct v1.3.2+matrix.1 installed
+2025-12-04 15:53:19.916 T:8        info <general>: CAddonMgr::FindAddons: script.module.requests v2.31.0 installed
+2025-12-04 15:53:19.916 T:8        info <general>: CAddonMgr::FindAddons: script.module.requests-cache v0.5.2+matrix.2 installed
+2025-12-04 15:53:19.916 T:8        info <general>: CAddonMgr::FindAddons: script.module.sgmllib3k v1.0.0+matrix.2 installed
+2025-12-04 15:53:19.917 T:8        info <general>: CAddonMgr::FindAddons: script.module.six v1.16.0+matrix.1 installed
+2025-12-04 15:53:19.917 T:8        info <general>: CAddonMgr::FindAddons: script.module.slyguy v0.86.45 installed
+2025-12-04 15:53:19.917 T:8        info <general>: CAddonMgr::FindAddons: script.module.soupsieve v2.4.1 installed
+2025-12-04 15:53:19.917 T:8        info <general>: CAddonMgr::FindAddons: script.module.urllib3 v2.2.3 installed
+2025-12-04 15:53:19.917 T:8        info <general>: CAddonMgr::FindAddons: script.module.xbmcswift2 v19.0.7 installed
+2025-12-04 15:53:19.917 T:8        info <general>: CAddonMgr::FindAddons: script.module.xmltodict v0.12.0+matrix.2 installed
+2025-12-04 15:53:19.917 T:8        info <general>: CAddonMgr::FindAddons: script.module.yt-dlp v2025.08.27-1 installed
+2025-12-04 15:53:19.917 T:8        info <general>: CAddonMgr::FindAddons: service.manifests.mpd v1.4.10 installed
+2025-12-04 15:53:19.917 T:8        info <general>: CAddonMgr::FindAddons: service.sponsorblock v1.4.2 installed
+2025-12-04 15:53:19.917 T:8        info <general>: CAddonMgr::FindAddons: service.upnext v1.1.9+matrix.1 installed
+2025-12-04 15:53:19.917 T:8        info <general>: CAddonMgr::FindAddons: service.xbmc.versioncheck v0.5.30+matrix.1 installed
+2025-12-04 15:53:19.917 T:8        info <general>: CAddonMgr::FindAddons: service.yt-dlp v1.4.18 installed
+2025-12-04 15:53:19.917 T:8        info <general>: CAddonMgr::FindAddons: skin.estuary v4.0.0 installed
+2025-12-04 15:53:19.917 T:8        info <general>: CAddonMgr::FindAddons: slyguy.dependencies v0.0.29 installed
+2025-12-04 15:53:19.917 T:8        info <general>: CAddonMgr::FindAddons: slyguy.disney.plus v0.20.25 installed
+2025-12-04 15:53:19.918 T:8        info <general>: CAddonMgr::FindAddons: visualization.shadertoy v21.0.2 installed
+2025-12-04 15:53:19.918 T:8        info <general>: CAddonMgr::FindAddons: webinterface.default v2.2.33 installed
+2025-12-04 15:53:19.918 T:8        info <general>: CAddonMgr::FindAddons: xbmc.addon v21.3.0 installed
+2025-12-04 15:53:19.918 T:8        info <general>: CAddonMgr::FindAddons: xbmc.core v0.1.0 installed
+2025-12-04 15:53:19.918 T:8        info <general>: CAddonMgr::FindAddons: xbmc.gui v5.17.0 installed
+2025-12-04 15:53:19.918 T:8        info <general>: CAddonMgr::FindAddons: xbmc.json v13.5.0 installed
+2025-12-04 15:53:19.918 T:8        info <general>: CAddonMgr::FindAddons: xbmc.metadata v2.1.0 installed
+2025-12-04 15:53:19.918 T:8        info <general>: CAddonMgr::FindAddons: xbmc.python v3.0.1 installed
+2025-12-04 15:53:19.918 T:8        info <general>: CAddonMgr::FindAddons: xbmc.webinterface v1.0.0 installed
+2025-12-04 15:53:19.921 T:8        info <general>: Selected Logind/UPower as PowerSyscall
+2025-12-04 15:53:19.946 T:8       error <general>: DBus error: org.freedesktop.DBus.Error.InvalidArgs - No such property “OnLowBattery”
+2025-12-04 15:53:19.947 T:8        info <general>: Selected UPower as PowerSyscall
+2025-12-04 15:53:19.947 T:8       error <general>: DBus error: org.freedesktop.DBus.Error.InvalidArgs - No such property “CanSuspend”
+2025-12-04 15:53:19.948 T:8       error <general>: DBus error: org.freedesktop.DBus.Error.InvalidArgs - No such property “CanHibernate”
+2025-12-04 15:53:19.959 T:8        info <general>: CKeyboardLayoutManager: loading keyboard layouts from special://xbmc/system/keyboardlayouts...
+2025-12-04 15:53:20.071 T:8        info <general>: InitWindowSystem: Connecting to Wayland server
+2025-12-04 15:53:20.079 T:8        info <general>: Wayland presentation clock: 1
+2025-12-04 15:53:20.079 T:8        info <general>: UpdateResolutions: User wanted output "Default", we now have "Apple Computer Inc iMac" size 475x267 mm with 1 mode(s):
+2025-12-04 15:53:20.079 T:8        info <general>: UpdateResolutions: - 3840x2160 @59.997 Hz pixel ratio 1.001 current
+2025-12-04 15:53:20.093 T:8        info <general>: EGL_VERSION = 1.5
+2025-12-04 15:53:20.093 T:8        info <general>: EGL_VENDOR = Mesa Project
+2025-12-04 15:53:20.093 T:8        info <general>: EGL_EXTENSIONS = EGL_ANDROID_blob_cache EGL_ANDROID_native_fence_sync EGL_EXT_buffer_age EGL_EXT_config_select_group EGL_EXT_create_context_robustness EGL_EXT_image_dma_buf_import EGL_EXT_image_dma_buf_import_modifiers EGL_EXT_present_opaque EGL_EXT_query_reset_notification_strategy EGL_EXT_surface_compression EGL_EXT_swap_buffers_with_damage EGL_IMG_context_priority EGL_KHR_cl_event2 EGL_KHR_config_attribs EGL_KHR_context_flush_control EGL_KHR_create_context EGL_KHR_create_context_no_error EGL_KHR_fence_sync EGL_KHR_get_all_proc_addresses EGL_KHR_gl_colorspace EGL_KHR_gl_renderbuffer_image EGL_KHR_gl_texture_2D_image EGL_KHR_gl_texture_3D_image EGL_KHR_gl_texture_cubemap_image EGL_KHR_image_base EGL_KHR_no_config_context EGL_KHR_reusable_sync EGL_KHR_surfaceless_context EGL_KHR_swap_buffers_with_damage EGL_EXT_pixel_format_float EGL_KHR_wait_sync EGL_MESA_configless_context EGL_MESA_gl_interop EGL_MESA_image_dma_buf_export EGL_MESA_query_driver EGL_MESA_x11_native_visual_id 
+2025-12-04 15:53:20.093 T:8        info <general>: EGL_CLIENT_EXTENSIONS = EGL_EXT_device_base EGL_EXT_device_enumeration EGL_EXT_device_query EGL_EXT_platform_base EGL_KHR_client_get_all_proc_addresses EGL_EXT_client_extensions EGL_KHR_debug EGL_EXT_platform_device EGL_EXT_explicit_device EGL_EXT_platform_wayland EGL_KHR_platform_wayland EGL_EXT_platform_x11 EGL_KHR_platform_x11 EGL_EXT_platform_xcb EGL_MESA_platform_gbm EGL_KHR_platform_gbm EGL_MESA_platform_surfaceless
+2025-12-04 15:53:20.094 T:8        info <general>: RetroPlayer[RENDER]: Registering renderer factory for DMA
+2025-12-04 15:53:20.094 T:8        info <general>: RetroPlayer[RENDER]: Registering renderer factory for OpenGL
+2025-12-04 15:53:20.109 T:8        info <general>: VAAPI::Close - closing decoder context
+2025-12-04 15:53:20.109 T:8        info <general>: CApplication::CreateGUI - using the wayland windowing system
+2025-12-04 15:53:20.109 T:8        info <general>: Checking resolution 16
+2025-12-04 15:53:20.109 T:8        info <general>: CreateNewWindow: Starting full screen size 3840x2160
+2025-12-04 15:53:20.110 T:8        info <general>: UpdateSizeVariables: Surface size changed: 0x0 -> 3840x2160
+2025-12-04 15:53:20.110 T:8        info <general>: UpdateSizeVariables: Buffer size changed: 0x0 -> 3840x2160
+2025-12-04 15:53:20.110 T:8        info <general>: UpdateSizeVariables: Configured size changed: 0x0 -> 3840x2160
+2025-12-04 15:53:20.114 T:8        info <general>: UpdateSizeVariables: Surface size changed: 3840x2160 -> 1920x1080
+2025-12-04 15:53:20.114 T:8        info <general>: UpdateSizeVariables: Buffer size changed: 3840x2160 -> 1920x1080
+2025-12-04 15:53:20.114 T:8        info <general>: UpdateSizeVariables: Configured size changed: 3840x2160 -> 1920x1080
+2025-12-04 15:53:20.122 T:8        info <general>: CRenderSystemGL::InitRenderSystem - Version: 4.6 (Core Profile) Mesa 26.0.0~git20251109-2, Major: 4, Minor: 6
+2025-12-04 15:53:20.122 T:8        info <general>: GL_VENDOR = AMD
+2025-12-04 15:53:20.122 T:8        info <general>: GL_RENDERER = AMD Radeon RX Graphics (radeonsi, polaris11, ACO, DRM 3.64, 6.17.10-x64v3-xanmod1)
+2025-12-04 15:53:20.122 T:8        info <general>: GL_VERSION = 4.6 (Core Profile) Mesa 26.0.0~git20251109-2
+2025-12-04 15:53:20.122 T:8        info <general>: GL_SHADING_LANGUAGE_VERSION = 4.60
+2025-12-04 15:53:20.122 T:8        info <general>: GL_GPU_MEMORY_INFO_TOTAL_AVAILABLE_MEMORY_NVX = 6109488
+2025-12-04 15:53:20.122 T:8        info <general>: GL_GPU_MEMORY_INFO_DEDICATED_VIDMEM_NVX = 2097152
+2025-12-04 15:53:20.122 T:8        info <general>: GL_EXTENSIONS = GL_AMD_conservative_depth GL_AMD_depth_clamp_separate GL_AMD_draw_buffers_blend GL_AMD_framebuffer_multisample_advanced GL_AMD_gpu_shader_int64 GL_AMD_multi_draw_indirect GL_AMD_performance_monitor GL_AMD_pinned_memory GL_AMD_query_buffer_object GL_AMD_seamless_cubemap_per_texture GL_AMD_shader_stencil_export GL_AMD_shader_trinary_minmax GL_AMD_texture_texture4 GL_AMD_vertex_shader_layer GL_AMD_vertex_shader_viewport_index GL_ANGLE_texture_compression_dxt3 GL_ANGLE_texture_compression_dxt5 GL_ARB_ES2_compatibility GL_ARB_ES3_1_compatibility GL_ARB_ES3_2_compatibility GL_ARB_ES3_compatibility GL_ARB_arrays_of_arrays GL_ARB_base_instance GL_ARB_bindless_texture GL_ARB_blend_func_extended GL_ARB_buffer_storage GL_ARB_clear_buffer_object GL_ARB_clear_texture GL_ARB_clip_control GL_ARB_color_buffer_float GL_ARB_compressed_texture_pixel_storage GL_ARB_compute_shader GL_ARB_compute_variable_group_size GL_ARB_conditional_render_inverted GL_ARB_conservative_depth GL_ARB_copy_buffer GL_ARB_copy_image GL_ARB_cull_distance GL_ARB_debug_output GL_ARB_depth_buffer_float GL_ARB_depth_clamp GL_ARB_derivative_control GL_ARB_direct_state_access GL_ARB_draw_buffers GL_ARB_draw_buffers_blend GL_ARB_draw_elements_base_vertex GL_ARB_draw_indirect GL_ARB_draw_instanced GL_ARB_enhanced_layouts GL_ARB_explicit_attrib_location GL_ARB_explicit_uniform_location GL_ARB_fragment_coord_conventions GL_ARB_fragment_layer_viewport GL_ARB_fragment_shader GL_ARB_framebuffer_no_attachments GL_ARB_framebuffer_object GL_ARB_framebuffer_sRGB GL_ARB_get_program_binary GL_ARB_get_texture_sub_image GL_ARB_gl_spirv GL_ARB_gpu_shader5 GL_ARB_gpu_shader_fp64 GL_ARB_gpu_shader_int64 GL_ARB_half_float_pixel GL_ARB_half_float_vertex GL_ARB_indirect_parameters GL_ARB_instanced_arrays GL_ARB_internalformat_query GL_ARB_internalformat_query2 GL_ARB_invalidate_subdata GL_ARB_map_buffer_alignment GL_ARB_map_buffer_range GL_ARB_multi_bind GL_ARB_multi_draw_indirect GL_ARB_occlusion_query2 GL_ARB_parallel_shader_compile GL_ARB_pipeline_statistics_query GL_ARB_pixel_buffer_object GL_ARB_point_sprite GL_ARB_polygon_offset_clamp GL_ARB_program_interface_query GL_ARB_provoking_vertex GL_ARB_query_buffer_object GL_ARB_robust_buffer_access_behavior GL_ARB_robustness GL_ARB_sample_shading GL_ARB_sampler_objects GL_ARB_seamless_cube_map GL_ARB_seamless_cubemap_per_texture GL_ARB_separate_shader_objects GL_ARB_shader_atomic_counter_ops GL_ARB_shader_atomic_counters GL_ARB_shader_ballot GL_ARB_shader_bit_encoding GL_ARB_shader_clock GL_ARB_shader_draw_parameters GL_ARB_shader_group_vote GL_ARB_shader_image_load_store GL_ARB_shader_image_size GL_ARB_shader_objects GL_ARB_shader_precision GL_ARB_shader_stencil_export GL_ARB_shader_storage_buffer_object GL_ARB_shader_subroutine GL_ARB_shader_texture_image_samples GL_ARB_shader_texture_lod GL_ARB_shader_viewport_layer_array GL_ARB_shading_language_420pack GL_ARB_shading_language_include GL_ARB_shading_language_packing GL_ARB_spirv_extensions GL_ARB_stencil_texturing GL_ARB_sync GL_ARB_tessellation_shader GL_ARB_texture_barrier GL_ARB_texture_border_clamp GL_ARB_texture_buffer_object GL_ARB_texture_buffer_object_rgb32 GL_ARB_texture_buffer_range GL_ARB_texture_compression_bptc GL_ARB_texture_compression_rgtc GL_ARB_texture_cube_map_array GL_ARB_texture_filter_anisotropic GL_ARB_texture_filter_minmax GL_ARB_texture_float GL_ARB_texture_gather GL_ARB_texture_mirror_clamp_to_edge GL_ARB_texture_multisample GL_ARB_texture_non_power_of_two GL_ARB_texture_query_levels GL_ARB_texture_query_lod GL_ARB_texture_rectangle GL_ARB_texture_rg GL_ARB_texture_rgb10_a2ui GL_ARB_texture_stencil8 GL_ARB_texture_storage GL_ARB_texture_storage_multisample GL_ARB_texture_swizzle GL_ARB_texture_view GL_ARB_timer_query GL_ARB_transform_feedback2 GL_ARB_transform_feedback3 GL_ARB_transform_feedback_instanced GL_ARB_transform_feedback_overflow_query GL_ARB_uniform_buffer_object GL_ARB_vertex_array_bgra GL_ARB_vertex_array_object GL_ARB_vertex_attrib_64bit GL_ARB_vertex_attrib_binding GL_ARB_vertex_buffer_object GL_ARB_vertex_shader GL_ARB_vertex_type_10f_11f_11f_rev GL_ARB_vertex_type_2_10_10_10_rev GL_ARB_viewport_array GL_ATI_blend_equation_separate GL_ATI_meminfo GL_ATI_texture_float GL_ATI_texture_mirror_once GL_EXT_EGL_image_storage GL_EXT_EGL_image_storage_compression GL_EXT_EGL_sync GL_EXT_abgr GL_EXT_blend_equation_separate GL_EXT_debug_label GL_EXT_demote_to_helper_invocation GL_EXT_depth_bounds_test GL_EXT_draw_buffers2 GL_EXT_draw_instanced GL_EXT_framebuffer_blit GL_EXT_framebuffer_multisample GL_EXT_framebuffer_multisample_blit_scaled GL_EXT_framebuffer_object GL_EXT_framebuffer_sRGB GL_EXT_memory_object GL_EXT_memory_object_fd GL_EXT_packed_depth_stencil GL_EXT_packed_float GL_EXT_pixel_buffer_object GL_EXT_polygon_offset_clamp GL_EXT_provoking_vertex GL_EXT_semaphore GL_EXT_semaphore_fd GL_EXT_shader_clock GL_EXT_shader_image_load_formatted GL_EXT_shader_image_load_store GL_EXT_shader_integer_mix GL_EXT_shader_samples_identical GL_EXT_texture_array GL_EXT_texture_compression_dxt1 GL_EXT_texture_compression_rgtc GL_EXT_texture_compression_s3tc GL_EXT_texture_filter_anisotropic GL_EXT_texture_filter_minmax GL_EXT_texture_integer GL_EXT_texture_mirror_clamp GL_EXT_texture_sRGB GL_EXT_texture_sRGB_R8 GL_EXT_texture_sRGB_decode GL_EXT_texture_shadow_lod GL_EXT_texture_shared_exponent GL_EXT_texture_snorm GL_EXT_texture_storage GL_EXT_texture_swizzle GL_EXT_timer_query GL_EXT_transform_feedback GL_EXT_vertex_array_bgra GL_EXT_vertex_attrib_64bit GL_EXT_window_rectangles GL_IBM_multimode_draw_arrays GL_INTEL_blackhole_render GL_KHR_blend_equation_advanced GL_KHR_context_flush_control GL_KHR_debug GL_KHR_no_error GL_KHR_parallel_shader_compile GL_KHR_robust_buffer_access_behavior GL_KHR_robustness GL_KHR_shader_subgroup GL_KHR_texture_compression_astc_ldr GL_KHR_texture_compression_astc_sliced_3d GL_MESA_framebuffer_flip_y GL_MESA_pack_invert GL_MESA_shader_integer_functions GL_MESA_texture_const_bandwidth GL_MESA_texture_signed_rgba GL_NVX_gpu_memory_info GL_NV_alpha_to_coverage_dither_control GL_NV_compute_shader_derivatives GL_NV_conditional_render GL_NV_copy_image GL_NV_depth_clamp GL_NV_packed_depth_stencil GL_NV_shader_atomic_int64 GL_NV_texture_barrier GL_OES_EGL_image GL_S3_s3tc 
+2025-12-04 15:53:20.141 T:8        info <general>: SetResolutionExternal: Kodi asked to switch mode to 1920x1080 @59.997 Hz on output "Apple Computer Inc iMac" full screen
+2025-12-04 15:53:20.141 T:8        info <general>: GetOSScreenSaverImpl: Using idle-inhibit-unstable-v1 protocol for screen saver inhibition
+2025-12-04 15:53:20.198 T:8        info <general>: GL: Enabling VSYNC
+2025-12-04 15:53:20.198 T:8        info <general>: UpdateResolutions: User wanted output "Default", we now have "Apple Computer Inc iMac" size 475x267 mm with 1 mode(s):
+2025-12-04 15:53:20.198 T:8        info <general>: UpdateResolutions: - 3840x2160 @59.997 Hz pixel ratio 1.001 current
+2025-12-04 15:53:20.198 T:8        info <general>: load keymapping
+2025-12-04 15:53:20.199 T:8        info <general>: Loading special://xbmc/system/keymaps/appcommand.xml
+2025-12-04 15:53:20.199 T:8        info <general>: Loading special://xbmc/system/keymaps/customcontroller.AppleRemote.xml
+2025-12-04 15:53:20.200 T:8        info <general>: Loading special://xbmc/system/keymaps/customcontroller.Harmony.xml
+2025-12-04 15:53:20.200 T:8        info <general>: Loading special://xbmc/system/keymaps/customcontroller.SiriRemote.xml
+2025-12-04 15:53:20.201 T:8        info <general>: Loading special://xbmc/system/keymaps/gamepad.xml
+2025-12-04 15:53:20.201 T:8        info <general>: Loading special://xbmc/system/keymaps/joystick.xml
+2025-12-04 15:53:20.202 T:8        info <general>: Loading special://xbmc/system/keymaps/keyboard.xml
+2025-12-04 15:53:20.203 T:8        info <general>: Loading special://xbmc/system/keymaps/mouse.xml
+2025-12-04 15:53:20.203 T:8        info <general>: Loading special://xbmc/system/keymaps/remote.xml
+2025-12-04 15:53:20.204 T:8        info <general>: Loading special://xbmc/system/keymaps/touchscreen.xml
+2025-12-04 15:53:20.205 T:8        info <general>: GUI format 3840x2160, Display Apple Computer Inc iMac: 3840x2160 @ 60.00Hz
+2025-12-04 15:53:20.205 T:57       info <general>: Found 1 Lists of Devices
+2025-12-04 15:53:20.205 T:57       info <general>: Enumerated PIPEWIRE devices:
+2025-12-04 15:53:20.205 T:57       info <general>:     Device 1
+2025-12-04 15:53:20.205 T:57       info <general>:         m_deviceName      : Default
+2025-12-04 15:53:20.205 T:57       info <general>:         m_displayName     : Default
+2025-12-04 15:53:20.205 T:57       info <general>:         m_displayNameExtra: Default Output Device (PIPEWIRE)
+2025-12-04 15:53:20.205 T:57       info <general>:         m_deviceType      : AE_DEVTYPE_PCM
+2025-12-04 15:53:20.205 T:57       info <general>:         m_channels        : FL, FR
+2025-12-04 15:53:20.205 T:57       info <general>:         m_sampleRates     : 5512,8000,11025,16000,22050,32000,44100,48000,64000,88200,96000,176400,192000,384000
+2025-12-04 15:53:20.205 T:57       info <general>:         m_dataFormats     : AE_FMT_RAW,AE_FMT_U8,AE_FMT_S16NE,AE_FMT_S24NE4,AE_FMT_S32NE,AE_FMT_S24NE3,AE_FMT_FLOAT
+2025-12-04 15:53:20.205 T:57       info <general>:         m_streamTypes     : No passthrough capabilities
+2025-12-04 15:53:20.205 T:57       info <general>:     Device 2
+2025-12-04 15:53:20.205 T:57       info <general>:         m_deviceName      : effect_input.virtual-surround-7.1-hesuvi
+2025-12-04 15:53:20.205 T:57       info <general>:         m_displayName     : Atmos Virtual Surround Sink
+2025-12-04 15:53:20.205 T:57       info <general>:         m_displayNameExtra: Atmos Virtual Surround Sink (PIPEWIRE)
+2025-12-04 15:53:20.205 T:57       info <general>:         m_deviceType      : AE_DEVTYPE_PCM
+2025-12-04 15:53:20.205 T:57       info <general>:         m_channels        : FL, FR, FC, LFE, SL, SR, BL, BR
+2025-12-04 15:53:20.205 T:57       info <general>:         m_sampleRates     : 5512,8000,11025,16000,22050,32000,44100,48000,64000,88200,96000,176400,192000,384000
+2025-12-04 15:53:20.205 T:57       info <general>:         m_dataFormats     : AE_FMT_RAW,AE_FMT_U8,AE_FMT_S16NE,AE_FMT_S24NE4,AE_FMT_S32NE,AE_FMT_S24NE3,AE_FMT_FLOAT
+2025-12-04 15:53:20.205 T:57       info <general>:         m_streamTypes     : No passthrough capabilities
+2025-12-04 15:53:20.205 T:57       info <general>:     Device 3
+2025-12-04 15:53:20.205 T:57       info <general>:         m_deviceName      : alsa_output.usb-MPOW_MPOW_HC6_001-00.analog-stereo
+2025-12-04 15:53:20.205 T:57       info <general>:         m_displayName     : Audio Adapter (Unitek Y-247A) Analog Stereo
+2025-12-04 15:53:20.205 T:57       info <general>:         m_displayNameExtra: Audio Adapter (Unitek Y-247A) Analog Stereo (PIPEWIRE)
+2025-12-04 15:53:20.205 T:57       info <general>:         m_deviceType      : AE_DEVTYPE_PCM
+2025-12-04 15:53:20.205 T:57       info <general>:         m_channels        : FL, FR
+2025-12-04 15:53:20.205 T:57       info <general>:         m_sampleRates     : 5512,8000,11025,16000,22050,32000,44100,48000,64000,88200,96000,176400,192000,384000
+2025-12-04 15:53:20.205 T:57       info <general>:         m_dataFormats     : AE_FMT_RAW,AE_FMT_U8,AE_FMT_S16NE,AE_FMT_S24NE4,AE_FMT_S32NE,AE_FMT_S24NE3,AE_FMT_FLOAT
+2025-12-04 15:53:20.205 T:57       info <general>:         m_streamTypes     : No passthrough capabilities
+2025-12-04 15:53:20.205 T:57       info <general>:     Device 4
+2025-12-04 15:53:20.205 T:57       info <general>:         m_deviceName      : alsa_output.pci-0000_00_1f.3.analog-surround-40
+2025-12-04 15:53:20.205 T:57       info <general>:         m_displayName     : Built-in Audio Analog Surround 4.0
+2025-12-04 15:53:20.205 T:57       info <general>:         m_displayNameExtra: Built-in Audio Analog Surround 4.0 (PIPEWIRE)
+2025-12-04 15:53:20.205 T:57       info <general>:         m_deviceType      : AE_DEVTYPE_PCM
+2025-12-04 15:53:20.205 T:57       info <general>:         m_channels        : FL, FR, BL, BR
+2025-12-04 15:53:20.205 T:57       info <general>:         m_sampleRates     : 5512,8000,11025,16000,22050,32000,44100,48000,64000,88200,96000,176400,192000,384000
+2025-12-04 15:53:20.205 T:57       info <general>:         m_dataFormats     : AE_FMT_RAW,AE_FMT_U8,AE_FMT_S16NE,AE_FMT_S24NE4,AE_FMT_S32NE,AE_FMT_S24NE3,AE_FMT_FLOAT
+2025-12-04 15:53:20.205 T:57       info <general>:         m_streamTypes     : No passthrough capabilities
+2025-12-04 15:53:20.206 T:58       info <general>: CActiveAESink::OpenSink - initialize sink
+2025-12-04 15:53:20.208 T:8        info <general>: CLangInfo: loading resource.language.en_gb language information...
+2025-12-04 15:53:20.210 T:8        info <general>: global locale set to en_US.UTF-8
+2025-12-04 15:53:20.210 T:8        info <general>: CLangInfo: loading resource.language.en_gb language strings...
+2025-12-04 15:53:20.253 T:59       info <general>: Running database version Addons33
+2025-12-04 15:53:20.257 T:59       info <general>: Running database version ViewModes6
+2025-12-04 15:53:20.258 T:59       info <general>: Running database version Textures13
+2025-12-04 15:53:20.265 T:59       info <general>: Running database version MyMusic83
+2025-12-04 15:53:20.273 T:59       info <general>: Running database version MyVideos131
+2025-12-04 15:53:20.274 T:59       info <general>: Running database version TV46
+2025-12-04 15:53:20.275 T:59       info <general>: Running database version Epg16
+2025-12-04 15:53:20.419 T:8        info <general>: Unloaded skin
+2025-12-04 15:53:20.420 T:8        info <general>:   load skin from: /usr/share/kodi/addons/skin.estuary/ (version: 4.0.0)
+2025-12-04 15:53:20.421 T:8        info <general>:   load fonts for skin...
+2025-12-04 15:53:20.423 T:8        info <general>: Loading colors from /usr/share/kodi/addons/skin.estuary/colors/concrete.xml
+2025-12-04 15:53:20.423 T:8        info <general>: Loading skin includes from /usr/share/kodi/addons/skin.estuary/xml/Includes.xml
+2025-12-04 15:53:20.469 T:8        info <general>: LoadFontsFromFile: Loading <fontset> with name 'Default' from '/usr/share/kodi/addons/skin.estuary/xml/Font.xml'
+2025-12-04 15:53:20.472 T:8       error <general>: GUIFontManager::LoadTTF: Couldn't load font name: font_clock(roboto-thin.ttf), trying arial.ttf
+2025-12-04 15:53:20.484 T:8        info <general>: LoadTimers: Trying to load skin timers from /usr/share/kodi/addons/skin.estuary/xml/Timers.xml
+2025-12-04 15:53:20.484 T:8        info <general>:   load new skin...
+2025-12-04 15:53:20.484 T:8        info <general>: Loading custom window XMLs from skin path /usr/share/kodi/addons/skin.estuary/xml
+2025-12-04 15:53:20.490 T:8        info <general>:   initialize new skin...
+2025-12-04 15:53:20.490 T:8        info <general>: Loading skin file: Custom_1109_TopBarOverlay.xml, load type: LOAD_ON_GUI_INIT
+2025-12-04 15:53:20.496 T:8        info <general>: Loading skin file: DialogBusy.xml, load type: LOAD_ON_GUI_INIT
+2025-12-04 15:53:20.497 T:8        info <general>: Loading skin file: DialogNotification.xml, load type: LOAD_ON_GUI_INIT
+2025-12-04 15:53:20.498 T:8        info <general>: Loading skin file: DialogSeekBar.xml, load type: LOAD_ON_GUI_INIT
+2025-12-04 15:53:20.503 T:8        info <general>: Loading skin file: DialogExtendedProgressBar.xml, load type: LOAD_ON_GUI_INIT
+2025-12-04 15:53:20.504 T:8        info <general>: Loading skin file: Pointer.xml, load type: LOAD_ON_GUI_INIT
+2025-12-04 15:53:20.505 T:8        info <general>: Loading skin file: DialogBusy.xml, load type: LOAD_ON_GUI_INIT
+2025-12-04 15:53:20.505 T:8        info <general>: Loading skin file: DialogVolumeBar.xml, load type: LOAD_ON_GUI_INIT
+2025-12-04 15:53:20.506 T:8        info <general>: Loading resource://resource.uisounds.kodi/sounds.xml
+2025-12-04 15:53:20.518 T:8        info <general>:   skin loaded...
+2025-12-04 15:53:20.518 T:8        info <general>: Loading skin file: Startup.xml, load type: LOAD_EVERY_TIME
+2025-12-04 15:53:20.518 T:8        info <general>: Loading skin file: MyFavourites.xml, load type: KEEP_IN_MEMORY
+2025-12-04 15:53:20.540 T:8     warning <general>: JSONRPC: Could not parse type "Setting.Details.SettingList"
+2025-12-04 15:53:20.540 T:8        info <general>: JSONRPC: Adding type "Setting.Details.SettingList" to list of incomplete definitions (waiting for "Setting.Details.Setting")
+2025-12-04 15:53:20.540 T:8        info <general>: JSONRPC: Resolving incomplete types/methods referencing Setting.Details.Setting
+2025-12-04 15:53:20.545 T:8        info <general>: JSONRPC v13.5.0: Successfully initialized
+2025-12-04 15:53:20.545 T:8        info <general>: [Media Detection] starting service for optical media detection
+2025-12-04 15:53:20.554 T:8        info <general>: AddOnLog: peripheral.joystick: Enabling joystick interface "linux"
+2025-12-04 15:53:20.555 T:8        info <general>: Register - new keyboard device registered on application->keyboard: Keyboard (0000:0000)
+2025-12-04 15:53:20.555 T:8        info <general>: Register - new mouse device registered on application->mouse: Mouse (0000:0000)
+2025-12-04 15:53:20.555 T:64       info <general>: AddOnLog: peripheral.joystick: Initialized joystick 0: "Nacon GC-100", axes: 8, hats: 0, buttons: 11
+2025-12-04 15:53:20.555 T:64       info <general>: Loading controller layout: /usr/share/kodi/addons/game.controller.default/resources/layout.xml
+2025-12-04 15:53:20.555 T:8        info <general>: Loading player core factory settings from special://xbmc/system/playercorefactory.xml.
+2025-12-04 15:53:20.556 T:8        info <general>: Loaded playercorefactory configuration
+2025-12-04 15:53:20.556 T:59       info <general>: UpdateClients: Creating PVR client: addonId=pvr.dvblink, instanceId=0, clientId=1
+2025-12-04 15:53:20.556 T:8        info <general>: Loading player core factory settings from special://profile/playercorefactory.xml.
+2025-12-04 15:53:20.556 T:8        info <general>: Loaded playercorefactory configuration
+2025-12-04 15:53:20.556 T:8        info <general>: removing tempfiles
+2025-12-04 15:53:20.567 T:64       info <general>: Loading controller layout: /usr/share/kodi/addons/game.controller.mouse/resources/layout.xml
+2025-12-04 15:53:20.569 T:8        info <general>: initialize done
+2025-12-04 15:53:20.569 T:8        info <general>: Running the application...
+2025-12-04 15:53:20.570 T:80       info <general>: ES: Starting UDP Event server on port 9777
+2025-12-04 15:53:20.570 T:80       info <general>: UDP: Listening on port 9777 (ipv6 : false)
+2025-12-04 15:53:20.572 T:59       info <general>: AddOnLog: pvr.dvblink: Generated guid e9626534-a119-7b3c-8f5d-c613a28d2a8f to use as a DVBLink client ID
+2025-12-04 15:53:20.576 T:80       info <general>: CZeroconfAvahi::clientCallback: avahi server not available. But may become later...
+2025-12-04 15:53:20.583 T:59       info <general>: AddOnLog: pvr.dvblink: Connected to DVBLink Server '127.0.0.1'
+2025-12-04 15:53:20.595 T:8        info <general>: JSONRPC Server: Successfully initialized
+2025-12-04 15:53:20.596 T:59       info <general>: PVR Manager: Starting
+2025-12-04 15:53:20.616 T:85       info <general>: AddOnLog: pvr.dvblink: Getting channels (63 channels on server)
+2025-12-04 15:53:20.637 T:85       info <general>: Skipped 1 duplicate messages..
+2025-12-04 15:53:20.637 T:85       info <general>: AddOnLog: pvr.dvblink: Found 0 timers
+2025-12-04 15:53:20.639 T:85       info <general>: AddOnLog: pvr.dvblink: Found 0 schedules
+2025-12-04 15:53:20.643 T:85       info <general>: AddOnLog: pvr.dvblink: Found 0 recordings
+2025-12-04 15:53:20.679 T:64       info <general>: Register - new joystick device registered on addon->peripheral.joystick/0: Nacon GC-100
+2025-12-04 15:53:20.692 T:85       info <general>: PVR Manager: Started
+2025-12-04 15:53:20.698 T:8        info <general>: GL: Maximum texture width: 16384
+2025-12-04 15:53:20.711 T:85       info <general>: AddOnLog: pvr.dvblink: Found 0 timers
+2025-12-04 15:53:20.713 T:85       info <general>: AddOnLog: pvr.dvblink: Found 0 schedules
+2025-12-04 15:53:20.745 T:8        info <general>: UpdateSizeVariables: Buffer size changed: 1920x1080 -> 3840x2160
+2025-12-04 15:53:20.745 T:8        info <general>: UpdateSizeVariables: Buffer scale changed: 1 -> 2
+2025-12-04 15:53:20.745 T:8        info <general>: ApplyBufferScale: Setting Wayland buffer scale to 2
+2025-12-04 15:53:20.746 T:8        info <general>: GL: Maximum texture width: 16384
+2025-12-04 15:53:20.760 T:29       info <general>: Loading special://xbmc/system/Lircmap.xml
+2025-12-04 15:53:20.761 T:29       info <general>: * Adding remote mapping for device 'mceusb'
+2025-12-04 15:53:20.761 T:29       info <general>: * Adding remote mapping for device 'XboxDVDDongle'
+2025-12-04 15:53:20.761 T:29       info <general>: * Adding remote mapping for device 'Microsoft_Xbox'
+2025-12-04 15:53:20.761 T:29       info <general>: * Adding remote mapping for device 'PinnacleSysPCTVRemote'
+2025-12-04 15:53:20.761 T:29       info <general>: * Adding remote mapping for device 'anysee'
+2025-12-04 15:53:20.761 T:29       info <general>: * Adding remote mapping for device 'iMON-PAD'
+2025-12-04 15:53:20.761 T:29       info <general>: * Adding remote mapping for device 'Antec_Veris_RM200'
+2025-12-04 15:53:20.761 T:29       info <general>: * Adding remote mapping for device 'MCE_via_iMON'
+2025-12-04 15:53:20.761 T:29       info <general>: * Adding remote mapping for device 'TwinHanRemote'
+2025-12-04 15:53:20.761 T:29       info <general>: * Adding remote mapping for device 'linux-input-layer'
+2025-12-04 15:53:20.761 T:29       info <general>: * Linking remote mapping for 'linux-input-layer' to 'cx23885_remote'
+2025-12-04 15:53:20.761 T:29       info <general>: * Adding remote mapping for device 'mediacenter'
+2025-12-04 15:53:20.761 T:29       info <general>: * Adding remote mapping for device 'devinput'
+2025-12-04 15:53:20.761 T:29       info <general>: * Adding remote mapping for device 'devinput-32'
+2025-12-04 15:53:20.761 T:29       info <general>: * Adding remote mapping for device 'devinput-64'
+2025-12-04 15:53:20.851 T:89       info <general>: AddOnLog: pvr.dvblink: Not EPG data found for channel with id : 153
+2025-12-04 15:53:20.852 T:89      error <general>: GetEPGForChannel: Add-on 1 returned an error: the command failed
+2025-12-04 15:53:20.852 T:89      error <general>: Update: Failed to update table 'ZDF HD'
+2025-12-04 15:53:20.854 T:89       info <general>: AddOnLog: pvr.dvblink: Not EPG data found for channel with id : 154
+2025-12-04 15:53:20.854 T:89      error <general>: GetEPGForChannel: Add-on 1 returned an error: the command failed
+2025-12-04 15:53:20.854 T:89      error <general>: Update: Failed to update table 'ZDFinfo HD'
+2025-12-04 15:53:20.857 T:89       info <general>: AddOnLog: pvr.dvblink: Not EPG data found for channel with id : 155
+2025-12-04 15:53:20.857 T:89      error <general>: GetEPGForChannel: Add-on 1 returned an error: the command failed
+2025-12-04 15:53:20.857 T:89      error <general>: Update: Failed to update table 'zdf_neo HD'
+2025-12-04 15:53:20.861 T:89       info <general>: AddOnLog: pvr.dvblink: Not EPG data found for channel with id : 157
+2025-12-04 15:53:20.861 T:89      error <general>: GetEPGForChannel: Add-on 1 returned an error: the command failed
+2025-12-04 15:53:20.861 T:89      error <general>: Update: Failed to update table 'KiKA HD'
+2025-12-04 15:53:20.911 T:85       info <general>: AddOnLog: pvr.dvblink: Found 0 timers
+2025-12-04 15:53:20.914 T:85       info <general>: AddOnLog: pvr.dvblink: Found 0 schedules
+2025-12-04 15:53:21.999 T:77       info <general>: [service.upnext] UpNextMonitor -> Service started
+2025-12-04 15:53:22.087 T:85       info <general>: AddOnLog: pvr.dvblink: Found 0 recordings
+2025-12-04 15:53:23.605 T:73       info <general>: [plugin.video.netflix (0)] The debug logging is set as DISABLED
+2025-12-04 15:53:23.754 T:75       info <general>: [service.manifests.mpd] <service> starting...
+2025-12-04 15:53:23.850 T:75       info <general>: [service.manifests.mpd] <service.httpd> started on: http://127.0.0.1:34879
+2025-12-04 15:53:23.866 T:70       info <general>: [plugin.video.joyn - 2.5.39+matrix.1] Monitor started
+2025-12-04 15:53:25.542 T:69       info <general>: [Amazon VOD] Service: Proxy bound to 127.0.0.1:53629
+2025-12-04 15:53:25.550 T:69       info <general>: [Amazon VOD] Service: Proxy server started
+2025-12-04 15:53:25.550 T:69       info <general>: [Amazon VOD] Service started
+2025-12-04 15:53:26.952 T:76       info <general>: [service.sponsorblock] <service> starting...
+2025-12-04 15:53:26.952 T:76       info <general>: [service.sponsorblock] <service.player.session> Timeout: (9.05, 10.0)
+2025-12-04 15:53:27.145 T:72       info <general>: [plugin.video.mytwitch] <service> starting...
+2025-12-04 15:53:27.149 T:72       info <general>: [plugin.video.mytwitch] <service.proxy> started on: http://127.0.0.1:52093
+2025-12-04 15:53:28.115 T:74       info <general>: script.module.slyguy - Shared Service: Started
+2025-12-04 15:53:28.115 T:74       info <general>: script.module.slyguy - Python Version: 3.13.9 (main, Oct 15 2025, 14:56:22) [GCC 15.2.0]
+2025-12-04 15:53:28.171 T:74       info <general>: script.module.slyguy - Proxy Started: http://127.0.0.1:8095/
+2025-12-04 15:53:28.240 T:74       info <general>: script.module.slyguy - Visit donate.slyguy.uk to become a supporter and unlock perks!
+2025-12-04 15:53:28.255 T:74       info <general>: script.module.slyguy - Widevine Level (fallback): 3
+2025-12-04 15:53:28.255 T:74       info <general>: script.module.slyguy - HDCP Level (fallback): 0.0
+2025-12-04 15:53:28.306 T:8        info <general>: Loading skin file: Home.xml, load type: KEEP_IN_MEMORY
+2025-12-04 15:53:29.606 T:8        info <general>: Loading skin file: Settings.xml, load type: KEEP_IN_MEMORY
+2025-12-04 15:53:30.011 T:71      error <general>: WARNING: Assuming --restrict-filenames since file system encoding cannot encode all characters. Set the LC_ALL environment variable to fix this.
+                                                   
+2025-12-04 15:53:30.024 T:79      error <general>: Skipped 1 duplicate messages..
+2025-12-04 15:53:30.024 T:79       info <general>: [service.yt-dlp] <service> starting...
+2025-12-04 15:53:30.025 T:79       info <general>: [service.yt-dlp] <service> Include automatic captions: False
+2025-12-04 15:53:30.025 T:79       info <general>: [service.yt-dlp] <service.mpd> Limit framerate: No limit
+2025-12-04 15:53:30.025 T:79       info <general>: [service.yt-dlp] <service.mpd> Framerate hinting: Integer
+2025-12-04 15:53:30.026 T:79       info <general>: [service.yt-dlp] <service.mpd> Exclude codecs: None
+2025-12-04 15:53:30.026 T:79       info <general>: [service.yt-dlp] <service.mpd> Resolution: No preference
+2025-12-04 15:53:30.026 T:71       info <general>: [plugin.video.mytube] <service> starting...
+2025-12-04 15:53:30.030 T:71       info <general>: [plugin.video.mytube] <service.session> Timeout: (9.05, 10.0)
+2025-12-04 15:53:30.030 T:71       info <general>: [plugin.video.mytube] <service.session> Accept cookies: False
+2025-12-04 15:53:30.030 T:71       info <general>: [plugin.video.mytube] <service.session> Language: English (US)
+2025-12-04 15:53:30.030 T:71       info <general>: [plugin.video.mytube] <service.session> Location: United States
+2025-12-04 15:53:30.030 T:71       info <general>: [plugin.video.mytube] <service.session.ytdlp> Include automatic captions: False
+2025-12-04 15:53:30.030 T:71       info <general>: [plugin.video.mytube] <service.session.ytdlp> Limit framerate: No limit
+2025-12-04 15:53:30.031 T:71       info <general>: [plugin.video.mytube] <service.session.ytdlp> Framerate hinting: Integer
+2025-12-04 15:53:30.031 T:71       info <general>: [plugin.video.mytube] <service.session.ytdlp> Exclude codecs: None
+2025-12-04 15:53:30.032 T:71       info <general>: [plugin.video.mytube] <service.session.ytdlp> Resolution: No preference
+2025-12-04 15:53:30.032 T:71       info <general>: [plugin.video.mytube] <service.search> Search history: True
+2025-12-04 15:53:30.033 T:71       info <general>: [plugin.video.mytube] <service.search> Query type: All
+2025-12-04 15:53:30.033 T:71       info <general>: [plugin.video.mytube] <service.search> Sort order: Relevance
+2025-12-04 15:53:31.114 T:8        info <general>: Loading skin file: AddonBrowser.xml, load type: KEEP_IN_MEMORY
+2025-12-04 15:53:41.741 T:8        info <general>: Loading skin file: DialogContextMenu.xml, load type: KEEP_IN_MEMORY
+2025-12-04 15:53:43.057 T:8     warning <general>: CGUIWindowManager - HandleAction - ignoring action 107, because topmost modal dialog closing animation is running
+2025-12-04 15:53:47.157 T:87    warning <general>: Skipped 454 duplicate messages..
+2025-12-04 15:53:47.157 T:87      error <general>: AddonVersion: 0f1ed98d-omega is not a valid revision number
+2025-12-04 15:53:47.157 T:87      error <general>: CAddonInfoBuilder::ParseXML: file 'https://repo.kodinerds.net/addons/omega/zip/net.kodinerds.maven.kodi21.arm64-v8a/net.kodinerds.maven.kodi21.arm64-v8a-202511010446.zip' doesn't contain a valid add-on type name (android.binary)
+2025-12-04 15:53:47.157 T:87      error <general>: AddonVersion: 0f1ed98d-omega is not a valid revision number
+2025-12-04 15:53:47.157 T:87      error <general>: CAddonInfoBuilder::ParseXML: file 'https://repo.kodinerds.net/addons/omega/zip/net.kodinerds.maven.kodi21.armeabi-v7a/net.kodinerds.maven.kodi21.armeabi-v7a-202511010405.zip' doesn't contain a valid add-on type name (android.binary)
+2025-12-04 15:53:47.157 T:87      error <general>: AddonVersion: 0f1ed98d-omega is not a valid revision number
+2025-12-04 15:53:47.157 T:87      error <general>: CAddonInfoBuilder::ParseXML: file 'https://repo.kodinerds.net/addons/omega/zip/net.kodinerds.maven.kodi21.firetv.armeabi-v7a/net.kodinerds.maven.kodi21.firetv.armeabi-v7a-202511010526.zip' doesn't contain a valid add-on type name (android.binary)
+2025-12-04 15:53:47.157 T:87      error <general>: AddonVersion: 0f1ed98d-omega is not a valid revision number
+2025-12-04 15:53:47.157 T:87      error <general>: CAddonInfoBuilder::ParseXML: file 'https://repo.kodinerds.net/addons/omega/zip/net.kodinerds.maven.kodi21.x86_64/net.kodinerds.maven.kodi21.x86_64-202511011352.zip' doesn't contain a valid add-on type name (android.binary)
+2025-12-04 15:53:47.171 T:87      error <general>: AddonVersion: e00e52ee-nexus is not a valid revision number
+2025-12-04 15:53:47.171 T:87      error <general>: CAddonInfoBuilder::ParseXML: file 'https://repo.kodinerds.net/addons/nexus/zip/net.kodinerds.maven.kodi20.arm64-v8a/net.kodinerds.maven.kodi20.arm64-v8a-202403050234.zip' doesn't contain a valid add-on type name (android.binary)
+2025-12-04 15:53:47.171 T:87      error <general>: AddonVersion: e00e52ee-nexus is not a valid revision number
+2025-12-04 15:53:47.171 T:87      error <general>: CAddonInfoBuilder::ParseXML: file 'https://repo.kodinerds.net/addons/nexus/zip/net.kodinerds.maven.kodi20.armeabi-v7a/net.kodinerds.maven.kodi20.armeabi-v7a-202403050127.zip' doesn't contain a valid add-on type name (android.binary)
+2025-12-04 15:53:47.171 T:87      error <general>: AddonVersion: 75336646-nexus is not a valid revision number
+2025-12-04 15:53:47.171 T:87      error <general>: CAddonInfoBuilder::ParseXML: file 'https://repo.kodinerds.net/addons/nexus/zip/net.kodinerds.maven.kodi20.firetv.armeabi-v7a/net.kodinerds.maven.kodi20.firetv.armeabi-v7a-202403042222.zip' doesn't contain a valid add-on type name (android.binary)
+2025-12-04 15:53:47.171 T:87      error <general>: AddonVersion: a31f25fd-nexus is not a valid revision number
+2025-12-04 15:53:47.171 T:87      error <general>: CAddonInfoBuilder::ParseXML: file 'https://repo.kodinerds.net/addons/nexus/zip/net.kodinerds.maven.kodi20.x86_64/net.kodinerds.maven.kodi20.x86_64-202202121153.zip' doesn't contain a valid add-on type name (android.binary)
+2025-12-04 15:53:47.227 T:87      error <general>: AddonVersion: ac5a2c14-matrix is not a valid revision number
+2025-12-04 15:53:47.227 T:87      error <general>: CAddonInfoBuilder::ParseXML: file 'https://repo.kodinerds.net/addons/matrix/zip/net.kodinerds.maven.kodi.arm64-v8a/net.kodinerds.maven.kodi.arm64-v8a-202305130048.zip' doesn't contain a valid add-on type name (android.binary)
+2025-12-04 15:53:47.227 T:87      error <general>: AddonVersion: ac5a2c14-matrix is not a valid revision number
+2025-12-04 15:53:47.227 T:87      error <general>: CAddonInfoBuilder::ParseXML: file 'https://repo.kodinerds.net/addons/matrix/zip/net.kodinerds.maven.kodi.armeabi-v7a/net.kodinerds.maven.kodi.armeabi-v7a-202305130005.zip' doesn't contain a valid add-on type name (android.binary)
+2025-12-04 15:53:47.227 T:87      error <general>: AddonVersion: 7ddaf1ba-matrix is not a valid revision number
+2025-12-04 15:53:47.227 T:87      error <general>: CAddonInfoBuilder::ParseXML: file 'https://repo.kodinerds.net/addons/matrix/zip/net.kodinerds.maven.kodi.firetv.armeabi-v7a/net.kodinerds.maven.kodi.firetv.armeabi-v7a-202305122217.zip' doesn't contain a valid add-on type name (android.binary)
+2025-12-04 15:53:48.599 T:8     warning <general>: CGUIWindowManager - HandleAction - ignoring action 107, because topmost modal dialog closing animation is running
+2025-12-04 15:53:51.092 T:85    warning <general>: Skipped 328 duplicate messages..
+2025-12-04 15:53:51.092 T:85       info <general>: PVR Manager: Starting cleanup of cached images.
+2025-12-04 15:53:51.171 T:85       info <general>: PVR Manager: Cleaned up 0 cached images.
+2025-12-04 15:53:52.432 T:8     warning <general>: CGUIWindowManager - HandleAction - ignoring action 107, because topmost modal dialog closing animation is running
+2025-12-04 15:54:01.981 T:8     warning <general>: Skipped 431 duplicate messages..
+2025-12-04 15:54:01.981 T:8        info <general>: Loading skin file: SettingsCategory.xml, load type: KEEP_IN_MEMORY
+2025-12-04 15:54:04.033 T:8        info <general>: Loading skin file: DialogSelect.xml, load type: KEEP_IN_MEMORY
+2025-12-04 15:54:05.132 T:8     warning <general>: CGUIWindowManager - HandleAction - ignoring action 107, because topmost modal dialog closing animation is running
+2025-12-04 15:54:36.038 T:157     error <general>: DoWork - Direct texture file loading failed for special://masterprofile/Thumbnails/3/39f2894b.png
+2025-12-04 15:54:36.039 T:158     error <general>: DoWork - Direct texture file loading failed for special://masterprofile/Thumbnails/2/25614ad6.png
+2025-12-04 15:54:36.046 T:156     error <general>: DoWork - Direct texture file loading failed for special://masterprofile/Thumbnails/3/3b5d6e5b.jpg
+2025-12-04 15:54:36.049 T:159     error <general>: DoWork - Direct texture file loading failed for special://masterprofile/Thumbnails/a/a275ef03.png
+2025-12-04 15:54:36.058 T:156     error <general>: DoWork - Direct texture file loading failed for special://masterprofile/Thumbnails/4/4d626eea.png
+2025-12-04 15:54:37.907 T:8        info <general>: Loading skin file: Custom_1100_AddonLauncher.xml, load type: KEEP_IN_MEMORY
+2025-12-04 15:54:38.339 T:156     error <general>: CCurlFile::Open - <https://raw.githubusercontent.com/lekma/repository.lekma/master/nexus/plugin.video.mytube/resources/media/icon.png> Failed with code 404:
+                                                   
+2025-12-04 15:54:38.553 T:156     error <general>: CCurlFile::Open - <https://raw.githubusercontent.com/lekma/repository.lekma/master/nexus/plugin.video.mytwitch/resources/media/icon.png> Failed with code 404:
+                                                   
+2025-12-04 15:54:43.300 T:158     error <general>: CCurlFile::Open - <https://raw.githubusercontent.com/lekma/repository.lekma/master/nexus/plugin.video.mytube/resources/media/icon.png> Failed with code 404:
+                                                   
+2025-12-04 15:54:43.409 T:158     error <general>: CCurlFile::Open - <https://raw.githubusercontent.com/lekma/repository.lekma/master/nexus/plugin.video.mytwitch/resources/media/icon.png> Failed with code 404:
+                                                   
+2025-12-04 15:54:44.863 T:174   warning <general>: CAddonMgr::FindAddons: Addon 'game.controller.keyboard' already present with higher version 1.1.47 at '/usr/share/kodi/addons/game.controller.keyboard/' - other version 1.1.43 at '/home/localhost/.kodi/addons/game.controller.keyboard/' will be ignored
+2025-12-04 15:54:44.864 T:174   warning <general>: CAddonMgr::FindAddons: Addon 'game.controller.snes' already present with higher version 1.0.46 at '/usr/share/kodi/addons/game.controller.snes/' - other version 1.0.43 at '/home/localhost/.kodi/addons/game.controller.snes/' will be ignored
+2025-12-04 15:54:44.865 T:174      info <general>: CAddonMgr::FindAddon: script.module.iapc v2.4.4 installed
+2025-12-04 15:54:44.987 T:72       info <general>: [plugin.video.mytwitch] <service.proxy> stopped
+2025-12-04 15:54:44.987 T:72       info <general>: [plugin.video.mytwitch] <service> stopped
+2025-12-04 15:54:45.046 T:76       info <general>: [service.sponsorblock] <service.player.session> stopped
+2025-12-04 15:54:45.046 T:76       info <general>: [service.sponsorblock] <service.player> stopped
+2025-12-04 15:54:45.046 T:76       info <general>: [service.sponsorblock] <service> stopped
+2025-12-04 15:54:45.092 T:70       info <general>: [plugin.video.joyn - 2.5.39+matrix.1] Monitor stopped
+2025-12-04 15:54:45.149 T:79       info <general>: [service.yt-dlp] <service.mpd> stopped
+2025-12-04 15:54:45.149 T:79       info <general>: [service.yt-dlp] <service> stopped
+2025-12-04 15:54:45.322 T:167   warning <general>: CAddonMgr::FindAddons: Addon 'game.controller.keyboard' already present with higher version 1.1.47 at '/usr/share/kodi/addons/game.controller.keyboard/' - other version 1.1.43 at '/home/localhost/.kodi/addons/game.controller.keyboard/' will be ignored
+2025-12-04 15:54:45.322 T:167   warning <general>: CAddonMgr::FindAddons: Addon 'game.controller.snes' already present with higher version 1.0.46 at '/usr/share/kodi/addons/game.controller.snes/' - other version 1.0.43 at '/home/localhost/.kodi/addons/game.controller.snes/' will be ignored
+2025-12-04 15:54:45.323 T:167      info <general>: CAddonMgr::FindAddon: plugin.video.joyn v2.5.40+matrix.1 installed
+2025-12-04 15:54:45.344 T:71       info <general>: [plugin.video.mytube] <service.feed> stopped
+2025-12-04 15:54:45.344 T:71       info <general>: [plugin.video.mytube] <service.search> stopped
+2025-12-04 15:54:45.344 T:71       info <general>: [plugin.video.mytube] <service.browse> stopped
+2025-12-04 15:54:45.344 T:71       info <general>: [plugin.video.mytube] <service.session.ytdlp> stopped
+2025-12-04 15:54:45.344 T:71       info <general>: [plugin.video.mytube] <service.session> stopped
+2025-12-04 15:54:45.344 T:71       info <general>: [plugin.video.mytube] <service> stopped
+2025-12-04 15:54:45.460 T:172   warning <general>: CAddonMgr::FindAddons: Addon 'game.controller.keyboard' already present with higher version 1.1.47 at '/usr/share/kodi/addons/game.controller.keyboard/' - other version 1.1.43 at '/home/localhost/.kodi/addons/game.controller.keyboard/' will be ignored
+2025-12-04 15:54:45.461 T:172   warning <general>: CAddonMgr::FindAddons: Addon 'game.controller.snes' already present with higher version 1.0.46 at '/usr/share/kodi/addons/game.controller.snes/' - other version 1.0.43 at '/home/localhost/.kodi/addons/game.controller.snes/' will be ignored
+2025-12-04 15:54:45.462 T:172      info <general>: CAddonMgr::FindAddon: script.module.m3u8 v6.0.0-20250131 installed
+2025-12-04 15:54:45.872 T:74       info <general>: script.module.slyguy - Shared Service: Stopped
+2025-12-04 15:54:46.072 T:178   warning <general>: CAddonMgr::FindAddons: Addon 'game.controller.keyboard' already present with higher version 1.1.47 at '/usr/share/kodi/addons/game.controller.keyboard/' - other version 1.1.43 at '/home/localhost/.kodi/addons/game.controller.keyboard/' will be ignored
+2025-12-04 15:54:46.072 T:178   warning <general>: CAddonMgr::FindAddons: Addon 'game.controller.snes' already present with higher version 1.0.46 at '/usr/share/kodi/addons/game.controller.snes/' - other version 1.0.43 at '/home/localhost/.kodi/addons/game.controller.snes/' will be ignored
+2025-12-04 15:54:46.073 T:178      info <general>: CAddonMgr::FindAddon: script.module.nuttig v1.4.10 installed
+2025-12-04 15:54:46.109 T:157   warning <general>: CAddonMgr::FindAddons: Addon 'game.controller.keyboard' already present with higher version 1.1.47 at '/usr/share/kodi/addons/game.controller.keyboard/' - other version 1.1.43 at '/home/localhost/.kodi/addons/game.controller.keyboard/' will be ignored
+2025-12-04 15:54:46.109 T:157   warning <general>: CAddonMgr::FindAddons: Addon 'game.controller.snes' already present with higher version 1.0.46 at '/usr/share/kodi/addons/game.controller.snes/' - other version 1.0.43 at '/home/localhost/.kodi/addons/game.controller.snes/' will be ignored
+2025-12-04 15:54:46.110 T:157      info <general>: CAddonMgr::FindAddon: metadata.album.universal v3.1.18 installed
+2025-12-04 15:54:46.131 T:156   warning <general>: CAddonMgr::FindAddons: Addon 'game.controller.keyboard' already present with higher version 1.1.47 at '/usr/share/kodi/addons/game.controller.keyboard/' - other version 1.1.43 at '/home/localhost/.kodi/addons/game.controller.keyboard/' will be ignored
+2025-12-04 15:54:46.131 T:156   warning <general>: CAddonMgr::FindAddons: Addon 'game.controller.snes' already present with higher version 1.0.46 at '/usr/share/kodi/addons/game.controller.snes/' - other version 1.0.43 at '/home/localhost/.kodi/addons/game.controller.snes/' will be ignored
+2025-12-04 15:54:46.132 T:156      info <general>: CAddonMgr::FindAddon: metadata.tvshows.themoviedb.org.python v1.7.4 installed
+2025-12-04 15:54:46.134 T:8     warning <general>: CGUIMediaWindow::OnMessage - updating in progress
+2025-12-04 15:54:46.168 T:184   warning <general>: CAddonMgr::FindAddons: Addon 'game.controller.keyboard' already present with higher version 1.1.47 at '/usr/share/kodi/addons/game.controller.keyboard/' - other version 1.1.43 at '/home/localhost/.kodi/addons/game.controller.keyboard/' will be ignored
+2025-12-04 15:54:46.168 T:184   warning <general>: CAddonMgr::FindAddons: Addon 'game.controller.snes' already present with higher version 1.0.46 at '/usr/share/kodi/addons/game.controller.snes/' - other version 1.0.43 at '/home/localhost/.kodi/addons/game.controller.snes/' will be ignored
+2025-12-04 15:54:46.169 T:184      info <general>: CAddonMgr::FindAddon: service.sponsorblock v1.4.4 installed
+2025-12-04 15:54:46.372 T:8     warning <general>: CGUIMediaWindow::OnMessage - updating in progress
+2025-12-04 15:54:46.510 T:158   warning <general>: Skipped 2 duplicate messages..
+2025-12-04 15:54:46.510 T:158   warning <general>: CAddonMgr::FindAddons: Addon 'game.controller.keyboard' already present with higher version 1.1.47 at '/usr/share/kodi/addons/game.controller.keyboard/' - other version 1.1.43 at '/home/localhost/.kodi/addons/game.controller.keyboard/' will be ignored
+2025-12-04 15:54:46.511 T:158   warning <general>: CAddonMgr::FindAddons: Addon 'game.controller.snes' already present with higher version 1.0.46 at '/usr/share/kodi/addons/game.controller.snes/' - other version 1.0.43 at '/home/localhost/.kodi/addons/game.controller.snes/' will be ignored
+2025-12-04 15:54:46.511 T:158      info <general>: CAddonMgr::FindAddon: metadata.themoviedb.org.python v3.1.3 installed
+2025-12-04 15:54:46.568 T:180   warning <general>: CAddonMgr::FindAddons: Addon 'game.controller.keyboard' already present with higher version 1.1.47 at '/usr/share/kodi/addons/game.controller.keyboard/' - other version 1.1.43 at '/home/localhost/.kodi/addons/game.controller.keyboard/' will be ignored
+2025-12-04 15:54:46.568 T:180   warning <general>: CAddonMgr::FindAddons: Addon 'game.controller.snes' already present with higher version 1.0.46 at '/usr/share/kodi/addons/game.controller.snes/' - other version 1.0.43 at '/home/localhost/.kodi/addons/game.controller.snes/' will be ignored
+2025-12-04 15:54:46.569 T:180      info <general>: CAddonMgr::FindAddon: script.module.slyguy v0.86.53 installed
+2025-12-04 15:54:46.589 T:176   warning <general>: CAddonMgr::FindAddons: Addon 'game.controller.keyboard' already present with higher version 1.1.47 at '/usr/share/kodi/addons/game.controller.keyboard/' - other version 1.1.43 at '/home/localhost/.kodi/addons/game.controller.keyboard/' will be ignored
+2025-12-04 15:54:46.589 T:176   warning <general>: CAddonMgr::FindAddons: Addon 'game.controller.snes' already present with higher version 1.0.46 at '/usr/share/kodi/addons/game.controller.snes/' - other version 1.0.43 at '/home/localhost/.kodi/addons/game.controller.snes/' will be ignored
+2025-12-04 15:54:46.590 T:176      info <general>: CAddonMgr::FindAddon: script.module.inputstreamhelper v0.8.4 installed
+2025-12-04 15:54:46.611 T:159   warning <general>: CAddonMgr::FindAddons: Addon 'game.controller.keyboard' already present with higher version 1.1.47 at '/usr/share/kodi/addons/game.controller.keyboard/' - other version 1.1.43 at '/home/localhost/.kodi/addons/game.controller.keyboard/' will be ignored
+2025-12-04 15:54:46.612 T:159   warning <general>: CAddonMgr::FindAddons: Addon 'game.controller.snes' already present with higher version 1.0.46 at '/usr/share/kodi/addons/game.controller.snes/' - other version 1.0.43 at '/home/localhost/.kodi/addons/game.controller.snes/' will be ignored
+2025-12-04 15:54:46.612 T:159      info <general>: CAddonMgr::FindAddon: metadata.artists.universal v4.3.20 installed
+2025-12-04 15:54:46.633 T:8     warning <general>: CGUIMediaWindow::OnMessage - updating in progress
+2025-12-04 15:54:46.729 T:187   warning <general>: Skipped 2 duplicate messages..
+2025-12-04 15:54:46.729 T:187   warning <general>: CAddonMgr::FindAddons: Addon 'game.controller.keyboard' already present with higher version 1.1.47 at '/usr/share/kodi/addons/game.controller.keyboard/' - other version 1.1.43 at '/home/localhost/.kodi/addons/game.controller.keyboard/' will be ignored
+2025-12-04 15:54:46.729 T:187   warning <general>: CAddonMgr::FindAddons: Addon 'game.controller.snes' already present with higher version 1.0.46 at '/usr/share/kodi/addons/game.controller.snes/' - other version 1.0.43 at '/home/localhost/.kodi/addons/game.controller.snes/' will be ignored
+2025-12-04 15:54:46.730 T:187      info <general>: CAddonMgr::FindAddon: slyguy.disney.plus v0.20.30 installed
+2025-12-04 15:54:47.318 T:182   warning <general>: CAddonMgr::FindAddons: Addon 'game.controller.keyboard' already present with higher version 1.1.47 at '/usr/share/kodi/addons/game.controller.keyboard/' - other version 1.1.43 at '/home/localhost/.kodi/addons/game.controller.keyboard/' will be ignored
+2025-12-04 15:54:47.318 T:182   warning <general>: CAddonMgr::FindAddons: Addon 'game.controller.snes' already present with higher version 1.0.46 at '/usr/share/kodi/addons/game.controller.snes/' - other version 1.0.43 at '/home/localhost/.kodi/addons/game.controller.snes/' will be ignored
+2025-12-04 15:54:47.319 T:182      info <general>: CAddonMgr::FindAddon: script.module.yt-dlp v2025.11.12-1 installed
+2025-12-04 15:54:47.470 T:225     error <general>: /mnt/Data/current/bin/git/SteamOS-Mediacenter/.kodi/addons/script.module.slyguy/resources/modules/slyguy/constants.py:22: SyntaxWarning: invalid escape sequence '\s'
+                                                     f.write("""My addon settings are stored in the script.module.slyguy\settings.db file
+                                                   
+2025-12-04 15:54:47.541 T:8     warning <general>: CGUIMediaWindow::OnMessage - updating in progress
+2025-12-04 15:54:47.698 T:186   warning <general>: Skipped 6 duplicate messages..
+2025-12-04 15:54:47.698 T:186   warning <general>: CAddonMgr::FindAddons: Addon 'game.controller.keyboard' already present with higher version 1.1.47 at '/usr/share/kodi/addons/game.controller.keyboard/' - other version 1.1.43 at '/home/localhost/.kodi/addons/game.controller.keyboard/' will be ignored
+2025-12-04 15:54:47.698 T:186   warning <general>: CAddonMgr::FindAddons: Addon 'game.controller.snes' already present with higher version 1.0.46 at '/usr/share/kodi/addons/game.controller.snes/' - other version 1.0.43 at '/home/localhost/.kodi/addons/game.controller.snes/' will be ignored
+2025-12-04 15:54:47.699 T:186      info <general>: CAddonMgr::FindAddon: service.manifests v2.0.0 installed
+2025-12-04 15:54:47.739 T:186   warning <general>: CAddonMgr::FindAddons: Addon 'game.controller.keyboard' already present with higher version 1.1.47 at '/usr/share/kodi/addons/game.controller.keyboard/' - other version 1.1.43 at '/home/localhost/.kodi/addons/game.controller.keyboard/' will be ignored
+2025-12-04 15:54:47.739 T:186   warning <general>: CAddonMgr::FindAddons: Addon 'game.controller.snes' already present with higher version 1.0.46 at '/usr/share/kodi/addons/game.controller.snes/' - other version 1.0.43 at '/home/localhost/.kodi/addons/game.controller.snes/' will be ignored
+2025-12-04 15:54:47.740 T:186      info <general>: CAddonMgr::FindAddon: service.yt-dlp v2.0.2 installed
+2025-12-04 15:54:47.797 T:172   warning <general>: CAddonMgr::FindAddons: Addon 'game.controller.keyboard' already present with higher version 1.1.47 at '/usr/share/kodi/addons/game.controller.keyboard/' - other version 1.1.43 at '/home/localhost/.kodi/addons/game.controller.keyboard/' will be ignored
+2025-12-04 15:54:47.797 T:172   warning <general>: CAddonMgr::FindAddons: Addon 'game.controller.snes' already present with higher version 1.0.46 at '/usr/share/kodi/addons/game.controller.snes/' - other version 1.0.43 at '/home/localhost/.kodi/addons/game.controller.snes/' will be ignored
+2025-12-04 15:54:47.798 T:172      info <general>: CAddonMgr::FindAddon: plugin.video.mytwitch v4.0.0 installed
+2025-12-04 15:54:47.849 T:8     warning <general>: CGUIMediaWindow::OnMessage - updating in progress
+2025-12-04 15:54:47.956 T:172   warning <general>: Skipped 3 duplicate messages..
+2025-12-04 15:54:47.956 T:172     error <general>: CCurlFile::Open - <https://raw.githubusercontent.com/lekma/repository.lekma/master/nexus/plugin.video.mytube/resources/media/icon.png> Failed with code 404:
+                                                   
+2025-12-04 15:54:48.005 T:223      info <general>: [plugin.video.joyn - 2.5.40+matrix.1] Monitor started
+2025-12-04 15:54:48.033 T:171   warning <general>: CAddonMgr::FindAddons: Addon 'game.controller.keyboard' already present with higher version 1.1.47 at '/usr/share/kodi/addons/game.controller.keyboard/' - other version 1.1.43 at '/home/localhost/.kodi/addons/game.controller.keyboard/' will be ignored
+2025-12-04 15:54:48.033 T:171   warning <general>: CAddonMgr::FindAddons: Addon 'game.controller.snes' already present with higher version 1.0.46 at '/usr/share/kodi/addons/game.controller.snes/' - other version 1.0.43 at '/home/localhost/.kodi/addons/game.controller.snes/' will be ignored
+2025-12-04 15:54:48.034 T:171      info <general>: CAddonMgr::FindAddon: script.module.packaging v25.0 installed
+2025-12-04 15:54:48.069 T:171   warning <general>: CAddonMgr::FindAddons: Addon 'game.controller.keyboard' already present with higher version 1.1.47 at '/usr/share/kodi/addons/game.controller.keyboard/' - other version 1.1.43 at '/home/localhost/.kodi/addons/game.controller.keyboard/' will be ignored
+2025-12-04 15:54:48.069 T:171   warning <general>: CAddonMgr::FindAddons: Addon 'game.controller.snes' already present with higher version 1.0.46 at '/usr/share/kodi/addons/game.controller.snes/' - other version 1.0.43 at '/home/localhost/.kodi/addons/game.controller.snes/' will be ignored
+2025-12-04 15:54:48.070 T:171      info <general>: CAddonMgr::FindAddon: script.module.deno v2.0.0 installed
+2025-12-04 15:54:48.080 T:172     error <general>: CCurlFile::Open - <https://raw.githubusercontent.com/lekma/repository.lekma/master/nexus/plugin.video.mytwitch/resources/media/icon.png> Failed with code 404:
+                                                   
+2025-12-04 15:54:48.108 T:171   warning <general>: CAddonMgr::FindAddons: Addon 'game.controller.keyboard' already present with higher version 1.1.47 at '/usr/share/kodi/addons/game.controller.keyboard/' - other version 1.1.43 at '/home/localhost/.kodi/addons/game.controller.keyboard/' will be ignored
+2025-12-04 15:54:48.109 T:171   warning <general>: CAddonMgr::FindAddons: Addon 'game.controller.snes' already present with higher version 1.0.46 at '/usr/share/kodi/addons/game.controller.snes/' - other version 1.0.43 at '/home/localhost/.kodi/addons/game.controller.snes/' will be ignored
+2025-12-04 15:54:48.109 T:171      info <general>: CAddonMgr::FindAddon: plugin.video.mytube v4.0.4 installed
+2025-12-04 15:54:48.190 T:8     warning <general>: CGUIMediaWindow::OnMessage - updating in progress
+2025-12-04 15:54:49.583 T:245   warning <general>: Skipped 2 duplicate messages..
+2025-12-04 15:54:49.583 T:245      info <general>: [service.manifests] <service> starting...
+2025-12-04 15:54:49.604 T:245      info <general>: [service.manifests] <service.httpd> started on: http://127.0.0.1:35377
+2025-12-04 15:54:50.746 T:224      info <general>: [service.sponsorblock] <service> starting...
+2025-12-04 15:54:50.746 T:224      info <general>: [service.sponsorblock] <service.player.session> Timeout: (9.05, 10.0)
+2025-12-04 15:54:51.740 T:225      info <general>: script.module.slyguy - Shared Service: Started
+2025-12-04 15:54:51.740 T:225      info <general>: script.module.slyguy - Python Version: 3.13.9 (main, Oct 15 2025, 14:56:22) [GCC 15.2.0]
+2025-12-04 15:54:51.783 T:225      info <general>: script.module.slyguy - Proxy Started: http://127.0.0.1:8095/
+2025-12-04 15:54:51.791 T:225      info <general>: script.module.slyguy - Visit donate.slyguy.uk to become a supporter and unlock perks!
+2025-12-04 15:54:51.792 T:225      info <general>: script.module.slyguy - Widevine Level (fallback): 3
+2025-12-04 15:54:51.792 T:225      info <general>: script.module.slyguy - HDCP Level (fallback): 0.0
+2025-12-04 15:54:52.041 T:248      info <general>: [plugin.video.mytwitch] <service> starting...
+2025-12-04 15:54:52.041 T:248      info <general>: [plugin.video.mytwitch] <service.proxy> started on: http://127.0.0.1:33075
+2025-12-04 15:54:53.750 T:8        info <general>: Loading skin file: DialogConfirm.xml, load type: KEEP_IN_MEMORY
+2025-12-04 15:54:54.957 T:247     error <general>: WARNING: Assuming --restrict-filenames since file system encoding cannot encode all characters. Set the LC_ALL environment variable to fix this.
+                                                   
+2025-12-04 15:54:54.970 T:247      info <general>: [service.yt-dlp] <service> starting...
+2025-12-04 15:54:54.971 T:247      info <general>: [service.yt-dlp] <service.videos> Include automatic captions: False
+2025-12-04 15:54:54.971 T:247      info <general>: [service.yt-dlp] <service.videos> Exclude codecs: None
+2025-12-04 15:54:54.971 T:247      info <general>: [service.yt-dlp] <service.videos> Limit framerate: No limit
+2025-12-04 15:54:54.971 T:247      info <general>: [service.yt-dlp] <service.videos> Framerate hinting: Integer
+2025-12-04 15:54:54.971 T:247      info <general>: [service.yt-dlp] <service.videos> Resolution: No preference
+2025-12-04 15:54:58.319 T:8     warning <general>: CGUIWindowManager - HandleAction - ignoring action 107, because topmost modal dialog closing animation is running
+2025-12-04 15:54:58.935 T:253   warning <general>: Skipped 40 duplicate messages..
+2025-12-04 15:54:58.935 T:253     error <general>: WARNING: Assuming --restrict-filenames since file system encoding cannot encode all characters. Set the LC_ALL environment variable to fix this.
+                                                   
+2025-12-04 15:54:58.952 T:253      info <general>: [plugin.video.mytube] <service> starting...
+2025-12-04 15:54:58.962 T:253      info <general>: [plugin.video.mytube] <service.session> Timeout: (9.05, 10.0)
+2025-12-04 15:54:58.962 T:253      info <general>: [plugin.video.mytube] <service.session> Accept cookies: False
+2025-12-04 15:54:58.962 T:253      info <general>: [plugin.video.mytube] <service.session> Language: English (US)
+2025-12-04 15:54:58.962 T:253      info <general>: [plugin.video.mytube] <service.session> Location: United States
+2025-12-04 15:54:58.962 T:253      info <general>: [plugin.video.mytube] <service.session.ytdlp> JavaScript Runtime: None None
+2025-12-04 15:54:58.964 T:253      info <general>: [plugin.video.mytube] <service.session.ytdlp> Include automatic captions: False
+2025-12-04 15:54:58.964 T:253      info <general>: [plugin.video.mytube] <service.session.ytdlp> Limit framerate: No limit
+2025-12-04 15:54:58.965 T:253      info <general>: [plugin.video.mytube] <service.session.ytdlp> Framerate hinting: Integer
+2025-12-04 15:54:58.966 T:253      info <general>: [plugin.video.mytube] <service.session.ytdlp> Exclude codecs: None
+2025-12-04 15:54:58.967 T:253      info <general>: [plugin.video.mytube] <service.session.ytdlp> Resolution: No preference
+2025-12-04 15:54:58.968 T:253      info <general>: [plugin.video.mytube] <service.session.ytdlp> Audio track: Original
+2025-12-04 15:54:58.969 T:253      info <general>: [plugin.video.mytube] <service.search> Search history: True
+2025-12-04 15:54:58.970 T:253      info <general>: [plugin.video.mytube] <service.search> Query type: All
+2025-12-04 15:54:58.971 T:253      info <general>: [plugin.video.mytube] <service.search> Sort order: Relevance
+2025-12-04 15:55:07.685 T:8        info <general>: Loading skin file: DialogAddonInfo.xml, load type: KEEP_IN_MEMORY
+2025-12-04 15:55:09.491 T:8        info <general>: Loading skin file: MyVideoNav.xml, load type: KEEP_IN_MEMORY
+2025-12-04 15:55:13.903 T:253      info <general>: [plugin.video.mytube] <service.session> request: GET https://www.youtube.com?hl=en&gl=US
+2025-12-04 15:55:14.867 T:253      info <general>: Skipped 1 duplicate messages..
+2025-12-04 15:55:14.867 T:253      info <general>: [plugin.video.mytube] <service.session> request: POST https://www.youtube.com/youtubei/v1/search?prettyPrint=False
+2025-12-04 15:55:18.344 T:247     error <general>: [debug] Encodings: locale ANSI_X3.4-1968, fs ascii, pref ANSI_X3.4-1968, out missing (xbmcout) (No ANSI), error missing (xbmcout) (No ANSI), screen missing (xbmcout) (No ANSI)
+                                                   
+2025-12-04 15:55:18.345 T:247     error <general>: [debug] yt-dlp version stable@2025.11.12 from yt-dlp/yt-dlp [335653be8] API
+                                                   
+2025-12-04 15:55:18.345 T:247     error <general>: [debug] params: {'http_headers': {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36', 'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8', 'Accept-Language': 'en,*;q=0.5', 'Sec-Fetch-Mode': 'navigate'}, 'js_runtimes': {'deno': {'path': None}}, 'remote_components': {'ejs:github'}, 'verbose': True, 'compat_opts': set()}
+                                                   
+2025-12-04 15:55:18.345 T:247     error <general>: [debug] Lazy loading extractors is disabled
+                                                   
+2025-12-04 15:55:18.376 T:247     error <general>: [debug] Python 3.13.9 (CPython x86_64 64bit) - Linux-6.17.10-x64v3-xanmod1-x86_64-with-glibc2.42 (OpenSSL 3.6.0 1 Oct 2025, glibc 2.42)
+                                                   
+2025-12-04 15:55:18.388 T:247     error <general>: [debug] exe versions: none
+                                                   
+2025-12-04 15:55:18.388 T:247     error <general>: [debug] Optional libraries: Cryptodome-3.20.0, brotli-1.1.0, certifi-2023.05.07, mutagen-1.47.0, requests-2.32.5, sqlite3-3.46.1, urllib3-2.5.0, websockets-15.0.1
+                                                   
+2025-12-04 15:55:18.390 T:247     error <general>: [debug] JS runtimes: none
+                                                   
+2025-12-04 15:55:18.390 T:247     error <general>: [debug] Proxy map: {}
+                                                   
+2025-12-04 15:55:18.392 T:247     error <general>: [debug] Request Handlers: urllib, requests, websockets
+                                                   
+2025-12-04 15:55:18.393 T:247     error <general>: [debug] Plugin directories: none
+                                                   
+2025-12-04 15:55:18.484 T:247     error <general>: [debug] Loaded 1844 extractors
+                                                   
+2025-12-04 15:55:18.484 T:247     error <general>: WARNING: Assuming --restrict-filenames since file system encoding cannot encode all characters. Set the LC_ALL environment variable to fix this.
+                                                   
+2025-12-04 15:55:18.484 T:247      info <general>: [service.yt-dlp] <service> video(url=https://www.youtube.com/watch?v=PzeedTlv_4E&hl=en&gl=US, kwargs={'captions': False, 'exclude': [], 'fps_hint': 'int', 'fps_limit': 0, 'height': 0, 'track': None})
+2025-12-04 15:55:18.949 T:247     error <general>: [debug] [youtube] [pot] PO Token Providers: none
+                                                   
+2025-12-04 15:55:18.949 T:247     error <general>: [debug] [youtube] [pot] PO Token Cache Providers: memory
+                                                   
+2025-12-04 15:55:18.949 T:247     error <general>: [debug] [youtube] [pot] PO Token Cache Spec Providers: webpo
+                                                   
+2025-12-04 15:55:18.950 T:247     error <general>: [debug] [youtube] [jsc] JS Challenge Providers: bun (unavailable), deno (unavailable), node (unavailable), quickjs (unavailable)
+                                                   
+2025-12-04 15:55:19.831 T:247     error <general>: WARNING: [youtube] No supported JavaScript runtime could be found. YouTube extraction without a JS runtime has been deprecated, and some formats may be missing. See  https://github.com/yt-dlp/yt-dlp/wiki/EJS  for details on installing one. To silence this warning, you can use  --extractor-args "youtube:player_client=default"
+                                                   
+2025-12-04 15:55:20.280 T:247     error <general>: WARNING: [youtube] PzeedTlv_4E: Some web_safari client https formats have been skipped as they are missing a url. YouTube is forcing SABR streaming for this client. See  https://github.com/yt-dlp/yt-dlp/issues/12482  for more details
+                                                   
+2025-12-04 15:55:20.314 T:247     error <general>: WARNING: [youtube] Failed to download m3u8 information: <urllib3.connection.HTTPSConnection object at 0x7f45fa711e50>: Failed to establish a new connection: [Errno 111] Connection refused
+                                                   
+2025-12-04 15:55:20.336 T:247     error <general>: [debug] [youtube] PzeedTlv_4E: Detected experiment to bind GVS PO Token to video id.
+                                                   
+2025-12-04 15:55:20.338 T:247     error <general>: WARNING: [youtube] PzeedTlv_4E: Some web client https formats have been skipped as they are missing a url. YouTube is forcing SABR streaming for this client. See  https://github.com/yt-dlp/yt-dlp/issues/12482  for more details
+                                                   
+2025-12-04 15:55:20.601 T:247     error <general>: [debug] Sort order given by extractor: quality, res, fps, hdr:12, source, vcodec, channels, acodec, lang, proto
+                                                   
+2025-12-04 15:55:20.601 T:247     error <general>: [debug] Formats sorted by: hasvid, ie_pref, quality, res, fps, hdr:12(7), source, vcodec, channels, acodec, lang, proto, size, br, asr, vext, aext, hasaud, id
+                                                   
+2025-12-04 15:55:20.639 T:247     error <general>: WARNING: ffmpeg not found. The downloaded format may not be the best available. Installing ffmpeg is strongly recommended: https://github.com/yt-dlp/yt-dlp#dependencies
+                                                   
+2025-12-04 15:55:20.639 T:247     error <general>: [debug] Default format spec: best/bestvideo+bestaudio
+                                                   
+2025-12-04 15:55:20.639 T:247      info <general>: [service.yt-dlp] <service.videos> manifest(exclude=[], fps_limit=0, fps_hint=int, height=0, inputstream=adaptive, kwargs={'track': None})
+2025-12-04 15:55:21.238 T:8        info <general>: VideoPlayer::OpenFile: plugin://plugin.video.mytube/?action=play&videoId=PzeedTlv_4E
+2025-12-04 15:55:21.239 T:288      info <general>: Creating InputStream
+2025-12-04 15:55:21.290 T:288      info <general>: AddOnLog: inputstream.adaptive: [Repr. chooser] Resolution set: 3840x2160, max allowed: 3840x2160, Adjust refresh rate: 0
+2025-12-04 15:55:21.541 T:245      info <general>: [service.manifests] <service.httpd> 'GET /manifest?id=070527154a25453c93067b1d48d1f439 HTTP/1.1' => (200 - OK)
+2025-12-04 15:55:21.544 T:288      info <general>: AddOnLog: inputstream.adaptive: Manifest successfully parsed (Periods: 1, Streams in first period: 10, Type: VOD)
+2025-12-04 15:55:21.545 T:288      info <general>: Creating Demuxer
+2025-12-04 15:55:21.546 T:288      info <general>: Opening stream: 1001 source: 256
+2025-12-04 15:55:21.912 T:288      info <general>: Creating video codec with codec id: 27
+2025-12-04 15:55:21.912 T:288      info <general>: CDVDVideoCodecFFmpeg::Open() Using codec: H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10
+2025-12-04 15:55:21.914 T:288      info <general>: Creating video thread
+2025-12-04 15:55:21.914 T:292      info <general>: running thread: video_thread
+2025-12-04 15:55:21.915 T:288      info <general>: Opening stream: 1003 source: 256
+2025-12-04 15:55:22.115 T:288      info <general>: Finding audio codec for: 86018
+2025-12-04 15:55:22.122 T:288      info <general>: CDVDAudioCodecFFmpeg::Open() Successful opened audio decoder aac
+2025-12-04 15:55:22.122 T:288      info <general>: OpenStream: Allowing max Out-Of-Sync Value of 50 ms
+2025-12-04 15:55:22.122 T:288      info <general>: Creating audio thread
+2025-12-04 15:55:22.122 T:294      info <general>: running thread: CVideoPlayerAudio::Process()
+2025-12-04 15:55:22.284 T:294      info <general>: Creating audio stream (codec id: 86018, channels: 2, sample rate: 44100, no pass-through)
+2025-12-04 15:55:22.284 T:58       info <general>: CActiveAESink::OpenSink - initialize sink
+2025-12-04 15:55:22.293 T:411      info <general>: COutput::OnStartup: Output Thread created
+2025-12-04 15:55:22.345 T:8        info <general>: GL: Selecting YUV 2 RGB shader
+2025-12-04 15:55:22.349 T:8        info <general>: GL: Using GL_ARB_pixel_buffer_object
+2025-12-04 15:55:22.349 T:8        info <general>: Using GL_TEXTURE_2D
+2025-12-04 15:55:22.349 T:8        info <general>: GL: Selecting YUV 2 RGB shader
+2025-12-04 15:55:22.350 T:8        info <general>: GL: Using GL_ARB_pixel_buffer_object
+2025-12-04 15:55:22.358 T:8        info <general>: Loading skin file: VideoFullScreen.xml, load type: KEEP_IN_MEMORY
+2025-12-04 15:55:22.535 T:292      info <general>: CDVDVideoCodecFFmpeg::CDropControl: calculated diff time: 41666
+2025-12-04 15:55:22.835 T:8        info <general>: Loading skin file: VideoOSD.xml, load type: KEEP_IN_MEMORY
+2025-12-04 15:55:24.699 T:8        info <general>: CVideoPlayer::CloseFile()
+2025-12-04 15:55:24.703 T:8        info <general>: VideoPlayer: waiting for threads to exit
+2025-12-04 15:55:24.704 T:288      info <general>: CVideoPlayer::OnExit()
+2025-12-04 15:55:24.704 T:288      info <general>: Closing stream player 1
+2025-12-04 15:55:24.705 T:288      info <general>: Waiting for audio thread to exit
+2025-12-04 15:55:24.748 T:294      info <general>: thread end: CVideoPlayerAudio::OnExit()
+2025-12-04 15:55:24.749 T:288      info <general>: Closing audio device
+2025-12-04 15:55:24.800 T:288      info <general>: Deleting audio codec
+2025-12-04 15:55:24.800 T:288      info <general>: Closing stream player 2
+2025-12-04 15:55:24.809 T:288      info <general>: waiting for video thread to exit
+2025-12-04 15:55:24.834 T:292   warning <general>: OutputPicture - timeout waiting for buffer
+2025-12-04 15:55:24.834 T:292      info <general>: thread end: video_thread
+2025-12-04 15:55:24.835 T:288      info <general>: deleting video codec
+2025-12-04 15:55:24.838 T:288      info <general>: VAAPI::Close
+2025-12-04 15:55:24.838 T:411      info <general>: COutput::OnExit: Output Thread terminated
+2025-12-04 15:55:24.839 T:288      info <general>: VAAPI::Close - closing decoder context
+2025-12-04 15:55:24.846 T:288      info <general>: ADDON: Dll Destroyed - InputStream Adaptive
+2025-12-04 15:55:24.846 T:8        info <general>: VideoPlayer: finished waiting
+2025-12-04 15:55:24.846 T:8        info <general>: CVideoPlayer::CloseFile()
+2025-12-04 15:55:24.846 T:8        info <general>: VideoPlayer: waiting for threads to exit
+2025-12-04 15:55:24.846 T:8        info <general>: VideoPlayer: finished waiting
+2025-12-04 15:55:24.874 T:8       error <general>: Control 55 in window 10025 has been asked to focus, but it can't
+2025-12-04 15:55:24.959 T:253      info <general>: [plugin.video.mytube] <service.session> request: POST https://www.youtube.com/youtubei/v1/search?prettyPrint=False
+2025-12-04 15:55:31.573 T:8       error <general>: Control 55 in window 10025 has been asked to focus, but it can't
+2025-12-04 15:55:31.645 T:253      info <general>: [plugin.video.mytube] <service.session> request: POST https://www.youtube.com/youtubei/v1/search?prettyPrint=False
+2025-12-04 15:55:44.538 T:8     warning <general>: CGUIWindowManager - HandleAction - ignoring action 92, because topmost modal dialog closing animation is running
+2025-12-04 15:55:44.538 T:8     warning <general>: CGUIWindowManager - HandleAction - ignoring action 107, because topmost modal dialog closing animation is running
+2025-12-04 15:55:54.715 T:8     warning <general>: Skipped 145 duplicate messages..
+2025-12-04 15:55:54.715 T:8     warning <general>: CGUIWindowManager - HandleAction - ignoring action 107, because topmost modal dialog closing animation is running
+2025-12-04 15:56:05.868 T:8     warning <general>: Skipped 21 duplicate messages..
+2025-12-04 15:56:05.868 T:8     warning <general>: CGUIWindowManager - HandleAction - ignoring action 92, because topmost modal dialog closing animation is running
+2025-12-04 15:56:05.869 T:8     warning <general>: CGUIWindowManager - HandleAction - ignoring action 107, because topmost modal dialog closing animation is running
+2025-12-04 15:56:08.543 T:157   warning <general>: Skipped 65 duplicate messages..
+2025-12-04 15:56:08.543 T:157   warning <general>: CAddonMgr::FindAddons: Addon 'game.controller.keyboard' already present with higher version 1.1.47 at '/usr/share/kodi/addons/game.controller.keyboard/' - other version 1.1.43 at '/home/localhost/.kodi/addons/game.controller.keyboard/' will be ignored
+2025-12-04 15:56:08.543 T:157   warning <general>: CAddonMgr::FindAddons: Addon 'game.controller.snes' already present with higher version 1.0.46 at '/usr/share/kodi/addons/game.controller.snes/' - other version 1.0.43 at '/home/localhost/.kodi/addons/game.controller.snes/' will be ignored
+2025-12-04 15:56:08.544 T:157      info <general>: CAddonMgr::FindAddon: plugin.video.ardundzdf v5.3.5+nexus installed
+2025-12-04 15:56:28.886 T:8     warning <general>: CGUIWindowManager - HandleAction - ignoring action 92, because topmost modal dialog closing animation is running
+2025-12-04 15:56:28.886 T:8     warning <general>: CGUIWindowManager - HandleAction - ignoring action 107, because topmost modal dialog closing animation is running
+2025-12-04 15:56:53.423 T:8     warning <general>: Skipped 186 duplicate messages..
+2025-12-04 15:56:53.423 T:8        info <general>: Loading skin file: DialogButtonMenu.xml, load type: KEEP_IN_MEMORY
+2025-12-04 15:56:56.440 T:8     warning <general>: CGUIWindowManager - HandleAction - ignoring action 92, because topmost modal dialog closing animation is running
+2025-12-04 15:56:56.440 T:8     warning <general>: CGUIWindowManager - HandleAction - ignoring action 107, because topmost modal dialog closing animation is running
+2025-12-04 15:57:00.383 T:8     warning <general>: Skipped 210 duplicate messages..
+2025-12-04 15:57:00.383 T:8        info <general>: Stopping the application...
+2025-12-04 15:57:00.383 T:8        info <general>: Stopping player
+2025-12-04 15:57:00.383 T:8        info <general>: Storing total System Uptime
+2025-12-04 15:57:00.383 T:8        info <general>: Saving settings
+2025-12-04 15:57:00.391 T:8        info <general>: Saving skin settings
+2025-12-04 15:57:00.392 T:8        info <general>: Stopping all
+2025-12-04 15:57:00.396 T:8        info <general>: ES: Stopping event server
+2025-12-04 15:57:00.776 T:80       info <general>: ES: UDP Event server stopped
+2025-12-04 15:57:00.784 T:8        info <general>: CServiceAddonManager: failed to stop inputstream.ffmpegdirect (may have ended)
+2025-12-04 15:57:00.785 T:69       info <general>: [Amazon VOD] Service stopped
+2025-12-04 15:57:00.874 T:69       info <general>: [Amazon VOD] Service: Proxy server stopped
+2025-12-04 15:57:00.910 T:223      info <general>: [plugin.video.joyn - 2.5.40+matrix.1] Monitor stopped
+2025-12-04 15:57:00.931 T:253      info <general>: [plugin.video.mytube] <service.feed> stopped
+2025-12-04 15:57:00.931 T:253      info <general>: [plugin.video.mytube] <service.search> stopped
+2025-12-04 15:57:00.931 T:253      info <general>: [plugin.video.mytube] <service.browse> stopped
+2025-12-04 15:57:00.931 T:253      info <general>: [plugin.video.mytube] <service.session.ytdlp> stopped
+2025-12-04 15:57:00.932 T:253      info <general>: [plugin.video.mytube] <service.session> stopped
+2025-12-04 15:57:00.932 T:253      info <general>: [plugin.video.mytube] <service> stopped
+2025-12-04 15:57:01.094 T:248      info <general>: [plugin.video.mytwitch] <service.proxy> stopped
+2025-12-04 15:57:01.094 T:248      info <general>: [plugin.video.mytwitch] <service> stopped
+2025-12-04 15:57:01.822 T:225      info <general>: script.module.slyguy - Shared Service: Stopped
+2025-12-04 15:57:01.883 T:245      info <general>: [service.manifests] <service.httpd> stopped
+2025-12-04 15:57:01.883 T:245      info <general>: [service.manifests] <service> stopped
+2025-12-04 15:57:01.902 T:75       info <general>: [service.manifests.mpd] <service.httpd> stopped
+2025-12-04 15:57:01.902 T:75       info <general>: [service.manifests.mpd] <service> stopped
+2025-12-04 15:57:01.913 T:224      info <general>: [service.sponsorblock] <service.player.session> stopped
+2025-12-04 15:57:01.913 T:224      info <general>: [service.sponsorblock] <service.player> stopped
+2025-12-04 15:57:01.913 T:224      info <general>: [service.sponsorblock] <service> stopped
+2025-12-04 15:57:01.938 T:77       info <general>: [service.upnext] UpNextMonitor -> Service stopped
+2025-12-04 15:57:01.946 T:77      error <general>: EXCEPTION: No valid addon id could be obtained. None was passed and the script wasn't executed in a normal Kodi manner.
+2025-12-04 15:57:01.949 T:8        info <general>: CServiceAddonManager: failed to stop service.xbmc.versioncheck (may have ended)
+2025-12-04 15:57:01.949 T:247      info <general>: [service.yt-dlp] <service.videos> stopped
+2025-12-04 15:57:01.949 T:247      info <general>: [service.yt-dlp] <service> stopped
+2025-12-04 15:57:02.087 T:8        info <general>: Application stopped
+2025-12-04 15:57:02.287 T:8        info <general>: PVR Manager: Stopping
+2025-12-04 15:57:03.213 T:89       info <general>: EPG Container: Persisting unsaved events...
+2025-12-04 15:57:03.213 T:89       info <general>: EPG Container: Persisting events done
+2025-12-04 15:57:03.215 T:85       info <general>: PVR Manager: Stopped
+2025-12-04 15:57:03.299 T:8        info <general>: ADDON: Dll Destroyed - TVMosaic/DVBLink PVR Client
+2025-12-04 15:57:03.668 T:8        info <general>: AddOnLog: peripheral.joystick: Disabling joystick interface "linux"
+2025-12-04 15:57:03.668 T:8        info <general>: ADDON: Dll Destroyed - Joystick Support
+2025-12-04 15:57:03.668 T:8        info <general>: unload skin
+2025-12-04 15:57:03.701 T:8     warning <general>: Cleanup: Having to cleanup texture lists/focus.png
+2025-12-04 15:57:03.719 T:8        info <general>: Unloaded skin
+2025-12-04 15:57:03.724 T:8        info <general>: unload sections
+2025-12-04 15:57:03.728 T:8        info <general>: CWSDiscoveryListenerUDP::Stop - Stopped
+2025-12-04 15:57:03.757 T:8        info <general>: Exiting the application...

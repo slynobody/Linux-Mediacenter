@@ -18,7 +18,7 @@ STYLE
 
 STYLE
 ::cue(.textGreen) {
- color: green;
+ color: LimeGreen;
 }
 
 STYLE
@@ -33,7 +33,7 @@ STYLE
 
 STYLE
 ::cue(.textBlue) {
- color: blue;
+ color: RoyalBlue;
 }
 
 STYLE
@@ -58,7 +58,7 @@ STYLE
 
 STYLE
 ::cue(.S6) {
- color: blue;
+ color: RoyalBlue;
 }
 
 0

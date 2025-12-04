@@ -7,8 +7,8 @@
 #	17.11.2019 Migration Python3 Modul kodi_six + manuelle Anpassungen
 ################################################################################
 #	
-# 	<nr>33</nr>										# Numerierung für Einzelupdate
-#	Stand: 06.03.2025
+# 	<nr>34</nr>										# Numerierung für Einzelupdate
+#	Stand: 08.08.2025
 
 # Python3-Kompatibilität:
 from __future__ import absolute_import		# sucht erst top-level statt im akt. Verz. 
@@ -91,7 +91,7 @@ MAUSHEAR		= "https://www1.wdr.de/mediathek/audio/sendereihen-bilder/maus_sendere
 # ext. Icons zum Nachladen aus Platzgründen,externe Nutzung:						
 #GIT_KIKA		= "https://github.com/rols1/PluginPictures/blob/master/ARDundZDF/KIKA_tivi/tv-kika.png?raw=true"
 KIKA_START		= "https://www.kika.de/bilder/startseite-104_v-tlarge169_w-1920_zc-a4147743.jpg"	# ab 07.12.2022
-KIKA_VIDEOS		= "https://www.kika.de/videos/videos-110_v-tlarge169_zc-cc2f4e31.jpg"				# - " -
+KIKA_VIDEOS		= "https://www.kika.de/videos/bilder/videos-110_v-tlarge169_zc-cc2f4e31.jpg"		# - " -
 KIKA_AD			= "https://www.kika.de/audiodeskription/ad-110_v-tlarge169_zc-cc2f4e31.jpg?version=6313"
 KIKA_DGS		= "https://www.kika.de/gebaerdensprache/dgs-110_v-tlarge169_zc-cc2f4e31.jpg?version=58142"
 KIKA_SERIES		= "https://www.kika.de/videos/serie-100_v-tlarge169_zc-cc2f4e31.jpg?version=16437"
@@ -1148,7 +1148,9 @@ def MausLive():
 		msg2=msg
 		MyDialog(msg1, msg2, '')	
 		return
-	PLog(len(page2))	
+	PLog(len(page2))
+	page2 = page2.replace('" : "', '":"')				# Formatänderung Sender
+	PLog("page2: "  + page2)
 	
 	mp3_url = stringextract('audioURL":"', '"', page2)	# .m3u8
 	if mp3_url.startswith("http") == False:
@@ -1698,9 +1700,17 @@ def KikaninchenFilme():
 
 		
 		href = special["avCustomUrl"]
-		dur = special["duration"]
+		duration = special["duration"]							# 79:48
+		try:
+			m,s = duration.split(":")
+			sec = (int(m)*60) + int(s)
+			dur = seconds_translate(sec)						# 1:19:48
+		except Exception as exception:
+			PLog("dur_error: " + str(exception))
+			dur = duration										# ohne Wandlung
+
 		
-		dauer = "Dauer: " + dur
+		dauer = "Dauer: %s Std." % dur
 		tag = "%s\n%s" % (dauer, bild)
 		summ = "[B]%s[/B]\n%s" % (tline, descr)
 		summ = unescape(summ)

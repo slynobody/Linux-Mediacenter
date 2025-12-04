@@ -757,7 +757,17 @@ def fix_language(language=None):
     if language.lower() == 'pt-br':
         return 'pb'
 
-    if language.lower() == 'cmn-tw':
+    # Chines Hong Kong -> Yue / Cantonese https://en.wikipedia.org/wiki/Yue_Chinese
+    if language.lower() in ('zh-hk'):
+        # not supported in kodi?
+        pass
+
+    # Chinese Hans -> Chinese Simple
+    if language.lower() in ('zh-hans'):
+        return 'zh-CN'
+
+    # Chinese Hant -> Chinese Traditional
+    if language.lower() in ('cmn-tw', 'zh-hant'):
         return 'zh-TW'
 
     if language.lower() in ('nb','nn'):
@@ -765,6 +775,9 @@ def fix_language(language=None):
 
     if language.lower() == 'ekk':
         return 'et'
+
+    if language.lower() == 'el':
+        return 'el-GR'
 
     if language.lower() == 'lvs':
         return 'lv'
@@ -785,28 +798,35 @@ def get_kodi_proxy():
     except ValueError:
         httpproxytype = 0
 
-    proxy_types = ['http', 'socks4', 'socks4a', 'socks5', 'socks5h']
+    proxy_types = ['http', 'socks4', 'socks4a', 'socks5', 'socks5h', 'https']
 
     proxy = dict(
-        scheme = proxy_types[httpproxytype] if 0 <= httpproxytype < 5 else 'http',
+        scheme = proxy_types[httpproxytype],
         server = get_kodi_setting('network.httpproxyserver'),
         port = get_kodi_setting('network.httpproxyport'),
         username = get_kodi_setting('network.httpproxyusername'),
         password = get_kodi_setting('network.httpproxypassword'),
     )
 
-    if proxy.get('username') and proxy.get('password') and proxy.get('server') and proxy.get('port'):
-        proxy_address = '{scheme}://{username}:{password}@{server}:{port}'.format(**proxy)
-    elif proxy.get('username') and proxy.get('server') and proxy.get('port'):
-        proxy_address = '{scheme}://{username}@{server}:{port}'.format(**proxy)
-    elif proxy.get('server') and proxy.get('port'):
-        proxy_address = '{scheme}://{server}:{port}'.format(**proxy)
-    elif proxy.get('server'):
-        proxy_address = '{scheme}://{server}'.format(**proxy)
-    else:
+    if not proxy['server']:
         return None
 
-    return proxy_address
+    if proxy['port']:
+        host_port_string = ':'.join((proxy['server'], str(proxy['port'])))
+    else:
+        host_port_string = proxy['server']
+
+    if proxy['username']:
+        if proxy['password']:
+            auth_string = ':'.join((proxy['username'], proxy['password']))
+        else:
+            auth_string = proxy['username']
+        auth_string += '@'
+    else:
+        auth_string = ''
+
+    proxy_string = ''.join((proxy['scheme'], '://', auth_string, host_port_string))
+    return proxy_string
 
 
 def get_url_headers(headers=None, cookies=None):

@@ -38,6 +38,15 @@ def joinRuns(obj):
     return "".join((run["text"] for run in obj["runs"]))
 
 
+def joinParts(parts, delimiter=" • "):
+    return delimiter.join(
+        (
+            text for part in parts
+            if (text := traverse(part, "text", "content"))
+        )
+    )
+
+
 def getUrl(url):
     if url.startswith("//"):
         url = f"https:{url}"
@@ -58,6 +67,7 @@ def getLengthSeconds(string):
     #return sum(
     #    int(x, 10) * 60 ** i for i, x in enumerate(reversed(string.split(":")))
     #)
+
 
 def videoIsLive(obj):
     for badge in obj.get("badges", []):
@@ -167,6 +177,8 @@ def extractRichItem(obj):
 def extractLockupContentPlaylist(obj):
     #from nuttig import Logger
     #logger = Logger()
+    #logger.info(f"extractLockupContentPlaylist()")
+    #logger.info(f"extractLockupContentPlaylist(), obj={obj}")
     metadataViewModel = obj["metadata"]["lockupMetadataViewModel"]
     thumbnailViewModel = obj["contentImage"]["collectionThumbnailViewModel"]["primaryThumbnail"]["thumbnailViewModel"]
     playlist = {
@@ -174,12 +186,63 @@ def extractLockupContentPlaylist(obj):
         "playlistId": obj["contentId"],
         "title": metadataViewModel["title"]["content"],
         "thumbnail": getUrl(thumbnailViewModel["image"]["sources"][-1]["url"]),
-        "videosText": traverse(thumbnailViewModel, "overlays", 0, "thumbnailOverlayBadgeViewModel", "thumbnailBadges", 0, "thumbnailBadgeViewModel", "text"),
+        "videosText": traverse(
+            thumbnailViewModel,
+            "overlays",
+            0,
+            "thumbnailOverlayBadgeViewModel",
+            "thumbnailBadges",
+            0,
+            "thumbnailBadgeViewModel",
+            "text"
+        ),
     }
     return playlist
 
+def extractLockupContentVideo(obj):
+    #from nuttig import Logger
+    #logger = Logger()
+    #logger.info(f"extractLockupContentVideo()")
+    #logger.info(f"extractLockupContentVideo(), obj={obj}")
+    metadataViewModel = obj["metadata"]["lockupMetadataViewModel"]
+    thumbnailViewModel = obj["contentImage"]["thumbnailViewModel"]
+    video = {
+        "type": "video",
+        "videoId": obj["contentId"],
+        "title": metadataViewModel["title"]["content"],
+        "thumbnail": getUrl(thumbnailViewModel["image"]["sources"][-1]["url"]),
+    }
+    durationText = traverse(
+        thumbnailViewModel,
+        "overlays",
+        0,
+        "thumbnailBottomOverlayViewModel",
+        "badges",
+        0,
+        "thumbnailBadgeViewModel",
+        "text"
+    )
+    if durationText:
+        video["duration"] = getLengthSeconds(durationText)
+    parts = traverse(
+        metadataViewModel,
+        "metadata",
+        "contentMetadataViewModel",
+        "metadataRows",
+        0,
+        "metadataParts"
+    )
+    if parts:
+        if (viewsText := traverse(parts, 0, "text", "content")):
+            video["viewsText"] = viewsText
+        if (publishedText := traverse(parts, 1, "text", "content")):
+            video["publishedText"] = publishedText
+    return video
+
 __lockupContentType__ = {
-    "LOCKUP_CONTENT_TYPE_PLAYLIST": extractLockupContentPlaylist
+    "LOCKUP_CONTENT_TYPE_PLAYLIST": extractLockupContentPlaylist,
+    "LOCKUP_CONTENT_TYPE_PODCAST": extractLockupContentPlaylist,
+    "LOCKUP_CONTENT_TYPE_VIDEO": extractLockupContentVideo
 }
 
 def extractLockupViewModel(obj):
@@ -214,11 +277,36 @@ def extractContent(data, **defaults):
 
 def renderVideo(obj):
     channel = obj["ownerText"]["runs"][0]
-    yield dict(
-        extractVideo(obj),
-        channelId=channel["navigationEndpoint"]["browseEndpoint"]["browseId"],
-        channel=channel["text"]
+    channelId = (
+        traverse(
+            channel, "navigationEndpoint", "browseEndpoint", "browseId"
+        ) or
+        traverse(
+            channel,
+            "navigationEndpoint",
+            "showDialogCommand",
+            "panelLoadingStrategy",
+            "inlineContent",
+            "dialogViewModel",
+            "customContent",
+            "listViewModel",
+            "listItems",
+            0,
+            "listItemViewModel",
+            "rendererContext",
+            "commandContext",
+            "onTap",
+            "innertubeCommand",
+            "browseEndpoint",
+            "browseId"
+        )
     )
+    if channelId:
+        yield dict(
+            extractVideo(obj),
+            channelId=channelId,
+            channel=channel["text"]
+        )
 
 def renderChannel(obj):
     yield extractChannel(obj)

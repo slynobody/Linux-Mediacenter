@@ -371,6 +371,7 @@ class API(object):
         return href.format(**_args)
 
     def is_subscribed(self):
+        # this seems to return false positive (https://github.com/matthuisman/slyguy.addons/issues/1097)
         try:
             return self.profile()[1]['isSubscriber']
         except Exception as e:

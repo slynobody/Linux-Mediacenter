@@ -120,6 +120,13 @@ class SBPlayer(Player):
 
     # --------------------------------------------------------------------------
 
+    def getTime(self):
+        if self.isPlaying():
+            return super(SBPlayer, self).getTime()
+        return -1.0
+
+    # --------------------------------------------------------------------------
+
     def onPlayBackStarted(self):
         #self.logger.info(f"onPlayBackStarted()")
         try:

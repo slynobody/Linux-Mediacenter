@@ -10,8 +10,10 @@
 #		Sendezeit: data-start-time="", data-end-time=""
 #
 #	20.11.2019 Migration Python3 Modul kodi_six + manuelle Anpassungen
-# 	<nr>30</nr>										# Numerierung für Einzelupdate
-#	Stand: 22.03.2025
+#	ab Okt. 2025 Webseite geändert, TV-Daten im json-Format nur für 1 Tag
+#
+# 	<nr>37</nr>										# Numerierung für Einzelupdate
+#	Stand: 20.11.2025
 #	
  
 from kodi_six import xbmc, xbmcgui, xbmcaddon
@@ -33,8 +35,8 @@ elif PYTHON3:
 # für Python 2.* muss der  Aufruf Kontextmenü unterdrückt
 #	werden, sonst öffnet das Modul bei jedem Menüwechsel
 #	 ein leeres textviewer-Fenster
-if "'context'" in str(sys.argv) or "ShowSumm" in str(sys.argv):		# Aufruf Kontextmenü
-	from util import *
+if "'context'" in str(sys.argv) or "ShowSumm" in str(sys.argv):
+	from util import *									# Aufruf Kontextmenü
 	msg = "callfrom_context"
 else:
 	from resources.lib.util import *
@@ -83,24 +85,15 @@ def thread_getepg(EPGACTIVE, DICTSTORE, PLAYLIST):
 	for i in range(len(sort_playlist)):
 		rec = sort_playlist[i]
 		ID = rec[1]	
-		if ID:											# Sender mit tvtoday-ID
+		if ID:											# Senderliste mit tvtoday-ID
 			ID_list.append(ID)
 			fname = os.path.join(DICTSTORE, "EPG_%s" % ID)
 			if os.path.exists(fname):					# n.v. oder soeben entfernt?
 				os.remove(fname)						# entf. -> erneuern								
 
 	PLog("ID_list: " + str(ID_list))
-	# ID_list = ['3SAT', 'SWR']	# Debug
-	# 23.05.2024 Testbetrieb concurrent.futures, wg. möglicher Klemmer bei
-	#	Menüwechseln deaktiviert
-	#if sys.version_info.major >= 3 and sys.version_info.minor >= 2:	
-	#	import concurrent.futures						# concurrent.futures ab PY 3.2 
-	#	with concurrent.futures.ThreadPoolExecutor() as executor:
-	#		futures = {executor.submit(EPG, ID, load_only=True): ID for ID  in ID_list}
-	#		PLog("futures: %d" % len(futures))
-	#else:
 	for ID in ID_list:
-		EPG(ID=ID, load_only=True)					# Seite laden + speichern	
+		EPG(ID=ID, load_only=True)						# EPG-Seite laden + speichern	
 
 	xbmcgui.Dialog().notification("EPG-Download", "fertig: %d Sender" % len(sort_playlist),icon,3000)
 	
@@ -119,6 +112,8 @@ def thread_getepg(EPGACTIVE, DICTSTORE, PLAYLIST):
 #	https://api.github.com/repos/rols1/Kodi-Addon-ARDundZDF/commits?path=ARDnew.py&page=1&per_page=1 
 # 11.11.2024 Anpassung für Windows an wechselnde Slashes in Dateipfaden in SINGLELIST,
 #	Bsp.: ..\\addons\\plugin.video.ardundzdf/resources/livesenderTV.xml
+# 02.09.2025 Github-Änderung Webformat - Verzicht auf Download neuer Module, RepoList
+#	entfällt, nur noch direkter Abgleich Datei lokal / Datei Repo.
 #
 def update_single(PluginAbsPath):
 	PLog('update_single:')
@@ -126,7 +121,7 @@ def update_single(PluginAbsPath):
 	GIT_BASE = "https://github.com/rols1/Kodi-Addon-ARDundZDF/blob/master"
 	icon = R("icon-update-einzeln.png")
 		
-	# SINGLELIST enthält die Module in resources/lib im Addon,		# 1. Erstellung Liste
+	# SINGLELIST enthält die Module in resources/lib im Addon,		# 1. Erstellung Liste lokal
 	# zusätzliche Dateien:	
 	# nicht verwenden: addon.xml + settings.xml (CAddonSettings-error),
 	#	changelog.txt, slides.xml, ca-bundle.pem, Icons
@@ -147,52 +142,14 @@ def update_single(PluginAbsPath):
 			continue
 		SINGLELIST.append(f)
 	PLog("SINGLELIST: " + str(SINGLELIST))		# Debug
+	#-------------													# 2.  Erstellung Liste Github
 	
-	#-------------													# 2. Ergänzung ev. neue Module im Repo
-	path = "https://github.com/rols1/Kodi-Addon-ARDundZDF/tree/master/resources/lib" # html-Seite, ca. 140 KByte
-	cacheID = "GitRepo"
-	CacheTime = 60*5										# 5 min.
-	page = Dict("load", cacheID, CacheTime=CacheTime)
-	if page == False or page == '':							# Cache miss 
-		page, msg = get_page(path=path)
-		if page:
-			Dict("store", cacheID, page) 					# Cache: aktualisieren
-			
 	RepoList=[]	
-	items = blockextract('href="/rols1/Kodi-Addon-ARDundZDF/blob/master/', page)
-	PLog("RepoFiles_doppelt: %d" % len(items))
-	for item in items:
-		f = stringextract('href="', '"', item)
-		f = f.split("blob/master/")[-1]						# Bsp.: resources/lib/ARDnew.py
-		if f.endswith("init__.py") or f.endswith(".pem"):	# skip PY2- + Repo-Leichen
-			continue
-		if f not in RepoList:								# Doppel aus items-block vermeiden
-			RepoList.append(f)
-	PLog("ModulesRepo: " + str(RepoList))					# Liste github-Module
-	
-	add_list=[]; dialog_list=[]								# Abgleich Repo/lokal
-	for item in RepoList:
-		found=False
-		item_f = item.split("/")[-1]						# Dateiname  im Repo
-		PLog("item: %s, item_f: %s" % (item,item_f))
-		for f in SINGLELIST:								# skip lokale Files, Haupt-PRG, Leichen	
-			if f.endswith(item_f):
-				if f.endswith("init__.py") == False:
-					PLog("found: " + f)
-					found=True
-				break
-		if found == False:									# add github-Modul
-			add_list.append(item)
-			f = item.split("/")[-1]							# im Repo nur "/"-Slashes 
-			dialog_list.append(f)
-	
-	PLog("add_list_modules: " + str(add_list))	
-	PLog("dialog_list: " + str(dialog_list))	
-	if len(add_list) > 0:
-		msg1 = 'NEU und automatisch mit installiert:'
-		msg2 = "\n".join(dialog_list)
-		MyDialog(msg1, msg2, '')
-		
+	for item in SINGLELIST:
+		f = item.replace(PluginAbsPath, "https://github.com/rols1/Kodi-Addon-ARDundZDF/tree/master/")
+		RepoList.append(f)
+	PLog("RepoList: %d" % len(RepoList))
+
 	#-------------													# 3. Dialoge Auswahl + Start
 
 	title = u"Einzelupdate - eigene Auswahl oder Liste?"
@@ -209,7 +166,7 @@ def update_single(PluginAbsPath):
 		if "\\" in local_file:
 			local_file = local_file.split("\\")[-1]					# Windows
 		else:
-			local_file = local_file.split("/")[-1]					# 
+			local_file = local_file.split("/")[-1]	
 		PLog(local_file)		
 		textlist.append(local_file)									# nur Dateinamen
 		ret_list.append(cnt)										# Listen-Index, default: alle ausgewählt
@@ -253,7 +210,7 @@ def update_single(PluginAbsPath):
 					# Bsp.: ../github.com/rols1/Kodi-Addon-ARDundZDF/blob/master/resources/livesenderTV.xml?raw=true
 					remote_file = "%s%s?%s" % (GIT_BASE, fname, "raw=true")
 					remote_file = remote_file.replace('\\', '/')
-					PLog('lade %s' % remote_file) 					
+					PLog('lade %s' % remote_file)
 					
 					r = urlopen(remote_file)						# Updatedatei auf Github 
 					page = r.read()
@@ -293,36 +250,13 @@ def update_single(PluginAbsPath):
 				xbmc.sleep(1000)									# ohne Pause nachlaufende notifications
 			else:
 				PLog("nr_local fehlt in %s" % local_file)
-	
-	#-------------													# 5. Ergänzung ev. neue Module im Repo
-	if len(add_list) > 0:
-		for item in add_list:
-			local_file = "%s/%s" % (PluginAbsPath, item)
-			remote_file = "%s/%s?%s" % (GIT_BASE, item, "raw=true")
-			remote_file = remote_file.replace('\\', '/')
-			PLog('lade %s' % remote_file) 
-			try:
-				r = urlopen(remote_file)							# Updatedatei auf Github 
-				page = r.read()
-				if PYTHON3:											# vermeide Byte-Error bei py2_decode			
-					page = page.decode("utf-8")
-				page = py2_encode(page)
-				RSave(local_file, page)
-				PLog("NEU: %s" % local_file)
-				f = item.split("/")[-1]								# im Repo nur "/"-Slashes 
-				result_list.append("%14s: %s" % ("Modul NEU", f))
-			except Exception as exception:	
-				PLog("exept_update_NEU: %s" % str(exception))
-			
-	#-------------													# 6. Ergebnisliste
+
+	#-------------													# 5. Ergebnisliste
 
 	# xbmc.executebuiltin('Dialog.Close(all,true)')					# verhindert nicht Nachlaufen 
 	result_list = "\n".join(result_list)							# Ergebnisliste
 	title = u"Einzelupdate - Abgleich von %d Dateien | Ergebnis:" % len(ret_list)
-	if PYTHON3:
-		xbmcgui.Dialog().textviewer(title, result_list,usemono=True)
-	else:
-		xbmcgui.Dialog().textviewer(title, result_list)
+	textviewer(title, result_list,usemono=True)						# util
 	
 	return
 
@@ -336,28 +270,22 @@ def update_single(PluginAbsPath):
 #		gewährleistet. thread_getepg löscht die Array-Datei im Dict und
 #		stößt die Neuerfassung in EPG() an.
 #		EPG() entscheidet anhand des Formats der Dict-Datei die Auswertung
-#		als Array (type 'list') oder als Textdatei in get_data_web (soll
+#		als Array (type 'list') oder als Textdatei in get_api_data (soll
 #		korrekte Behandlung alter Cache-Dateien im Webformat verhindern).
+#	01.10.2025 Webseite geändert, auch Zeitformat 
 #	
 def EPG(ID, mode=None, day_offset=None, load_only=False):
 	PLog('EPG_ID: ' + ID)
 	PLog(mode); PLog(day_offset); PLog(load_only);
 
-	url="http://www.tvtoday.de/programm/standard/sender/%s.html" % ID
 	Dict_ID = "EPG_%s" % ID
-	PLog(url)
 	if ID == "dummy":
 		return []
 	
-	page = Dict("load", Dict_ID, CacheTime=EPGCacheTime)
-	PLog(type(page))
-	if page == False or len(page) == 0:									# Cache miss - vom Server holen
-		page, msg = get_page(path=url)				
-	if '<!DOCTYPE html>' in page:										# Webseite
-		EPG_dict = get_data_web(page, Dict_ID)							# Web -> 2-dim-Array EPG_rec -> Dict					 
-	else:																# EPG_rec = type list 
-		EPG_dict = page	
-	# PLog(len(str(page)))												# codec-Error python2.*
+	EPG_dict = Dict("load", Dict_ID, CacheTime=EPGCacheTime)
+	if EPG_dict == False or len(EPG_dict) == 0:							# Cache miss - vom Server holen
+		EPG_dict = get_api_data(Dict_ID)								# Api -> 2-dim-Array EPG_rec -> Dict					 
+	PLog("EPG_dict: %d" % len(str(EPG_dict)))	
 
 	# today.de verwendet Unix-Format, Bsp. 1488830442
 	now,today,today_5Uhr,nextday,nextday_5Uhr = get_unixtime(day_offset)# lokale Unix-Zeitstempel holen + Offsets
@@ -365,10 +293,14 @@ def EPG(ID, mode=None, day_offset=None, load_only=False):
 	now_human =  now_human.strftime("%d.%m.%Y, %H:%M:%S")				# deutsches Format
 	day_human = datetime.datetime.fromtimestamp(int(today_5Uhr))
 	day_human =  day_human.strftime("%d.%m.%Y")							# deutsches Datumformat für Offset
+	
 	PLog('EPG_date_formats:')
 	PLog(now); PLog(now_human); PLog(day_human);
 	# PLog(today); PLog(today_5Uhr); PLog(nextday); PLog(nextday_5Uhr)	# bei Bedarf
+	today_5Uhr=int(today_5Uhr); nextday_5Uhr=int(nextday_5Uhr)
+	now=int(now)
 
+	date_format = "%Y-%m-%dT%H:%M:%S"
 	# Ausgabe: akt. Tag ab 05 Uhr(Start) bis nächster Tag 05 Uhr (Ende)
 	EPG_rec=[]															# -> gefilterte Aufbereitung (Zeit, JETZT-Mark.)
 	for i in range (len(EPG_dict)):		# ältere + jüngere Sendungen in Liste - daher Schleife + Zeitabgleich	
@@ -376,39 +308,50 @@ def EPG(ID, mode=None, day_offset=None, load_only=False):
 		r = EPG_dict[i]
 		# Indices EPG_rec: 0=starttime, 1=href, 2=img, 3=sname, 4=stime,  
 		#			5=summ, 6=vonbis, 7=today_human, 8=endtime:  
-		starttime=r[0]; href=r[1]; img=r[2]; sname=r[3];				# href=r[1] nicht verwendet
+		s_start=r[0]; href=r[1]; img=r[2]; sname=r[3];					# href=r[1] nicht verwendet
 		stime=r[4]; summ=r[5]; vonbis=r[6];today_human=r[7]; 			# today_human=r[7] noch leer
-		endtime=r[8];
+		s_end=r[8];
 		
-		s_start = 	datetime.datetime.fromtimestamp(int(starttime))		# Zeit-Konvertierung UTC-Startzeit
+		summ = summ.replace("None", "?")
+		
+		starttime = time.mktime(s_start.timetuple())					# -> unix
+		starttime = int(starttime)
+		endtime = time.mktime(s_end.timetuple())
+		endtime = int(endtime)
+		
 		s_startday =  s_start.strftime("%A") 							# Locale’s abbreviated weekday name
 		iWeekday = transl_wtag(s_startday)
 		today_human = iWeekday + ', ' + day_human						# Wochentag + Datum -> tagline
-		# PLog("diff_%d: %s, %s-%s" % (i, now, starttime, endtime))		# bei Bedarf
+		diff = starttime - endtime
+		# PLog("diff_%d: %s, %d-%d" % (i, now, starttime, endtime))		# bei Bedarf
 		
 		# Auslese - nur akt. Tag 05 Uhr (einschl. Offset in Tagen ) + Folgetag 05 Uhr:
 		if starttime < today_5Uhr:										# ältere verwerfen
-			# PLog(starttime); PLog(nextday_5Uhr)
+			#PLog("too_old")
+			#diff = today_5Uhr -starttime
+			#PLog("s_start: %s | today_5Uhr-starttime: %d-%d, diff: %d" % (s_start, today_5Uhr, starttime, diff))
 			continue
 		if starttime > nextday_5Uhr:									# jüngere verwerfen
-			# PLog(starttime); PLog(nextday_5Uhr)
+			#PLog("too_young")
+			#diff = starttime-nextday_5Uhr
+			#PLog("s_start: %s | starttime-nextday_5Uhr: %d-%d, diff: %d" % (s_start, starttime, nextday_5Uhr, diff))
 			continue	
 				
 		summ = 	repl_json_chars(summ)
-		sname_org = sname	
 		if now >= starttime and now < endtime:
-			# PLog("diffnow_%d: %s, %s-%s" % (i, now, starttime, endtime))	# bei Bedarf
+			PLog("diffnow_%d: %s, %s-%s" % (i, now, starttime, endtime))
 			# Farb-/Fettmarkierung bleiben im Kontextmenü erhalten (addDir):
-			sname = "[B]JETZT: %s[/B]" % sname_org						# JETZT: fett 
+			sname = "[B]JETZT: %s[/B]" % sname						# JETZT: fett 
 			PLog("JETZT: %s, %s" % (sname, img))
-			if mode == 'OnlyNow':										# aus EPG_ShowAll - nur aktuelle Sendung
+			if mode == 'OnlyNow':										# Call EPG_ShowAll: nur aktuelle Sendung
 				rec = [starttime,href,img,sname,stime,summ,vonbis]  	# Index wie EPG_rec
-				# PLog(rec)
+				#PLog(rec)
 				PLog('EPG_EndOnlyNow')
-				return rec												# Rest verwerfen - Ende		
+				return rec												# Rest verwerfen - Ende
+				break		
 
 		if endtime < now:												# vergangenes: grau markieren
-			sname = "[COLOR grey][B]%s[/B][/COLOR]" % sname_org
+			sname = "[COLOR grey][B]%s[/B][/COLOR]" % sname
 
 		# Indices EPG_rec: 0=starttime, 1=href, 2=img, 3=sname, 4=stime, 5=summ, 6=vonbis, 
 		#			7=today_human, 8=endtime:  
@@ -418,11 +361,12 @@ def EPG(ID, mode=None, day_offset=None, load_only=False):
 		rec.append(endtime)
 		EPG_rec.append(rec)												# Liste Gesamt (2-Dim-Liste)
 	
-	PLog(len(EPG_rec)); PLog('EPG_End:')								# Sortierung <- get_data_web
+	PLog(len(EPG_rec)); PLog('EPG_End:')								# Sortierung <- get_api_data
 	if mode == 'OnlyNow' and len(EPG_rec) > 7:
 		PLog("OnlyNow_rec_len_to_big")
 		EPG_rec=[]
 	return EPG_rec
+
 #-----------------------
 def get_summ(block):		# Beschreibung holen
 	summ = ''
@@ -486,57 +430,133 @@ def get_sort_playlist(PLAYLIST):				# sortierte Playliste der TV-Livesender
 	return sort_playlist
 	
 ########################################################################
-def get_data_web(page, Dict_ID):
-	PLog("get_data_web:")
+# Auswertung der Webseite für EPG(), jeweils einzeln für 1 Sender 
+# today.de verwendet Unix-Format, Bsp. 1488830442
+# 01.10.2025 Webseite geändert (json eingebettet), auch Zeitformat
+# 11.10.2025 nur noch 3 Tage EPG (tvtoday liefert nur noch 1 Tag pro
+#	Zugriff)
+def get_api_data(Dict_ID):
+	PLog("get_api_data:")	
 	
-	# today.de verwendet Unix-Format, Bsp. 1488830442
-	now,today,today_5Uhr,nextday,nextday_5Uhr = get_unixtime()# lokale Unix-Zeitstempel, ohne Offset
+	sid = Dict_ID.split("EPG_")[-1]
+	img_base = "https://img.tvspielfilm.de"
+	api_base = "https://www.tvtoday.de/api/broadcasts?channelId[]=%s&dates[]=%s&timeFrame=day&limit=9999&offset=0&orderBy=channel&sortDirection=asc"
+	now,today,today_5Uhr,nextday,nextday_5Uhr = get_unixtime()		# lokale Unix-Zeitstempel, ohne Offset
+	# wlist = list(range(0,8))										# ca. 35 sec. bei 100  Mbit
+	wlist = list(range(0,3))										# ca. 13 sec
+	now = datetime.datetime.now()
+	data_list=[]
+
+	try:
+		cnt=0; data_len=0
+		for nr in wlist:
+			rdate = now + datetime.timedelta(days = nr)
+			rday = rdate.strftime("%Y-%m-%d")
+			url = api_base % (sid, rday)
+			page, msg = get_page(url)
+			if page:													# json-mapping via ** klappt nicht
+				data_list.append(page)
+				data_len = data_len + len(page)							# -> Gesamtlänge
+			cnt=cnt+1 
+	except Exception as exception:
+		data_items=[]
+		PLog("data_load_error: " + str(exception))
 	
-	page  = stringextract('class="tv-show-container', 'id="module-footer"', page)
-	liste = blockextract('href="', page)  
-	PLog(len(liste));	
+	PLog("data_loaded: %d in %d Listen" % (data_len, len(data_list)))
+
+	#url = api_base % (sid, "2025-10-11")								# Debug single page
+	#page, msg = get_page(url)
+	#data_list.append(page)
 	
+	# ältere + jüngere Sendungen in Liste, Zeitabgleich in EPG()
 	EPG_rec = []
-	# ältere + jüngere Sendungen in Liste, Zeitabgleich in EPG() bei hier Abruf
-	for i in range (len(liste)):		
-		# rec: akt. Tag ab 05 Uhr(Start) bis nächster Tag 05 Uhr (Ende):	
-		rec = []
-		starttime = stringextract('data-start-time=\"', '\"', liste[i]) # Sendezeit, Bsp. "1488827700" (UTC)
-		if starttime == '':												# Ende (Impressum)
-			break
-		endtime = stringextract('data-end-time=\"', '\"', liste[i])	 	# Format wie starttime
-		href = stringextract('href=\"', '\"', liste[i])					# wenig zusätzl. Infos
-		img = stringextract('srcset="', '"', liste[i])
-		img = img.replace('159.', '640.')								# Format ändern "..4415_159.webp"
+	for data in data_list:												# data = 1 Tag
+		PLog("get_data: %d" % len(data))
+		try:
+			jsonObject = json.loads(data)
+			objs = jsonObject["items"]
+			PLog("records_objs: %d" % len(objs))
+			i=0
+
+			for obj in objs:											# obj = ca. 30 Sendungen		
+				# rec: akt. Tag ab 05 Uhr(Start) bis nächster Tag 05 Uhr (Ende):	
+				rec = []
+				summ=""; summ1=""; summ2=""; summ3="";
+				img=""
+
+				starttime = obj["startDate"]
+				endtime = obj["endDate"]	
+				href = obj["url"]											# PRG-Seite nicht verwendet	
+				if "images" in obj:
+					img = img_base + obj["images"][0]["path"]				# max-Größe
+				
+				stitle = obj["title"]
+				sub = obj["subtitle"]
+				stitle = unescape(stitle); stitle = stitle.replace('\"', '*')		
+				if sub:
+					stitle = "%s: %s" % (stitle, sub)						# Hubert ohne Staller: Bauernregel
+
+				genre = obj["genre"]
+				prodyear = obj["productionYear"]
+				descr = obj["showTopics"]
+				country = obj["publicationCountryId"]
+				summ3 = "%s, %s, %s" % (genre, country, prodyear)			# wie tvtoday: Nachrichten, D, 2025
+
+				channelId = obj["channelId"]
+				comment = obj["showCommentator"]
+				gast = obj["studioGuest"]
+				host = obj["showHost"]
+				summ2 = channelId
+				if comment:
+					summ2 = "%s | Kommentator: %s" % (summ2, comment)
+				if gast:
+					summ2 = "%s | Gast: %s" % (summ2, gast)
+				if host:
+					summ2 = "%s | Host: %s" % (summ2, host)
+
+				if descr:
+					summ = descr
+				if summ1:
+					summ = "%s\n%s" % (summ, summ1)
+				if summ2:
+					summ = "%s\n%s" % (summ, summ2)
+				summ = "%s\n%s" % (summ, summ3)
+				summ = unescape(summ)
+				
+				# date-Format: 2025-10-01T05:00:00+02:00
+				date_format = "%Y-%m-%dT%H:%M:%S"
+				starttime=starttime[:19]; endtime=endtime[:19]
+				
+				s_start=datetime.datetime.fromtimestamp(time.mktime(time.strptime(starttime, date_format)))
+				s_startday =  s_start.strftime("%A") 						# Locale’s abbreviated weekday name
+				stime = s_start.strftime("%H:%M")
+				sname = "%s | %s" % (stime, stitle)							# Titel: Bsp. 06:40 | Nachrichten
+				if i == 0 or i == len(objs)-1:								# erster / letzter Satz
+					PLog("Start: %s, End: %s | stime: %s, sname: %s" % (starttime, endtime, stime, sname))		
+			
+				von = stime
+				s_end=datetime.datetime.fromtimestamp(time.mktime(time.strptime(endtime, date_format)))
+				bis = s_end.strftime("%H:%M") 
+				vonbis = von + ' - ' + bis
+			
+				# Indices EPG_rec: 0=s_start, 1=href, 2=img, 3=sname, 4=stime,  
+				#			5=summ, 6=vonbis, 7=today_human, 8=s_end:  
+				# Link href zum einzelnen Satz hier nicht verwendet - wenig zusätzl. Infos
+				today_human=""												# gesetzt in EPG()
+				rec.append(s_start);rec.append(href); rec.append(img); rec.append(sname);	# Listen-Element
+				rec.append(stime); rec.append(summ); rec.append(vonbis); rec.append(today_human);
+				rec.append(s_end)
+				EPG_rec.append(rec)											# Liste Gesamt (2-Dim-Liste)
+				i=i+1				
 		
-		sname = stringextract('class=\"h7 name\">', '</p>', liste[i])
-		sname = unescape(sname); sname = sname.replace('\"', '*')
-		stime = stringextract('class=\"h7 time\">', '</p>', liste[i])   # Format: 06:00
-		stime = stime.strip()
-		summ = get_summ(liste[i])										# Beschreibung holen
-		summ = unescape(summ)
-		
-		sname = "%s | %s" % (stime, sname)								# Titel: Bsp. 06:40 | Nachrichten
-		s_start = 	datetime.datetime.fromtimestamp(int(starttime))		# Zeit-Konvertierung UTC-Startzeit
-		s_startday =  s_start.strftime("%A") 							# Locale’s abbreviated weekday name
-	
-		von = stime
-		bis = datetime.datetime.fromtimestamp(int(endtime))
-		bis = bis.strftime("%H:%M") 
-		vonbis = von + ' - ' + bis
-	
-		# Indices EPG_rec: 0=starttime, 1=href, 2=img, 3=sname, 4=stime,  
-		#			5=summ, 6=vonbis, 7=today_human, 8=endtime:  
-		# Link href zum einzelnen Satz hier nicht verwendet - wenig zusätzl. Infos
-		today_human=""													# gesetzt in EPG()
-		rec.append(starttime);rec.append(href); rec.append(img); rec.append(sname);	# Listen-Element
-		rec.append(stime); rec.append(summ); rec.append(vonbis); rec.append(today_human);
-		rec.append(endtime)
-		EPG_rec.append(rec)												# Liste Gesamt (2-Dim-Liste)
+		except Exception as exception:
+			EPG_rec=[]
+			PLog("data_extract_error: " + str(exception))
 	
 	EPG_rec.sort()														# Sortierung (-> zeitl. Folge)
+	# PLog(str(EPG_rec))	
 	Dict("store", Dict_ID, EPG_rec)										# Daten -> Cache: aktualisieren	
-	PLog(len(EPG_rec)); PLog('get_data_web_End')
+	PLog("records: %d" % len(EPG_rec)); PLog('get_api_data_End')
 	return EPG_rec
 	
 ########################################################################
@@ -587,46 +607,101 @@ def get_unixtime(day_offset=None, onlynow=False):
 	return now,today,today_5Uhr,nextday,nextday_5Uhr
 #----------------------------------------------------------------  
 #################################################################  
+# 11.06.2025 Erweiterung Radio-EPG (Kontextmenü, Button für gesamtes
+#	Radio-EPG in AudioStartLive
 		
 params = unquote(str(sys.argv))
 PLog("context_params: " + params)
 
-
-if "'context'" in str(sys.argv):									# Kontextmenü: EPG im textviewer
+if "'context'" in str(sys.argv):										# Kontextmenü: EPG im textviewer
 	PLog("EPG_context:")
-	title =  stringextract("title': '", "'", params)
-	ID =  stringextract("ID': '", "'", params)
-	PLog("title: %s, ID: %s" % (title, ID))
-	EPG_rec = EPG(ID, day_offset=0)
+	
+	if "pub_id" in params:												# Radio-EPG einzelner Sender
+		PLog("get_Radio-EPG")
+	
+		base = "https://programm-api.ard.de/radio/api/publisher?publisher="
+		lines=[]
+		pub_id = stringextract("pub_id': '", "'", params)				# urn:ard:publisher:c4a9cee041835529
+		sender = stringextract("sender': '", "'", params)				# Sender-Titel -> textviewer
+		PLog("sender: %s, pub_id: %s" % (sender, pub_id))
+		path = base + pub_id
+		page, msg = get_page(path)
+		PLog(page[:80])
+		if page:
+			try:
+				objs = json.loads(page)								
+				for obj in objs:
+					stitle=""; artist=""
+					start = obj["start"]; end = obj["end"]
+					start = start[11:11+5]; end = end[11:11+5]
+					title = obj["title"] 
+					if "subTitle" in obj:
+						stitle = obj["subTitle"];
+					line = "%s - %s | %s" % (start, end, title)
+					if stitle:
+						line = "%s | %s" % (line, stitle)
+					if line not in lines:								# mehrfach mit verschied. livestreamId's
+						lines.append(line)
+						
+					if "clip" in obj:									# Beitrag mit Details ergänzen
+						clip = obj["clip"]
+						start = clip["start"]; end = clip["end"]
+						start = start[11:11+5]; end = end[11:11+5]
+						if "artist" in clip:
+							artist = clip["artist"]
+						title = clip["title"]
+						typ = clip["type"]
+						line = "%s - %s | %s | %s" % (start, end, typ, title)
+						if artist:
+							line = "%s | %s" % (line, artist)
+						if line not in lines:							# mehrfach wie oben
+							lines.append(line)						
+					
+			except Exception as exception:
+				lines=[]; sender="Radio-EPG"
+				PLog(obj)
+				PLog("pub_id_error: " + str(exception))			
+		title = sender
+	else:																# TV-EPG einzelner Sender (K-Menü)
+		title =  stringextract("title': '", "'", params)
+		ID =  stringextract("ID': '", "'", params)
+		PLog("title: %s, ID: %s" % (title, ID))
+		EPG_rec = EPG(ID, day_offset=0)
+		PLog("EPG_rec: %s" % str(EPG_rec))
 
-	cnt=0
-	for rec in EPG_rec:
-		sname=rec[3]
-		if 'JETZT' in sname:
-			PLog("context_now: " + str(rec))
-			break
-		cnt=cnt+1
-	EPG_rec = EPG_rec[cnt:]
+		cnt=0
+		for rec in EPG_rec:
+			sname=rec[3]				
+			if 'JETZT' in sname:										# vorherige Verwerfen
+				PLog("context_now: " + str(rec))
+				break
+			cnt=cnt+1
+		EPG_rec = EPG_rec[cnt:]
+		# PLog("EPG_rec: %s" % str(EPG_rec))
 
-	lines=[]
-	for rec in EPG_rec:
-		try:
-			sname=rec[3]; stime=rec[4]; summ=rec[5]; vonbis=rec[6];	# alle Indices s. EPG
-			if sname.count("|") > 1:
-				sname = sname.split("|")[2]							# So | JETZT: 15:55 | Weltcup-Skispringen
-			sname = sname.replace("[/B]", "")
-			sname = "%s | %s" % (vonbis,sname)
-			lines.append("[B]%s[/B]\n%s\n" % (sname, summ))
-		except Exception as exception:
-			PLog("EPG_rec_error: " + str(exception))	
+		lines=[]
+		for rec in EPG_rec:
+			try:
+				sname=rec[3]; stime=rec[4]; summ=rec[5]; vonbis=rec[6];	# alle Indices s. EPG
+				if sname.count("|") > 1:
+					sname = sname.split("|")[2]							# So | JETZT: 15:55 | Weltcup-Skispringen
+				sname = sname.replace("[/BEPG_rec:]", "")
+				sname = "%s | %s" % (vonbis,sname)
+				lines.append("[B]%s[/B]\n%s\n" % (sname, summ))
+			except Exception as exception:
+				PLog("EPG_rec_error: " + str(exception))	
 
+	# ------------------------------------								# Ausgabe
 	#PLog(lines)		# Debug
 	if len(lines) == 0:
 		icon = R('tv-EPG-all.png')
+		title = ID
 		xbmcgui.Dialog().notification(title, "keine EPG-Daten vorhanden",icon,3000)	
 	else:
 		lines =  "\n".join(lines)
-		xbmcgui.Dialog().textviewer(title , lines ,usemono=True)
+		PLog("title: " + title)
+		title = title.replace('", "', ',')
+		textviewer(title, lines, usemono=True)							# util
 
 #-----------------------------------------------------------------------		
 if "ShowSumm" in str(sys.argv):											# Kontextmenü: Video-Inhaltstext im textviewer
@@ -748,10 +823,7 @@ if "ShowSumm" in str(sys.argv):											# Kontextmenü: Video-Inhaltstext im t
 	if summ.strip() == "":
 		xbmcgui.Dialog().notification("suche Inhaltstext:", "leider ohne Ergebnis",icon,3000)	
 	else:
-		if PYTHON3:
-			xbmcgui.Dialog().textviewer(title, summ, usemono=True)
-		else:
-			xbmcgui.Dialog().textviewer(title, summ)
+		textviewer(title, summ, usemono=True)				# util
 		
 #-----------------------------------------------------------------------		
 		
@@ -759,4 +831,15 @@ if "ShowSumm" in str(sys.argv):											# Kontextmenü: Video-Inhaltstext im t
 		
 		
 		
-		
+
+
+
+
+
+
+
+
+
+
+
+

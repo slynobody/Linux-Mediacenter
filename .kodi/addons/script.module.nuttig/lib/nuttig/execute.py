@@ -5,8 +5,9 @@ __all__ = [
     "executeBuiltin", "executeJSONRPC", "getCondition", "getInfoLabel",
     "containerRefresh", "containerUpdate", "playMedia", "runScript",
     "addFavourite", "getAddons", "addonInstalled", "addonEnabled",
-    "hasAddon", "addonIsEnabled", "activateWindow",
-    "getApplicationProperty", "getKodiVersion"
+    "hasAddon", "addonIsEnabled", "activateWindow", "getApplicationProperty",
+    "getKodiVersion", "getKodiName", "getKodiVolume", "setKodiVolume",
+    "getKodiMuted", "getKodiLanguage", "getKodiSetting", "setKodiSetting"
 ]
 
 
@@ -122,3 +123,33 @@ def getApplicationProperty(name):
 # getKodiVersion
 def getKodiVersion():
     return getApplicationProperty("version")
+
+# getKodiName
+def getKodiName():
+    return getApplicationProperty("name")
+
+# getKodiVolume
+def getKodiVolume():
+    return getApplicationProperty("volume")
+
+# setKodiVolume
+def setKodiVolume(*args, **kwargs):
+    executeBuiltin("SetVolume", *args, **kwargs)
+
+# getKodiMuted
+def getKodiMuted():
+    return getApplicationProperty("muted")
+
+# getKodiLanguage
+def getKodiLanguage():
+    return getApplicationProperty("language")
+
+# getKodiSetting
+def getKodiSetting(setting):
+    return executeJSONRPC("Settings.GetSettingValue", setting=setting)["value"]
+
+# setKodiSetting
+def setKodiSetting(setting, value):
+    return executeJSONRPC(
+        "Settings.SetSettingValue", setting=setting, value=value
+    )

@@ -12,8 +12,8 @@
 #	Nov./Dez. 2024 Umstellung Web-scraping -> api hbbtv.zdf.de
 # 	
 ################################################################################
-# 	<nr>28</nr>										# Numerierung für Einzelupdate
-#	Stand: 01.01.2025
+# 	<nr>29</nr>										# Numerierung für Einzelupdate
+#	Stand: 04.09.2025
 
 # Python3-Kompatibilität:
 from __future__ import absolute_import		# sucht erst top-level statt im akt. Verz. 
@@ -47,7 +47,7 @@ import datetime, time
 
 # Addonmodule + Funktionsziele (util_imports.py)
 # import ardundzdf reicht nicht für thread_getpic
-from ardundzdf import *					# -> get_query, test_downloads, Parseplaylist, 
+from ardundzdf import *					# -> get_query, Parseplaylist, 
 										# thread_getpic, ZDF_SlideShow, get_ZDFstreamlinks
 from resources.lib.util import *
 
@@ -425,12 +425,14 @@ def Verpasst(title):
 				
 	li = xbmcgui.ListItem()
 	li = home(li, ID='3Sat')									# Home-Button
-		
 	for day in wlist:
-		title = day["longname"]
-		if "Heute" in title:
-			title = "[B]%s[/B]" % title
+		wday = day["longname"].split(",")[0]					# Montag, 8.9.2025
+		if "Heute" in wday:
+			wday = "[B]%s[/B]" % wday
 		dayID = day["id"]
+		datum = "%s.%s.%s" % (dayID[:-4], dayID[4:6], dayID[6:])
+		datum = "%s.%s.%s" % (dayID[6:], dayID[4:6], dayID[:-4])
+		title = "%s | %s" % (datum, wday)
 		
 		PLog('Satz2:')	
 		PLog(title); PLog(dayID); 
@@ -857,12 +859,10 @@ def my3sat_content(item, img_qual="hi", mark=""):
 			titletxt = item["title"]
 		if "vidlentxt" in item:				# "87 min"
 			dauer = item["vidlentxt"]
-		PLog("mark0")	
 		if "isgroup" in item:
 			isgroup = item["isgroup"]
 		if  "foottxt" in item:	
 			foottxt = item["foottxt"]		# "36 Beiträge"
-		PLog("mark1")	
 		
 		if "text" in item:
 			descr = item["text"] 

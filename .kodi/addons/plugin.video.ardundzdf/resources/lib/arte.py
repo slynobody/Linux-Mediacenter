@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 ################################################################################
-#				arte.py - Teil von Kodi-Addon-ARDundZDF
+#		arte.py - Teil von Kodi-Addon-ARDundZDF ab V3.0.7 08.06.2020
 #		Inhalte der ArteMediathek auf https://www.arte.tv/de/
 #
 #	Kompatibilität Python2/Python3: Modul future, Modul kodi-six
 #	Auswertung via Strings statt json (Performance)
 #
 ################################################################################
-# 	<nr>63</nr>								# Numerierung für Einzelupdate
-#	Stand: 28.03.2025
+# 	<nr>71</nr>								# Numerierung für Einzelupdate
+#	Stand: 16.11.2025
 
 # Python3-Kompatibilität:
 from __future__ import absolute_import		# sucht erst top-level statt im akt. Verz. 
@@ -36,7 +36,7 @@ elif PYTHON3:
 		pass
 
 
-import ardundzdf					# -> get_query,test_downloads, get_ZDFstreamlinks, build_Streamlists_buttons
+import ardundzdf					# -> get_query,get_ZDFstreamlinks, build_Streamlists_buttons
 import resources.lib.EPG as EPG
 from resources.lib.util import *
 
@@ -118,8 +118,8 @@ def Main_arte(title='', summ='', descr='',href=''):
 	fparams="&fparams={}" 
 	addDir(li=li, label=title, action="dirList", dirID="resources.lib.arte.Arte_Search", fanart=R(ICON_ARTE), 
 		thumb=R(ICON_SEARCH), tagline=tag, fparams=fparams)
-	# ------------------------------------------------------
 
+	# ------------------------------------------------------
 	title = u"%s" % L("Arte TV-Programm heute")
 	tag = "[B]%s[/B]" % arte_lang
 	fparams="&fparams={}" 
@@ -142,8 +142,8 @@ def Main_arte(title='', summ='', descr='',href=''):
 		(quote(href), quote(title), quote(summ_par), quote(img))
 	addDir(li=li, label=title, action="dirList", dirID="resources.lib.arte.Arte_Live", fanart=R(ICON_ARTE),
 		thumb=img, fparams=fparams, tagline=tag, summary=summ)
-
 	# ------------------------------------------------------
+
 	title = u"%s" % L(u"Kategorien")
 	tag = u"%s wwww.arte.tv" % L(u"einschließlich Startseite")
 	summ = u"[B]%s[/B]" % arte_lang
@@ -218,7 +218,7 @@ def set_lang(title, new_set=""):
 def get_live_data(name):
 	PLog('get_live_data:')
 
-	#------------------											# Livestream aus Cache holen
+	#------------------										# Livestream aus Cache holen
 	ard_streamlinks = get_ARDstreamlinks(skip_log=True)
 	# Zeile ard_streamlinks: "webtitle|href|thumb|tagline"
 	for line in ard_streamlinks:
@@ -227,66 +227,60 @@ def get_live_data(name):
 		if up_low('Arte') in up_low(webtitle): 
 			href = href
 			break		
-	thumb = R('arte_live.png')									# Cache-thumb ist landscape
+	thumb = R('arte_live.png')								# Cache-thumb ist landscape
 	if href == '':
 		PLog('%s: Streamlink fehlt' % 'Arte ')
 	#------------------
 
 	arte_lang = Dict('load', "arte_lang")
-	lang = arte_lang.split("|")[1].strip()						# fr, de, ..
+	lang = arte_lang.split("|")[1].strip()					# fr, de, ..
 
-	err_par = [u"[B]LIVE[/B]", "", "", thumb, href]				# Stream ohne Daten
-	page = EPG_Today(mode="onlyPage")							# nur Seite für Heute holen, kein Check ob Sprache verfügbar
-	player = "https://api.arte.tv/api/player/v2/config/%s/LIVE" % lang	# aus ../pages/TV_GUIDE/?day=..
-	if page:
-		li=""
-		try:
-			title, tag, summ, thumb, url = GetContent(li, page, ID="EPG_Today", OnlyNow=True)
-		except Exception as exception:
-			PLog("json_error6: " + str(exception))
-			PLog("use_ard_streamlinks")
-			title=""; tag=""; summ=""; thumb=""; url=href	
-		
-		if title == "":											# EPG-Abruf fehlgeschlagen
-			title = "unbekannt"
-		title = u"[B]LIVE[/B] | %s" % title
-		tag = u"%s\n%s" % (title, tag)
-		if thumb == "":
-			thumb = R('arte_live.png')
+	err_par = [u"[B]LIVE[/B]", "", "", thumb, href]			# Stream ohne Daten
+	# nur Seite für Heute holen, kein Check ob Sprache verfügbar:
+	ret_list = EPG_Today(ID="EPG_Today", OnlyNow=True)		# EPG-Abruf 
 
-		page = get_page(path=player)							# Playerdaten mit Stream-Url
-		page = py2_encode(page)
-		try:
-			streams = stringextract('"streams":', '"stat"', str(page))
-			PLog("streams: " + streams[:80])
-			streams = streams.replace('\\\\/','/')				# https:\\/\\/artesimulcast.akamaized.net/..
-			PLog("streams: " + streams[:80])
-			urls = blockextract('url":', streams)				# Live-Streams nur für fr, de vorhanden
-			PLog(len(urls))
-			if "fr" in lang:
-				stream_url = stringextract('url":"', '"', urls[0])
-			else:												# [1] Direct Allemand"
-				stream_url = stringextract('url":"', '"', urls[1])
-			
-			href = stream_url			
-		except Exception as exception:
-			PLog("player_error: " + str(exception))							
-			PLog("stream_url=href")								# Fallback: href aus ard_streamlinks
-		
-		PLog("lang: %s, href: %s" % (lang, href))
-		title=py2_decode(title); summ=py2_decode(summ);			# PY2
-		return title, tag, summ, thumb, href		
-	else:
+	if len(ret_list) == 0:									# Fehlschlag
+		title = u"[B]Unbekannt[/B]"
 		PLog("empty_epg")
-		return err_par
+		return err_par		
+	#--------------------------------------
+	
+	title=ret_list[0]; tag=ret_list[1];summ=ret_list[2];thumb=ret_list[3];
+	title = title.replace("JETZT", "LIVE")
+	tag = u"%s\n%s" % (title, tag)
+	if thumb == "":
+		thumb = R('arte_live.png')
+
+	player = "https://api.arte.tv/api/player/v2/config/%s/LIVE" % lang	# aus ../pages/TV_GUIDE/?day=..
+	page = get_page(path=player)							# Playerdaten mit Stream-Url
+	page = py2_encode(page)
+	try:
+		streams = stringextract('"streams":', '"stat"', str(page))
+		PLog("streams: " + streams[:80])
+		streams = streams.replace('\\\\/','/')				# https:\\/\\/artesimulcast.akamaized.net/..
+		PLog("streams: " + streams[:80])
+		urls = blockextract('url":', streams)				# Live-Streams nur für fr, de vorhanden
+		PLog(len(urls))
+		if "fr" in lang:
+			stream_url = stringextract('url":"', '"', urls[0])
+		else:												# [1] Direct Allemand"
+			stream_url = stringextract('url":"', '"', urls[1])
+		
+		href = stream_url			
+	except Exception as exception:
+		PLog("player_error: " + str(exception))							
+		PLog("stream_url=href")								# Fallback: href aus ard_streamlinks
+	
+	PLog("lang: %s, href: %s" % (lang, href))
+	title=py2_decode(title); summ=py2_decode(summ);			# PY2
+	return title, tag, summ, thumb, href		
 
 # ----------------------------------------------------------------------
 # TV-Programm Heute von arte.tv/de/guide/
-# 14.03.2025 mode="onlyPage" -> nur Seite für get_live_data	
+# 14.03.2025 OnlyNow=True -> nur Seite für get_live_data	
 #
-def EPG_Today(mode=""):
-	PLog('EPG_Today:')
-	PLog("mode: " + mode)
+def EPG_Today(ID="", OnlyNow=""):
+	PLog('EPG_Today: ID: %s, OnlyNow: %s' % (ID, OnlyNow))
 
 	arte_lang = Dict('load', "arte_lang")
 	lang = arte_lang.split("|")[1].strip()			# fr, de, ..	
@@ -304,23 +298,103 @@ def EPG_Today(mode=""):
 		PLog(msg1); PLog(msg2)
 		path = EPG_path % ("de", today)
 	
-	page = get_ArtePage('EPG_Today', "EPG_Today", path)	
-	if page == '':
+	ID='EPG_Today'
+	page = get_ArtePage(ID, "EPG_Today", path)	
+	try:
+		values = page["value"]["zones"][0]["content"]["data"]	# 22.10.2025 nur noch 0=Listing 		
+	except Exception as exception:
+		msg = str(exception)
+		PLog("EPG_Today_error: " + msg)
+		values=[]
+			
+	PLog(len(values))
+	if len(values) == 0:
 		msg1 = L(u"Programmabruf fehlgeschlagen") 
 		MyDialog(msg1, "", '')
 		return
-		
-	if mode == "onlyPage":							# nur Inhalt, keine Liste
-		PLog("return_page")
-		return page
-		
+
+	#-------------------------------------------------
 	li = xbmcgui.ListItem()
 	l = L(u'Zurück zum Hauptmenü')
-	ltitle = u" %s %s" % (l, "arte")				# Startblank s. home
-	li = home(li, ID='arte', ltitle=ltitle)			# Home-Button	
+	ltitle = u" %s %s" % (l, "arte")					# Startblank s. home
+	if not OnlyNow:										
+		li = home(li, ID='arte', ltitle=ltitle)			# Home-Button nur Gesamt-EPG
+	lvon = L("von"); lbis = L("bis")
+	ldauer = L("Dauer")
 	
-	li, cnt = GetContent(li, page, ID="EPG_Today")
-	PLog("cnt: " + str(cnt))
+	mediatype=""	
+	if SETTINGS.getSetting('pref_video_direct') == 'true':	# Sofortstart?
+		mediatype='video'
+	ret_list=[]	
+	dt = datetime.datetime.now()						# für OnlyNow
+	now = time.mktime(dt.timetuple())					# Unix-Format 1489094334.0
+	now = str(now).split('.')[0]						# .0 kappen
+	date_format = "%Y-%m-%dT%H:%M:%SZ"
+	
+	for item in values:
+		PLog(str(item)[:60])
+		
+		title = item["title"]							# für Abgleich in Kategorien	
+		if "subtitle" in item:
+			subtitle = item["subtitle"]	
+			if subtitle:								# arte verbindet mit -
+				title  = "%s - %s" % (title, subtitle)
+		title = valid_title_chars(title)				# Steuerz. möglich: \t\n
+		
+		summ = item["shortDescription"]
+		if not summ:
+			summ = item["teaserText"]		
+			
+		prgid = item["programId"]						# 065804-000-A		
+		img = get_img(item, ID)
+
+		start_time = item["availability"]["start"]		# "2025-11-12T04:56:38Z"
+		end_time = item["availability"]["end"]
+		start = time_translate(start_time, add_hour_only=True)
+		end = time_translate(end_time, add_hour_only=True)		
+		
+		dur = item["duration"]
+		dur = seconds_translate(dur)
+		geo = item["geoblocking"]
+		if geo is None:
+			geo = "ALL"
+		if geo:
+			geo = "Geo: %s" % str(geo)	
+		else:
+			"Geo: ALL"
+
+		blue_start = start_time[-9:-4]; blue_end = end_time[-9:-4];
+		title = py2_decode(title)
+		label = u"[COLOR blue]%s[/COLOR] | %s" % (blue_start, title)	# Sendezeit | Titel
+		tag = u"[B]%s %s %s %s Uhr | %s: %s | %s[/B]" % (lvon, blue_start, lbis, blue_end, ldauer, dur, geo)
+		
+		summ = repl_json_chars(summ)						# -"-
+		summ  = valid_title_chars(summ)						# s. changelog V4.7.4
+		tag_par = tag.replace('\n', '||')					# || Code für LF (\n scheitert in router)
+		summ_par = summ.replace('\n', '||')					# || Code für LF (\n scheitert in router)
+
+		diff, now_check = time_calc_diff(end_time, start_time)
+		if now_check:
+			# Farb-/Fettmarkierung bleiben im Kontextmenü erhalten (addDir):
+			title = "[B]JETZT: %s[/B]" % title						# JETZT: fett 
+			label = u"[COLOR blue]%s[/COLOR] | %s" % (start_time[-9:-4], title)	# Sendezeit | Titel
+			PLog("JETZT: %s, %s" % (title, img))
+			PLog(start_time); PLog(end_time)			
+			PLog(start); PLog(end)			
+			ret_list = [title, tag, summ, img]				# -> get_live_data
+
+		if not OnlyNow:										# ganzes EPG					
+			prgid=py2_encode(prgid); img=py2_encode(img);
+			tag_par=py2_encode(tag_par); title=py2_encode(title);
+			summ_par=py2_encode(summ_par);				
+			fparams="&fparams={'img':'%s','title':'%s','pid':'%s','tag':'%s','summ':'%s','dur':'%s','geo':'%s'}" %\
+				(quote(img), quote(title), quote(prgid), quote(tag_par), quote(summ_par), dur, geo)
+			addDir(li=li, label=label, action="dirList", dirID="resources.lib.arte.SingleVideo", 
+				fanart=img, thumb=img, fparams=fparams, tagline=tag, summary=summ,  mediatype=mediatype)
+						
+	if OnlyNow:
+		PLog("OnlyNow_return:")
+		return ret_list
 	
 	xbmcplugin.endOfDirectory(HANDLE, cacheToDisc=True)
 
@@ -430,6 +504,7 @@ def Arte_Search(query='', next_url=''):
 # 15.01.2023 umgestellt: page=json
 # 14.03.2025 OnlyNow triggert EPG-Rückgabe -> get_live_data
 # 23.03.2025 ergänzt für hbbtv
+# 13.11.2025 pageProps-Values (alte Web-json-Inhalte) entfernt
 #
 def GetContent(li, page, ID, ignore_pid="", OnlyNow="", lang=""):
 	PLog("GetContent: " + ID)
@@ -437,55 +512,44 @@ def GetContent(li, page, ID, ignore_pid="", OnlyNow="", lang=""):
 	
 	PLog(str(page)[:80])
 	img_def = R(ICON_DIR_FOLDER)
-	skip_list=[]
+	skip_list=[]; msg=""
 		
-	if ID == "SEARCH":									# web-api-Call
-		values = page["value"]["zones"][0]["content"]["data"]
-	elif ID == "SEARCH_NEXT":							# Folgeseiten wie MOST_RECENT
-		values = page["value"]["data"]
-	elif ID == "EPG_Today":								# web-api-Call
-		values = page["value"]["zones"][1]["content"]["data"]	# 0=TVGuide Highlights, 1=Listing
-	elif ID == "Beitrag_Liste":	
-		if 	"pageProps" in page:						# 24.03.2024: vermutl. entfallen nach arte-Änderung
-			values = page["pageProps"]["initialPage"]["value"]["zones"][0]["content"]["data"]
-		else:
+	try:
+		if ID == "SEARCH":									# web-api-Call
+			values = page["value"]["zones"][0]["content"]["data"]
+		elif ID == "SEARCH_NEXT":							# Folgeseiten wie MOST_RECENT
 			values = page["value"]["data"]
-		PLog(len(values))
-		PLog(str(values)[:100])
-	elif ID == "MOST_RECENT":			
-		values = page["value"]["data"]
-		PLog(len(values))
-		PLog(str(values)[:100])
-	elif ID == "HBBTV":									# Neu HBBTV
-		if "cards" in page:
-			values = page["cards"]
-		elif "collections" in page:						# hbbtv
-			values = page["collections"]
-		else:
-			values=[]
-		if "images" in page:							# Default-Image statt ICON_DIR_FOLDER
-			img_def=""
-			if "highlight" in page["images"]:
-				img_def = page["images"]["highlight"]
+		elif ID == "Beitrag_Liste":	
+			values = page["value"]["data"]
+			PLog(len(values))
+			PLog(str(values)[:100])
+		elif ID == "MOST_RECENT":			
+			values = page["value"]["data"]
+			PLog(len(values))
+			PLog(str(values)[:100])
+		elif ID == "HBBTV":									# Neu HBBTV
+			if "cards" in page:
+				values = page["cards"]
+			elif "collections" in page:						# hbbtv
+				values = page["collections"]
 			else:
-				img_def = page["images"]["landscape"]
-		
-	else:
-		values = page["pageProps"]["initialPage"]		# web-embedded, ganze Seite
-		try:											# s.a. ArteCluster
-			if "value" in page:							# nach 13.01.2021
-				values = values["value"]["zones"]
-			else:										# vor 13.01.2021
-				values = values["zones"]
-		except Exception as exception:
-			PLog("json_error8: " + str(exception))
-			values=[]
+				values=[]
+			if "images" in page:							# Default-Image statt ICON_DIR_FOLDER
+				img_def=""
+				if "highlight" in page["images"]:
+					img_def = page["images"]["highlight"]
+				else:
+					img_def = page["images"]["landscape"]			
+	except Exception as exception:
+		msg = str(exception)
+		PLog("GetContent_error: " + msg)
+		values=[]		
 	
 	PLog("img_def: " + img_def)	
 	PLog(len(values))
 	if len(values) == 0:
-		PLog("no_values")
-		return li, 0
+		PLog(msg)
+		return li, 0									# Info durch Aufrufer
 	
 	PLog(str(values)[:100])
 	mediatype=''; cnt=0
@@ -616,12 +680,11 @@ def GetContent(li, page, ID, ignore_pid="", OnlyNow="", lang=""):
 					
 		title = transl_json(title); title = unescape(title);
 		title = repl_json_chars(title); 					# franz. Akzent mögl.
+		
 		summ = repl_json_chars(summ)						# -"-
 		summ  = valid_title_chars(summ)						# s. changelog V4.7.4
-		
 		tag_par = tag.replace('\n', '||')					# || Code für LF (\n scheitert in router)
 		summ_par = summ.replace('\n', '||')					# || Code für LF (\n scheitert in router)
-		
 		
 		PLog('Satz1:')
 		PLog(mehrfach); PLog(typ); PLog(pid); PLog(title); 
@@ -748,9 +811,12 @@ def get_img_pre(path, title):
 	PLog("urlretrieve %s to %s" % (img, fname))	
 	msg1 = L("Lade Bild")
 	msg2 = title
-	xbmcgui.Dialog().notification(msg1,msg2,R(ICON_ARTE),2000, sound=False)	 
-	urlretrieve(img, fname)								# img -> Cache
-	icon = R(ICON_ARTE)
+	xbmcgui.Dialog().notification(msg1,msg2,R(ICON_ARTE),2000, sound=False)	
+	try: 
+		urlretrieve(img, fname)								# img -> Cache
+	except Exception as exception:
+		PLog("urlretrieve_error: " + str(exception))
+		return 	leer_img
 	return fname
 	
 # -------------------------------
@@ -899,7 +965,6 @@ def SingleVideo(img, title, pid, tag, summ, dur, geo, trailer=''):
 	PLog(len(page))
 	page = page.replace('\\/', '/')
 	page = page.replace('\\"', '*')			# Bsp. "\"Brisant\""
-	#RSave('/tmp2/x_artestreams_v2.json', py2_encode(page))	# Debug		
 
 	try: 															# fehlende Daten für get_streams_from_link
 		objs = json.loads(page)["data"]["attributes"]
@@ -941,7 +1006,6 @@ def SingleVideo(img, title, pid, tag, summ, dur, geo, trailer=''):
 	
 	#-------------------------------------------------------------	# HBBTV-MP4-Quellen
 	page, msg = get_page(path2, do_safe=False)						# Bearer entbehrlich 
-	#RSave('/tmp2/x_artestreams_hbbtvv2.json', py2_encode(page))	# Debug	
 	MP4_List=[]
 	try:
 		page = json.loads(page)
@@ -1062,6 +1126,7 @@ def get_streams_api_v2(page, title, summ):
 		PLog(len(ext_list))
 		uhd=""
 		for item in ext_list:
+			uhd=""
 			res = stringextract('RESOLUTION=',  ',', item)
 			PLog(res)
 			if "3840x" in item:
@@ -1075,7 +1140,10 @@ def get_streams_api_v2(page, title, summ):
 				# s = uhd_m3u8.split("/")[:-2]						# Basis: Url
 				base = uhd_m3u8.split("/")[:-1]
 				base = "/".join(base)
-				uhd_stream = "%s/%s" % (base, uhd)					# plus uhd-Anhängsel
+				if uhd.startswith("http"):							# kompl. Url in RESOLUTION?
+					uhd_stream = uhd
+				else:
+					uhd_stream = "%s/%s" % (base, uhd)				# plus uhd-Anhängsel
 			except Exception as exception:
 				PLog(str(exception))
 				uhd_stream=""				
@@ -1170,7 +1238,7 @@ def Kategorien():
 				u"%s|arte_kultur.png|CPO" % l5, 
 				u"%s|arte_conc.png|arte_concert" % l6,
 				u"%s|arte_science.png|SCI" % l7, 
-				u"%s|arte_entdeck.png|DIS" % l8, 		
+				u"%s|arte_entdeck.png|DEC" % l8, 		
 				u"%s|arte_his.png|HIS" % l9
 				]
 	
@@ -1233,6 +1301,7 @@ def Kategorien():
 # 24.03.2025 neu mit hbbtv
 # Startseite arte - Step1 Übersicht, Step2 Folgeseiten (path, title)
 #	Step2 zusätzl. Verteiler Folgebeiträge aus hbbtv-Ergebnissen
+# 07.11.2025 Mehr-Button ergänzt nach arte-Begrenzung auf 10 Beiträge 
 #
 def ArteStart(path="", title=""):
 	PLog("ArteStart: " + path)
@@ -1241,7 +1310,7 @@ def ArteStart(path="", title=""):
 	lang = arte_lang.split("|")[1].strip()				# fr, de, ..
 
 	step1=True	
-	if path == "":
+	if path == "":										# Inhaltsübersicht
 		path = "https://arte.tv/hbbtv-mw/api/1/skeletons/pages/home?lang=%s" % lang	
 	else:
 		step1=False
@@ -1262,13 +1331,15 @@ def ArteStart(path="", title=""):
 		fanart = R(ICON_ARTE)
 		tag=""
 		
+		'''																# keine Sendungen mehr, ab 06.09.2025 deaktiviert
 		title = L(u"Programme in UHD-Qualität")							# UHD-Button vor Startseite
 		href = "https://www.arte.tv/hbbtv-mw/api/1/skeletons/collections/RC-022710?lang=%s" % lang
 		title=py2_encode(title); href=py2_encode(href);
 		fparams="&fparams={'path': '%s', 'title': '%s'}" % (quote(href), quote(title))							
 		addDir(li=li, label=title, action="dirList", dirID="resources.lib.arte.ArteStart", 
 			fanart=fanart, thumb=thumb, tagline=tag, fparams=fparams)
-			
+		'''
+	
 		try:
 			items = page["collections"]
 			PLog(str(items)[:80])
@@ -1305,8 +1376,24 @@ def ArteStart(path="", title=""):
 		PLog("ArteStart_Step2:")	
 		ID = "HBBTV"
 		GetContent(li, page, ID, ignore_pid="", OnlyNow="", lang=lang)
+		
+		# für get_next_url fehlt eine Paginierung im Output, z.B. Anzahl Seiten
+		next_page=""
+		if "next_page" in page:
+			next_page = page["next_page"]
+		if next_page:
+			next_url = "https://www.arte.tv/hbbtv-mw/" + next_page
+			PLog("next_url: " + next_url)					
+			title = L(u"Weitere Beiträge")
+			img = R(ICON_MEHR)
+
+			next_url=py2_encode(next_url); title=py2_encode(title);
+			fparams="&fparams={'path': '%s', 'title': '%s'}" % (quote(next_url), quote(title))
+			addDir(li=li, label=title, action="dirList", dirID="resources.lib.arte.ArteStart", fanart=img, 
+				thumb=img , fparams=fparams)
 			
-						
+				
+
 	xbmcplugin.endOfDirectory(HANDLE, cacheToDisc=True)
 
 # ---------------------------------------------------------------------
@@ -1336,10 +1423,7 @@ def ArteCluster(pid='', title='', katurl=''):
 	coll_img=""											# Collection-Bild bei hbbtv
 	try:												# s.a. GetContent
 		PLog(str(page)[:100])	
-		if "pageProps" in page:							# Web-json
-			page = page["pageProps"]["props"]["page"]["value"]
-			values = page["zones"]
-		elif "hbbtv-mw" in katurl:
+		if "hbbtv-mw" in katurl:
 			values = page
 		else:
 			values=[]
@@ -1472,7 +1556,6 @@ def get_ArtePage(caller, title, path, header=''):
 			page=""
 			PLog("page_json_error: " + str(exception))
 
-	#RSave('/tmp2/x_artePage.json', py2_encode(str(page)))	# Debug	
 	PLog(len(page))
 	PLog("page_start: %s" % str(page)[0:60])
 	PLog("page_end: %s" % str(page)[-60:])

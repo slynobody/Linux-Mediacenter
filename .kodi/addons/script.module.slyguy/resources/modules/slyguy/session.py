@@ -47,6 +47,8 @@ if KODI_VERSION > 18:
 
 SSL_OPTIONS = urllib3.util.ssl_.OP_NO_SSLv2 | urllib3.util.ssl_.OP_NO_SSLv3 | urllib3.util.ssl_.OP_NO_COMPRESSION | urllib3.util.ssl_.OP_NO_TICKET
 DNS_CACHE = dns.resolver.Cache()
+_real_getaddrinfo = socket.getaddrinfo
+
 
 def json_override(func, error_msg):
     try:
@@ -105,7 +107,7 @@ class SocketResolver(object):
             log.warning("DNS leak! DNS request sent using default interface and not specified '{}'. Specify a DNS server in smart urls to fix".format(interface_ip))
 
         try:
-            return [x[4][0] for x in socket.getaddrinfo(host, None, family)]
+            return [x[4][0] for x in _real_getaddrinfo(host, None, family)]
         except:
             return []
 
@@ -259,7 +261,7 @@ class SessionAdapter(requests.adapters.HTTPAdapter):
         # convert ips into correct object
         addresses = []
         for ip in ips:
-            addresses.extend(socket.getaddrinfo(ip, port, family, type))
+            addresses.extend(_real_getaddrinfo(ip, port, family, type))
         return addresses
 
 

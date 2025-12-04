@@ -301,6 +301,8 @@ class RequestHandler(BaseHTTPRequestHandler):
                     self._session['type'] = 'm3u8'
                 elif response.headers.get('content-type') == 'application/dash+xml':
                     self._session['type'] = 'mpd'
+                elif response.headers.get('content-type') == 'audio/x-scpls':
+                    self._session['type'] = 'pls'
 
             if self._session.get('redirecting') or not self._session.get('type') or not manifest or int(response.headers.get('content-length', 0)) > 1000000:
                 self._output_response(response)
@@ -312,6 +314,9 @@ class RequestHandler(BaseHTTPRequestHandler):
 
             elif self._session.get('type') == 'mpd' and url == manifest:
                 self._parse_dash(response)
+
+            elif self._session.get('type') == 'pls' and url == manifest:
+                self._parse_pls(response)
         except Redirect as e:
             log.info('Redirecting to: {}'.format(e.url))
             response.status_code = 302
@@ -412,6 +417,7 @@ class RequestHandler(BaseHTTPRequestHandler):
 
             return _(_.QUALITY_LABEL, bandwidth=bandwidth, resolution=resolution, fps=fps, codecs=codec_string, _color=color, _strip=True).replace('  ', ' ')
 
+        self._session['selected_quality_time'] = 0
         if self._session.get('selected_quality') is not None:
             if self._session['selected_quality'] == QUALITY_EXIT:
                 raise Exit('Cancelled quality select')
@@ -502,6 +508,9 @@ class RequestHandler(BaseHTTPRequestHandler):
             return None
 
     def _parse_dash(self, response):
+        manifest_update = self._session.get('manifest_init', False)
+        self._session['manifest_init'] = True
+
         start = time.time()
         data = response.stream.content.decode('utf8')
         response.stream.content = b''
@@ -926,17 +935,13 @@ class RequestHandler(BaseHTTPRequestHandler):
                 elem.parentNode.removeChild(elem)
                 continue
 
-            if url.startswith('/'):
+            # convert relative paths to abs
+            if '://' not in url:
                 url = urljoin(response.url, url)
 
-            if '://' in url:
-                elem.firstChild.nodeValue = self.proxy_path + url
-
+            elem.firstChild.nodeValue = self.proxy_path + url
             base_url_parents.append(elem.parentNode)
         ################
-
-        # wipe out manifest so not passed again
-        self._session['manifest'] = None
 
         ## Convert Location
         for elem in root.getElementsByTagName('Location'):
@@ -1058,6 +1063,9 @@ class RequestHandler(BaseHTTPRequestHandler):
         return '\n'.join(lines)
 
     def _parse_m3u8_master(self, m3u8, manifest_url):
+        manifest_update = self._session.get('manifest_init', False)
+        self._session['manifest_init'] = True
+
         def _remove_quotes(string):
             quotes = ('"', "'")
             if string and string[0] in quotes and string[-1] in quotes:
@@ -1189,7 +1197,6 @@ class RequestHandler(BaseHTTPRequestHandler):
             if stream['key'] not in unique_streams:
                 unique_streams[stream['key']] = stream
 
-        # select quality
         selected = self._quality_select(list(unique_streams.values()))
         if selected:
             if self._session.get('custom_quality'):
@@ -1277,6 +1284,10 @@ class RequestHandler(BaseHTTPRequestHandler):
             new_lines.append(new_line.rstrip(','))
 
         for attribs in subs:
+            # IA before PR https://github.com/xbmc/inputstream.adaptive/pull/1914 treated below as CC when its not if its the only characteristcs (eg. Disney+)
+            if attribs.get('CHARACTERISTICS','').lower().strip(', ') == 'public.accessibility.transcribes-spoken-dialog':
+                del attribs['CHARACTERISTICS']
+
             if not subs_forced and attribs.get('FORCED','').upper() == 'YES':
                 continue
 
@@ -1285,6 +1296,10 @@ class RequestHandler(BaseHTTPRequestHandler):
 
             new_line = '#EXT-X-MEDIA:' if attribs else ''
             for key in attribs:
+                if key == 'NAME':
+                    # remove [CC] from name as Kodi marks these as captions for us
+                    if 'public.accessibility' in attribs.get('CHARACTERISTICS','').lower():
+                        attribs[key] = attribs[key].replace('[CC]','').strip()
                 if key == 'LANGUAGE':
                     attribs[key] = fix_language(attribs[key])
                 if attribs[key] is not None:
@@ -1354,6 +1369,13 @@ class RequestHandler(BaseHTTPRequestHandler):
             m3u8 = b"\n".join([ll.rstrip() for ll in m3u8.splitlines() if ll.strip()])
             with open(xbmc.translatePath('special://temp/'+file_name+'-out.m3u8'), 'wb') as f:
                 f.write(m3u8)
+
+    def _parse_pls(self, response):
+        pls = response.stream.content.decode('utf8')
+        match = re.search(r'^File\d+=(https?://[^\s]+)', pls, flags=re.MULTILINE)
+        if match:
+            url = match.group(1)
+            raise Redirect(url)
 
     def _proxy_request(self, method, url):
         self._session['redirecting'] = False

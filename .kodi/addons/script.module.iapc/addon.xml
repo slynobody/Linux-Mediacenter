@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="script.module.iapc"
        name="Inter-Addon Procedure Call"
-       version="2.4.2"
+       version="2.4.4"
        provider-name="lekma">
 
     <requires>
@@ -14,7 +14,7 @@
     <extension point="xbmc.addon.metadata">
         <summary lang="en_GB">Inter-Addon Procedure Call</summary>
         <description lang="en_GB">Inter-Addon Procedure Call addon for Kodi</description>
-        <license>GPL-3.0-only</license>
+        <license>Unlicense</license>
         <platform>all</platform>
         <source>https://github.com/lekma/script.module.iapc</source>
     </extension>

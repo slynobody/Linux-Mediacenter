@@ -19,7 +19,7 @@ Die Radio-Podcasts der Classic-Version wurden durch die neue Audiothek abgelöst
 Im Forum: https://www.kodinerds.net/index.php/Thread/64244-RELEASE-Kodi-Addon-ARDundZDF/  
 direkt: rols1@gmx.de 
 
-#### statt Handbuch: [Einstellungen des Addons - Wicki](https://github.com/rols1/Kodi-Addon-ARDundZDF/wiki)
+#### statt Handbuch: [Einstellungen des Addons - Wiki](https://github.com/rols1/Kodi-Addon-ARDundZDF/wiki)
   
 Funktionen: 
 ===================
@@ -31,7 +31,7 @@ Funktionen:
 - Startseite (wie Webseite)
 - ARD Mediathek RETRO
 - ARD Mediathek Entdecken
-- Livestreams
+- ARD Livestreams
 - Sendung Verpasst
 - Sendungen A-Z
 - ARD Sport
@@ -39,6 +39,7 @@ Funktionen:
 - Barrierearm
 - Bildgalerien Das Erste
 - Senderwahl
+- Teletext
 
 #### ZDF Mediathek: 
 - Suche nach Sendungen
@@ -46,11 +47,12 @@ Funktionen:
 - ZDF-funk (https://www.zdf.de/funk)
 - Sendung Verpasst (Sendungen der letzten 7 Tage)
 - Sendungen A-Z
+- <b>Kategorien neu</b> seit ZDF-Relaunch am 17.03.2025
 - Rubriken
 - ZDF-sportstudio
 - Barrierearm (Hörfassungen, Untertitel, Gebärdensprache)
-- ZDFinternational
-- Bilderserien
+- ~~Bilderserien~~ seit ZDF-Relaunch am 17.03.2025 entfallen
+- Teletext
 
 #### 3Sat Mediathek:
 - Suche nach Sendungen
@@ -113,9 +115,8 @@ Funktionen:
 - Updates einzelner Bestandteile des  Addons (Einzelupdate) zwischen den regulären  Updates - Näheres siehe [Startpost im kodinerds-Forum](https://www.kodinerds.net/index.php/Thread/64244-RELEASE-Kodi-Addon-ARDundZDF/?postID=502022#post502022) 
 
 #### weitere Module (optional)
-- ~~ZDFmobile~~ - entfernt ab Juni 2023 (obsolet)
 - 3Sat
-- ~~funk~~ - entfernt ab Mai 2023 (Videos in ZDF-funk, Podcasts in der ARD-Audiothek verfügbar)
+- ~~funk~~ - entfernt ab Mai 2023 (Videos sind in ZDF-funk, Podcasts in der ARD-Audiothek verfügbar)
 - Kinderprogramme (KIKA, ZDFtivi, MausLive u.a.)
 - TagesschauXL (https://www.tagesschau.de/ und https://www.ardmediathek.de/tagesschau24)
 - phoenix (https://www.phoenix.de/ und https://www.ardmediathek.de/phoenix)
@@ -123,7 +124,7 @@ Funktionen:
 - [Zuletzt gesehen-Funktion](https://github.com/rols1/Kodi-Addon-ARDundZDF/wiki/11.-Tools-Modul#3-zuletzt-gesehen) (im Tools-Menü)
 - [Video-Playlist](https://github.com/rols1/Kodi-Addon-ARDundZDF/wiki/10.-PLAYLIST-Modul) einschl. Archiv-Funktion (im Tools-Menü)
 - [strm-Modul](https://github.com/rols1/Kodi-Addon-ARDundZDF/wiki/09.-strm-Modul), einschließlich Serien-Überwachung
-- [Suche im Datenbestand von MediathekView](https://github.com/rols1/Kodi-Addon-ARDundZDF/wiki/01.-Settings---Allgemein#10-mediathekviewweb-suche-verwenden) (s. Credits)
+- [Suche in der Filmliste von MediathekView via mediathekviewweb.de](https://github.com/rols1/Kodi-Addon-ARDundZDF/wiki/01.-Settings---Allgemein#10-mediathekviewweb-suche-verwenden) (s. Credits)
 
 
 INSTALLATION:
@@ -135,7 +136,7 @@ INSTALLATION:
 - <b>Leia-Version:</b> Download der aktuellen zip-Datei ARDundZDF im [kodinerds-Repo, im Tab Kodi-Version Kodi 17 (Krypton) auswählen](https://repo.kodinerds.net/index.php?action=list&scope=all&version=krypton/) 
 - zip-Datei mittels Kodi-Menü Addons/Addon-Browser installieren
 - nur falls die Abhängigkeit zum Modul kodi-six bemängelt wird: Download und Installation des Moduls [script.module.kodi-six.zip](https://github.com/romanvm/kodi.six/releases)
-- Addon öffen und Addon-Einstellungen anpassen
+- Addon öffen und Addon-Einstellungen nach eigenem Bedarf anpassen
 - [Empfehlenswert: Kodi Anleitung & Beschreibung von Rene8001](https://www.kodinerds.net/index.php/Thread/47479-Hilfe-f%C3%BCr-Neulinge-Kodi-Anleitung-Einstellungen-GooglePlay-FireTV/?pageNo=1)
 
 SUPPORT:

@@ -1,12 +1,10 @@
 <settings>
     <setting id="homemenunomusicbutton" type="bool">false</setting>
+    <setting id="tvshow_onclick_playnext" type="bool">false</setting>
+    <setting id="album_onclick_queue" type="bool">false</setting>
+    <setting id="show_musicvideoposter" type="bool">false</setting>
     <setting id="album_onclick_playnext" type="bool">false</setting>
     <setting id="show_profilename" type="bool">false</setting>
-    <setting id="show_musicvideoposter" type="bool">false</setting>
-    <setting id="tvshow_onclick_playnext" type="bool">false</setting>
-    <setting id="homemenunomoviebutton" type="bool">false</setting>
-    <setting id="album_onclick_queue" type="bool">false</setting>
-    <setting id="homemenunopicturesbutton" type="bool">false</setting>
     <setting id="movieset_onclick_browse" type="bool">false</setting>
     <setting id="circle_rating" type="bool">false</setting>
     <setting id="homemenunoradiobutton" type="bool">true</setting>
@@ -38,6 +36,8 @@
     <setting id="album_onclick_play" type="bool">true</setting>
     <setting id="no_fanart" type="bool">false</setting>
     <setting id="album_onclick_browse" type="bool">false</setting>
+    <setting id="homemenunomoviebutton" type="bool">false</setting>
+    <setting id="homemenunopicturesbutton" type="bool">false</setting>
     <setting id="HomeFanart.name" type="string"></setting>
     <setting id="homefanart.path" type="string"></setting>
     <setting id="background_overlay" type="string">1</setting>

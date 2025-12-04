@@ -8,17 +8,16 @@ from yt_dlp import YoutubeDL
 from yt_dlp.utils import DownloadError, ExtractorError, UserNotLive
 
 from iapc import public, Service
-from nuttig import getSetting, localizedString
 
-from mpd import YtDlpMpd
+from videos import YtDlpVideos
 
 
 # __params__ -------------------------------------------------------------------
 
 def __params__(func):
     @wraps(func)
-    def wrapper(self, url, params=None, **kwargs):
-        if params:
+    def wrapper(self, url, **kwargs):
+        if (params := kwargs.pop("params", None)):
             extractor = self.__extractor__
             self.__extractor__ = YoutubeDL(params=params)
         try:
@@ -31,53 +30,20 @@ def __params__(func):
 
 
 # ------------------------------------------------------------------------------
-# YtDlpVideo
-
-class YtDlpVideo(dict):
-
-    def __init__(self, info, captions=False):
-        subtitles = info.get("subtitles", {})
-        if not subtitles and captions:
-            subtitles = info.get("automatic_captions", {})
-        super(YtDlpVideo, self).__init__(
-            video_id=info.get("id"),
-            title=info.get("fulltitle", ""),
-            description=info.get("description", ""),
-            channel_id=info.get("channel_id"),
-            channel=info.get("channel", ""),
-            duration=info.get("duration", -1),
-            is_live=info.get("is_live", False),
-            url=info.get("manifest_url"),
-            thumbnail=info.get("thumbnail"),
-            like_count=info.get("like_count", 0),
-            view_count=info.get("view_count", 0),
-            timestamp=info.get("timestamp", 0),
-            headers=info.get("http_headers", {}),
-            formats=info.get("formats", []),
-            subtitles=subtitles,
-            language=info.get("language", ""),
-        )
-
-
-# ------------------------------------------------------------------------------
 # YtDlpService
-
 
 class YtDlpService(Service):
 
     def __init__(self, *args, **kwargs):
         super(YtDlpService, self).__init__(*args, **kwargs)
         self.__extractor__ = YoutubeDL()
-        self.__mpd__ = YtDlpMpd(self.logger)
+        self.__videos__ = YtDlpVideos(self.logger)
 
     def __setup__(self):
-        # include automatic captions
-        self.__captions__ = getSetting("subs.captions", bool)
-        self.logger.info(f"{localizedString(31100)}: {self.__captions__}")
-        self.__mpd__.__setup__()
+        self.__videos__.__setup__()
 
     def __stop__(self):
-        self.__mpd__ = self.__mpd__.__stop__()
+        self.__videos__ = self.__videos__.__stop__()
         self.__extractor__ = self.__extractor__.close()
         self.logger.info("stopped")
 
@@ -119,24 +85,6 @@ class YtDlpService(Service):
         except ExtractorError as error:
             self.logger.info(error, notify=True)
 
-    def __video__(self, info, captions=None, **kwargs):
-        captions = captions if captions is not None else self.__captions__
-        if (video := YtDlpVideo(info, captions=captions)):
-            #self.logger.info(f"info: {info}")
-            formats = video.pop("formats")
-            subtitles = video.pop("subtitles")
-            if video["url"]:
-                #self.logger.info(f"url: {video['url']}")
-                video["manifestType"] = "hls"
-                video["mimeType"] = "application/x-mpegURL"
-            else:
-                video["url"] = self.__mpd__.manifest(
-                    video["duration"], formats, subtitles, **kwargs
-                )
-                video["manifestType"] = "mpd"
-                video["mimeType"] = "application/dash+xml"
-            return video
-
     # public api ---------------------------------------------------------------
 
     @public
@@ -144,7 +92,7 @@ class YtDlpService(Service):
     def video(self, url, **kwargs):
         self.logger.info(f"video(url={url}, kwargs={kwargs})")
         if (info := self.__extract__(url)):
-            return self.__video__(info, **kwargs)
+            return self.__videos__.video(info, **kwargs)
 
     @public
     @__params__

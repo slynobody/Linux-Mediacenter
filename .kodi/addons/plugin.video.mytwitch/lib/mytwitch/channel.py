@@ -8,10 +8,10 @@ import re
 
 import requests
 
+from m3u8 import protocol, M3U8, PlaylistList
+
 from iapc import Client
 from nuttig import buildUrl, notify, ICONWARNING
-
-from mytwitch.m3u8 import protocol, M3U8, PlaylistList
 
 
 # ------------------------------------------------------------------------------
@@ -229,6 +229,7 @@ class MyChannel(object):
             if discontinuity:
                 notify(30006, icon=ICONWARNING, time=10000)
                 response = self.__get__(*self.playlist["360p30"])
+                #response = self.__get__(*self.playlist["640x360@30"])
         if response:
             #self.logger.info(f"__stream__(), response: {response.text}")
             return (self.__m3u8__(response.text, response), reset)

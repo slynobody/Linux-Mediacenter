@@ -295,6 +295,10 @@ msgctxt "#48416"
 msgid "360p"
 msgstr ""
 
+msgctxt "#48420"
+msgid "Audio track"
+msgstr ""
+
 
 # Extras settings
 
@@ -411,4 +415,131 @@ msgstr ""
 
 msgctxt "#90011"
 msgid "No preference"
+msgstr ""
+
+msgctxt "#90012"
+msgid "JavaScript Runtime"
+msgstr ""
+
+
+# Audio tracks
+
+# original
+msgctxt "#90200"
+msgid "Original"
+msgstr ""
+
+# ar
+msgctxt "#90201"
+msgid "الْعَرَبِيَّةُ"
+msgstr ""
+
+# bn
+msgctxt "#90202"
+msgid "বাংলা"
+msgstr ""
+
+# de
+msgctxt "#90203"
+msgid "Deutsch"
+msgstr ""
+
+# en
+msgctxt "#90204"
+msgid "English"
+msgstr ""
+
+# es
+msgctxt "#90205"
+msgid "Español"
+msgstr ""
+
+# fr
+msgctxt "#90206"
+msgid "Français"
+msgstr ""
+
+# he
+msgctxt "#90207"
+msgid "עברית"
+msgstr ""
+
+# hi
+msgctxt "#90208"
+msgid "हिन्दी"
+msgstr ""
+
+# id
+msgctxt "#90209"
+msgid "Bahasa Indonesia"
+msgstr ""
+
+# it
+msgctxt "#90210"
+msgid "Italiano"
+msgstr ""
+
+# ja
+msgctxt "#90211"
+msgid "日本語"
+msgstr ""
+
+# ko
+msgctxt "#90212"
+msgid "한국어"
+msgstr ""
+
+# ml
+msgctxt "#90213"
+msgid "മലയാളം"
+msgstr ""
+
+# nl
+msgctxt "#90214"
+msgid "Nederlands"
+msgstr ""
+
+# pa
+msgctxt "#90215"
+msgid "ਪੰਜਾਬੀ"
+msgstr ""
+
+# pl
+msgctxt "#90216"
+msgid "Polski"
+msgstr ""
+
+# pt
+msgctxt "#90217"
+msgid "Português"
+msgstr ""
+
+# ro
+msgctxt "#90218"
+msgid "Română"
+msgstr ""
+
+# ru
+msgctxt "#90219"
+msgid "Русский"
+msgstr ""
+
+# tr
+msgctxt "#90220"
+msgid "Türkçe"
+msgstr ""
+
+# uk
+msgctxt "#90221"
+msgid "Українська"
+msgstr ""
+
+# vi
+msgctxt "#90222"
+msgid "Tiếng Việt"
+msgstr ""
+
+# zh
+msgctxt "#90223"
+msgid "中文"
 msgstr ""
