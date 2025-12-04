@@ -15,6 +15,8 @@
 
 *<sub>the .kodi-dir from this repo can be used in any other linux-distro.</sub>
 
+<noscript><a href="https://liberapay.com/integr/donate"><img alt="Donate using Liberapay" src="https://liberapay.com/assets/widgets/donate.svg"></a></noscript>
+
 ## Steam Deck
 
 > git clone https://github.com/slynobody/Linux-Mediacenter
