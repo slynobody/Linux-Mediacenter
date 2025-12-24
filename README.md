@@ -15,7 +15,7 @@
 
 *<sub>the .kodi-dir from this repo can be used in any other linux-distro.</sub>
 
-<noscript><a href="https://liberapay.com/integr/donate"><img alt="Donate using Liberapay" src="https://liberapay.com/assets/widgets/donate.svg"></a></noscript>
+ [![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?&logo=buy-me-a-coffee&logoColor=black)](https://ko-fi.com/integr)
 
 ## Steam Deck
 
