@@ -1,0 +1,4 @@
+My addon settings are stored in the script.module.slyguy\settings.db file
+
+Put your smart url actions in a "urls.txt" file in this directory (supporters only)
+https://www.matthuisman.nz/2022/06/slyguy-addons-smart-url-actions.html

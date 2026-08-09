@@ -21,6 +21,7 @@ if KODI_VERSION >= 20:
 
 def redirect(location):
     xbmc.executebuiltin('Container.Update({},replace)'.format(location))
+   # xbmc.executebuiltin('ActivateWindow(videos,{},return)'.format(url)) # works to launch plugin from program
 
 
 def get_view_id():
@@ -315,7 +316,8 @@ class Item(object):
 
         def redirect_url(url):
             while urlparse(url).netloc.lower() in REDIRECT_HOSTS and is_http(url):
-                new_url = Session().head(url).headers.get('location')
+                # only want to get first redirect away from hosts in case of them redirecting / cookies etc
+                new_url = Session().head(url, allow_redirects=False).headers.get('location')
                 if not new_url:
                     break
                 url = new_url
@@ -366,10 +368,10 @@ class Item(object):
                 li.setProperty('{}.live_delay'.format(self.inputstream.addon_id), '24')
 
             if self.inputstream.license_key:
-                license_url = self.inputstream.license_key
+                license_url = redirect_url(fix_url(self.inputstream.license_key))
                 license_headers = get_url_headers(self.inputstream.license_headers) if self.inputstream.license_headers else headers
                 li.setProperty('{}.license_key'.format(self.inputstream.addon_id), u'{url}|Content-Type={content_type}{headers}|{challenge}|{response}'.format(
-                    url = get_url(redirect_url(fix_url(self.inputstream.license_key)), plugin_proxy=True),
+                    url = get_url(license_url, plugin_proxy=True),
                     content_type = self.inputstream.content_type,
                     headers = '&' + license_headers if license_headers else '',
                     challenge = self.inputstream.challenge,
@@ -389,7 +391,7 @@ class Item(object):
         else:
             self.inputstream = None
 
-        def make_sub(url, language='unk', mimetype='', forced=False, impaired=False):
+        def make_sub(url, language='unk', mimetype='', forced=False, impaired=False, default=False):
             if os.path.exists(xbmc.translatePath(url)):
                 return url
 
@@ -409,13 +411,14 @@ class Item(object):
                 mimetype = 'text/vtt'
 
             # kodi language urls only support basic language (no regional)
-            proxy_url = '{}{}.srt'.format(language.split('-')[0], '.forced' if forced else '')
+            proxy_url = '{}{}{}.srt'.format(language.split('-')[0], '.forced' if forced else '', '.default' if default else '')
             proxy_data['path_subs'][proxy_url] = url
             return u'{}{}'.format(proxy_path, proxy_url)
 
+        self.manifest = self.path
         if self.path and playing:
-            self.path = redirect_url(fix_url(self.path))
-            final_path = get_url(self.path)
+            self.manifest = self.path = redirect_url(fix_url(self.path))
+            final_path = get_url(self.manifest)
 
             parse = urlparse(final_path.lower())
             if parse.scheme == 'plugin':
@@ -431,7 +434,7 @@ class Item(object):
                         mimetype = 'application/vnd.ms-sstr+xml'
 
                 proxy_data = {
-                    'manifest': self.path,
+                    'manifest': [self.manifest],
                     'slug': '{}-{}'.format(ADDON_ID, self.slug),
                     'license_url': license_url,
                     'session_id': hash_6(time.time()),

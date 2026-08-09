@@ -1,11 +1,13 @@
 import sys
 import uuid
+from ssl import OPENSSL_VERSION
 from time import time
 
 from slyguy import monitor, gui, settings, log, check_donor, is_donor, set_drm_level, _
 from slyguy.keep_alive import call_keep_alives
 from slyguy.session import Session
 from slyguy.util import get_system_arch
+from slyguy.constants import KODI_VERSION
 from slyguy.settings.db_storage import db
 
 from .proxy import Proxy
@@ -56,8 +58,12 @@ def run():
 
 
 def _run():
+    system, arch = get_system_arch()
     log.info('Shared Service: Started')
+    log.info('Kodi Version: {}'.format(KODI_VERSION))
+    log.info('System: {}, Arch: {}'.format(system, arch))
     log.info('Python Version: {}'.format(sys.version))
+    log.info('OpenSSL Version: {}'.format(OPENSSL_VERSION))  # 17.6/18.9: 1.0.2j  19.5: 1.1.1d  20/21: 1.1.1q
 
     try:
         # updates at start may already have called abort

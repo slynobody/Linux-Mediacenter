@@ -10,6 +10,7 @@
 import time
 from datetime import datetime, timedelta
 
+import requests.exceptions as req_exceptions
 import xbmc
 
 import resources.lib.common as common
@@ -17,13 +18,15 @@ import resources.lib.utils.website as website
 from resources.lib.common import cache_utils
 from resources.lib.common.exceptions import (NotLoggedInError, MissingCredentialsError, WebsiteParsingError,
                                              MbrStatusAnonymousError, MetadataNotAvailable, LoginValidateError,
-                                             HttpError401, InvalidProfilesError, ErrorMsgNoReport)
+                                             InvalidProfilesError, ErrorMsgNoReport)
 from resources.lib.globals import G
 from resources.lib.kodi import ui
+from resources.lib.services.nfsession.directorybuilder.dir_path_requests import (metadata_with_title_page_fallback,
+                                                                                normalize_metadata_references)
 from resources.lib.services.nfsession.session.path_requests import SessionPathRequests
 from resources.lib.utils import cookies
 from resources.lib.utils.api_paths import (EPISODES_PARTIAL_PATHS, ART_PARTIAL_PATHS, build_paths,
-                                           VIDEO_LIST_PARTIAL_PATHS)
+                                           VIDEO_LIST_PARTIAL_PATHS, ART_SIZE_FHD, ART_SIZE_POSTER)
 from resources.lib.utils.logging import LOG, measure_exec_time_decorator
 
 
@@ -36,6 +39,7 @@ class NFSessionOperations(SessionPathRequests):
         self.slots = [
             self.get_safe,
             self.post_safe,
+            self.post_graphql,
             self.login,
             self.login_auth_data,
             self.logout,
@@ -96,37 +100,22 @@ class NFSessionOperations(SessionPathRequests):
     def activate_profile(self, guid):
         """Set the profile identified by guid as active"""
         LOG.debug('Switching to profile {}', guid)
-        current_active_guid = G.LOCAL_DB.get_active_profile_guid()
-        if guid == current_active_guid:
+        if guid == G.LOCAL_DB.get_active_profile_guid():
             LOG.info('The profile guid {} is already set, activation not needed.', guid)
             return
         if xbmc.Player().isPlayingVideo():
             # Change the current profile while a video is playing can cause problems with outgoing HTTP requests
             # (MSL/NFSession) causing a failure in the HTTP request or sending data on the wrong profile
             raise ErrorMsgNoReport('It is not possible select a profile while a video is playing.')
-        timestamp = time.time()
         LOG.info('Activating profile {}', guid)
-        # 20/05/2020 - The method 1 not more working for switching PIN locked profiles
-        # INIT Method 1 - HTTP mode
-        # response = self._get('switch_profile', params={'tkn': guid})
-        # self.nfsession.auth_url = self.website_extract_session_data(response)['auth_url']
-        # END Method 1
-        # INIT Method 2 - API mode
         try:
-            response = self.get_safe(endpoint='activate_profile',
-                                     params={'switchProfileGuid': guid,
-                                             '_': int(timestamp * 1000),
-                                             'authURL': self.auth_url})
-            if response.get('status') != 'success':
-                raise InvalidProfilesError('Unable to access to the selected profile.')
-        except HttpError401 as exc:
-            # Profile guid not more valid
+            # Use /SwitchProfile endpoint to switch the active profile server-side
+            self.get_safe('switch_profile', params={'tkn': guid})
+            # Fetch browse page to get a fresh authURL for the new profile
+            response = self.get_safe('browse')
+            self.auth_url = website.extract_session_data(response)['auth_url']
+        except Exception as exc:
             raise InvalidProfilesError('Unable to access to the selected profile.') from exc
-        # Retrieve browse page to update authURL
-        response = self.get_safe('browse')
-        self.auth_url = website.extract_session_data(response)['auth_url']
-        # END Method 2
-
         G.LOCAL_DB.switch_active_profile(guid)
         G.CACHE_MANAGEMENT.identifier_prefix = guid
         cookies.save(self.session.cookies)
@@ -260,16 +249,104 @@ class NFSessionOperations(SessionPathRequests):
         try:
             infos = get_info(videoid, None, None, profile_language_code)[0]
             art = get_art(videoid, None, profile_language_code)
+            if infos.get('Cast') and (videoid.mediatype == common.VideoId.EPISODE or infos.get('Trailer')):
+                return infos, art
+            LOG.debug('Cached video info for {} is missing cast/trailer; refreshing metadata', videoid)
         except (AttributeError, TypeError):
-            if videoid.mediatype == common.VideoId.EPISODE:
-                paths = (build_paths(['videos', int(videoid.value)], EPISODES_PARTIAL_PATHS) +
-                         build_paths(['videos', int(videoid.tvshowid)], ART_PARTIAL_PATHS + [[['title', 'delivery']]]))
-            else:
-                paths = build_paths(['videos', int(videoid.value)], VIDEO_LIST_PARTIAL_PATHS)
+            pass
+        if videoid.mediatype == common.VideoId.EPISODE:
+            paths = (build_paths(['videos', int(videoid.value)], EPISODES_PARTIAL_PATHS) +
+                     build_paths(['videos', int(videoid.tvshowid)], ART_PARTIAL_PATHS + [[['title', 'delivery']]]))
+        else:
+            paths = build_paths(['videos', int(videoid.value)], VIDEO_LIST_PARTIAL_PATHS)
+        try:
             raw_data = self.path_request(paths)
+        except req_exceptions.HTTPError as exc:
+            LOG.warn('Video info pathEvaluator lookup failed: {}. Falling back to metadata endpoint.', exc)
+            raw_data = self._get_videoid_info_metadata(videoid)
+        infos = get_info(videoid, raw_data['videos'][videoid.value], raw_data, profile_language_code)[0]
+        if (videoid.mediatype != common.VideoId.EPISODE and
+                (not infos.get('Cast') or not infos.get('Trailer'))):
+            LOG.debug('Video info for {} is missing cast/trailer; refreshing from metadata endpoint', videoid)
+            raw_data = self._get_videoid_info_metadata(videoid)
             infos = get_info(videoid, raw_data['videos'][videoid.value], raw_data, profile_language_code)[0]
-            art = get_art(videoid, raw_data['videos'][videoid.value], profile_language_code)
+        art = get_art(videoid, raw_data['videos'][videoid.value], profile_language_code)
         return infos, art
+
+    def _get_videoid_info_metadata(self, videoid):
+        metadata_data = self.get_safe(
+            endpoint='metadata',
+            params={'movieid': videoid.value, '_': int(time.time() * 1000)})
+        video = metadata_with_title_page_fallback(videoid.value, metadata_data['video'])
+        item = self._metadata_video_to_path_item(videoid, video)
+        videos = {videoid.value: item}
+        raw_data = {'videos': videos}
+        normalize_metadata_references(raw_data, videoid.value, video, item)
+        if videoid.mediatype == common.VideoId.EPISODE and videoid.tvshowid:
+            videos.setdefault(videoid.tvshowid, {
+                'title': {'value': video.get('seriesTitle') or video.get('showTitle') or ''},
+                'delivery': {'value': {}}
+            })
+        return raw_data
+
+    @staticmethod
+    def _metadata_video_to_path_item(videoid, video):
+        title = video.get('title') or str(videoid.value)
+        synopsis = video.get('synopsis') or video.get('regularSynopsis') or ''
+        boxart_url = NFSessionOperations._find_metadata_image_url(video, ('boxArt', 'boxart', 'artwork'))
+        still_url = NFSessionOperations._find_metadata_image_url(video, ('interestingMoment', 'interestingMomentUrl'))
+        item = {
+            'summary': {'value': {
+                'id': int(videoid.value),
+                'type': videoid.mediatype,
+                'name': title
+            }},
+            'title': {'value': title},
+            'synopsis': {'value': synopsis},
+            'regularSynopsis': {'value': synopsis},
+            'runtime': {'value': video.get('runtime') or 0},
+            'releaseYear': {'value': video.get('year') or video.get('releaseYear') or 0},
+            'delivery': {'value': video.get('delivery') or {}},
+            'availability': {'value': {'isPlayable': True}},
+            'queue': {'value': {'inQueue': False}},
+            'inRemindMeList': {'value': False},
+            'bookmarkPosition': {'value': (video.get('bookmark') or {}).get('offset', 0)},
+            'creditsOffset': {'value': video.get('creditsOffset') or 0},
+            'watchedToEndOffset': {'value': video.get('watchedToEndOffset') or 0},
+            'watched': {'value': bool((video.get('bookmark') or {}).get('watchedDate'))},
+            'trackIds': {'value': {}},
+            'requestId': {'value': ''}
+        }
+        if boxart_url:
+            art_value = {'url': boxart_url}
+            item['boxarts'] = {ART_SIZE_POSTER: {'jpg': {'value': art_value}}}
+            item['itemSummary'] = {'value': {'id': int(videoid.value), 'title': title, 'boxArt': {'url': boxart_url}}}
+        if still_url:
+            item['interestingMoment'] = {ART_SIZE_FHD: {'jpg': {'value': {'url': still_url}}}}
+        return item
+
+    @staticmethod
+    def _find_metadata_image_url(video, keys):
+        for key in keys:
+            value = video.get(key)
+            if isinstance(value, str) and value.startswith('http'):
+                return value
+            if isinstance(value, dict):
+                url = NFSessionOperations._find_url_in_dict(value)
+                if url:
+                    return url
+        return ''
+
+    @staticmethod
+    def _find_url_in_dict(data):
+        for value in data.values():
+            if isinstance(value, str) and value.startswith('http'):
+                return value
+            if isinstance(value, dict):
+                url = NFSessionOperations._find_url_in_dict(value)
+                if url:
+                    return url
+        return ''
 
     def get_loco_data(self):
         """

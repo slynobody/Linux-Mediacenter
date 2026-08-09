@@ -4,8 +4,8 @@
 #			 			Verwaltung der PLAYLIST
 #	Kontextmenü s. addDir (Modul util)
 ################################################################################
-# 	<nr>8</nr>										# Numerierung für Einzelupdate
-#	Stand: 17.05.2024
+# 	<nr>10</nr>										# Numerierung für Einzelupdate
+#	Stand: 14.12.2025
 #
 
 from __future__ import absolute_import
@@ -54,11 +54,13 @@ STARTLIST		= os.path.join(ADDON_DATA, "startlist") 		# Videoliste mit Datum ("Zu
 PLAYLIST_ALIVE 	= os.path.join(ADDON_DATA, "playlist_alive")	# Lebendsignal für PlayMonitor (leer)
 COUNT_STOP 	= os.path.join(ADDON_DATA, "count_stop")			# Stopsignal für Countdown-Thread (leer)
 MENU_STOP		= os.path.join(ADDON_DATA, "menu_stop") 		# Stopsignal für Tools-Menü (Haupt-PRG)
+FLAG_OnlyUrl	= os.path.join(ADDON_DATA, "onlyurl")			# Flag PlayVideo_Direct -> strm-Modul
 
 
 ICON 			= 'icon.png'			# ARD + ZDF
 ICON_PLAYLIST	= R("icon-playlist.png")
 
+# PLAY_TEMPL nicht xml-komform (&-Zeichen in Plugin-Call, z.B. dirList&dirID):
 PLAY_TEMPL 		= u"<play>%s###%s###%s###%s###%s###%s</play>\n"	#  % (timestamp, title, add_url, thumb, Plot, status)
 
 maxvideos = 100													# z.Z. noch fester Wert, nicht genutzt
@@ -532,7 +534,7 @@ def PlayMonitor(startpos):
 
 		timestamp, title, add_url, thumb, Plot, status = item.split('###')
 		if "neu ab" in status:
-			seekTime = re.search(r'neu ab (\d+) sec', status).group(1)		# Seek-Pos. aus Playlist übernehmen
+			seekTime = re.search(r'neu ab (\d+) sec', status).group(1)	# Seek-Pos. aus Playlist übernehmen
 		PLog("Nr.: %s | %s | ab %s sec" % (play_cnt+1, title[:80], seekTime))
 		msg2 = "Titel %d von %d" % (play_cnt+1, len(PLAYLIST))
 		xbmcgui.Dialog().notification("PLAYLIST: ",msg2,ICON_PLAYLIST,2000)
@@ -540,14 +542,24 @@ def PlayMonitor(startpos):
 		
 		# seek-Problem bei HLS-Streams o. EXT-X-ENDLIST tag- s. github.com/xbmc/xbmc/issues/18415
 		#	(kein Problem mit inputstream.adaptiv-Addon)
-		# Exception-Behandl. für nicht verfügb. Videos:
+		# 14.12.22025 Exception-Behandl. für nicht verfügb. Videos:
 		timestamp, title, add_url, thumb, Plot, status = item.split('###')
-		streamurl = get_streamurl(add_url)								# Streamurl ermitteln (strm-Modul)
-		PLog("streamurl: " + streamurl)
+		try:
+			streamurl = get_streamurl(add_url, title)						# Streamurl ermitteln (strm-Modul)
+			PLog("streamurl: " + str(streamurl))
+		except Exception as exception:
+			PLog("PlayMonitor_error1: " + str(exception))
+			msg2 = " Streamquelle fehlt!"
+			xbmcgui.Dialog().notification("PLAYLIST: ",msg2,ICON_PLAYLIST,2000)
+			continue
+
 		try:															#  playlist="true" = skip Startliste:
+			if os.path.exists(FLAG_OnlyUrl):							# Lockdatei für Synchronisierung strm-Liste?	
+				os.remove(FLAG_OnlyUrl)									# entfernen, sonst Abbruch in PlayVideo
+				PLog("PlayMonitor_onlyurl_removed")														
 			play_time,video_dur = PlayVideo(streamurl, title, thumb, Plot, playlist="true", seekTime=seekTime)
 		except Exception as exception:
-			PLog(str(exception))
+			PLog("PlayMonitor_error2: " + str(exception))
 			continue
 		percent=0; 														# noch nichts abgespielt
 		

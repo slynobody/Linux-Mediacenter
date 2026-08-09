@@ -90,8 +90,45 @@ msgid "AV1"
 msgstr ""
 
 
+msgctxt "#34000"
+msgid "Preferences"
+msgstr ""
+
+msgctxt "#34100"
+msgid "Resolution"
+msgstr ""
+
+msgctxt "#34101"
+msgid "2160p"
+msgstr ""
+
+msgctxt "#34102"
+msgid "1440p"
+msgstr ""
+
+msgctxt "#34103"
+msgid "1080p"
+msgstr ""
+
+msgctxt "#34104"
+msgid "720p"
+msgstr ""
+
+msgctxt "#34105"
+msgid "480p"
+msgstr ""
+
+msgctxt "#34106"
+msgid "360p"
+msgstr ""
+
+
 # Notifications, dialogs
 
 msgctxt "#90004"
 msgid "To use this feature you must install and enable the following addon:\n\n'{}'"
+msgstr ""
+
+msgctxt "#90011"
+msgid "No preference"
 msgstr ""

@@ -6,7 +6,7 @@ from iapc import Client
 from nuttig import addonIsEnabled
 
 from mytube.items import (
-    FeedChannels, Folders, Playlists, Queries, Results, Video, Videos
+    FeedChannels, FeedVideos, Folders, Playlists, Queries, Results, Video, Videos
 )
 from mytube.persistence import MyNavigationHistory
 
@@ -30,8 +30,7 @@ class MyClient(object):
             if (item and sb and addonIsEnabled("service.sponsorblock")):
                 item.setProperty("SB:videoID", video["videoId"])
             return (
-                (item, video["manifestType"]),
-                {"mimeType": video["mimeType"], "language": video["language"]}
+                (item, video["manifestType"]), {"mimeType": video["mimeType"]}
             )
         return ((None, None), {})
 
@@ -85,7 +84,7 @@ class MyClient(object):
     def feed(self, limit=29, **kwargs):
         items, next = self.__client__.feed.feed(limit, **kwargs)
         previous = self.__history__.page("feed", kwargs["page"])
-        return Videos(items, next=next, previous=previous)
+        return FeedVideos(items, next=next, previous=previous)
 
     def channels(self):
         return FeedChannels(self.__client__.feed.channels())

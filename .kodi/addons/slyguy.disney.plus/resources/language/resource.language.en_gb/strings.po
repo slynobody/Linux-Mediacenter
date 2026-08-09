@@ -168,3 +168,7 @@ msgctxt "#30059"
 msgid "It appears your Disney+ subscription has expired\n"
 "You may not be able to view any content"
 msgstr ""
+
+msgctxt "#30060"
+msgid "[LOCKED]"
+msgstr ""

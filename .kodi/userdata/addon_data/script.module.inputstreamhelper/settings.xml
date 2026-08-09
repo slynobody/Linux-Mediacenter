@@ -1,0 +1,12 @@
+<settings version="2">
+    <setting id="last_modified">1778841190.9761558</setting>
+    <setting id="last_check">1778841191.1862006</setting>
+    <setting id="update_declined_at" default="true">0.0</setting>
+    <setting id="version" default="true" />
+    <setting id="update_frequency" default="true">31</setting>
+    <setting id="temp_path" default="true">special://masterprofile/addon_data/script.module.inputstreamhelper</setting>
+    <setting id="backups" default="true">4</setting>
+    <setting id="disabled" default="true">false</setting>
+    <setting id="disabled_warning" default="true" />
+    <setting id="image_url" default="true">https://dl.google.com/dl/edgedl/chromeos/recovery/chromeos_16328.65.0_jacuzzi_recovery_stable-channel_JacuzziMPKeys-v19.bin.zip</setting>
+</settings>

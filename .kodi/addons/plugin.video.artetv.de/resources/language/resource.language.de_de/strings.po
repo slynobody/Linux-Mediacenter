@@ -1,0 +1,607 @@
+﻿# Kodi Media Center language file
+# Addon Name: ARTE.TV
+# Addon id: plugin.video.artetv.de
+# Addon Provider: realvito
+msgid ""
+msgstr ""
+"Project-Id-Version: KODI-Addons\n"
+"Report-Msgid-Bugs-To: alanwww1@kodi.org\n"
+"POT-Creation-Date: 2026-02-14 16:00+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: realvito\n"
+"Language-Team: GERMAN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: de_DE\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+# strings start
+# SETTINGS-CATEGORIES
+
+msgctxt "#30000"
+msgid "General"
+msgstr "Allgemein"
+
+msgctxt "#30001"
+msgid "Advanced"
+msgstr "Fortgeschritten"
+
+# empty strings from id 30002 to 30109
+# SETTINGS-BUTTONS
+
+msgctxt "#30110"
+msgid "ARTE - Language"
+msgstr "ARTE - Sprache"
+
+msgctxt "#30111"
+msgid "[B]German[/B]"
+msgstr "[B]Deutsch[/B]"
+
+msgctxt "#30112"
+msgid "[B]French[/B]"
+msgstr "[B]Französisch[/B]"
+
+msgctxt "#30113"
+msgid "Play HLS-Videos with [B][COLOR yellow]Inputstream.Adaptive[/COLOR][/B]"
+msgstr "HLS-Videos mit [B][COLOR yellow]Inputstream.Adaptive[/COLOR][/B] abspielen"
+
+msgctxt "#30114"
+msgid "Preferred video file format [COLOR yellow](m3u8|mp4)[/COLOR]"
+msgstr "Bevorzugtes Video-Dateiformat [COLOR yellow](m3u8|mp4)[/COLOR]"
+
+msgctxt "#30115"
+msgid "Use Thumb as Background-Fanart"
+msgstr "Thumb als Hintergrund-Fanart nutzen"
+
+msgctxt "#30116"
+msgid "Return to main menu entry show in context menu"
+msgstr "Zurück zum Hauptmenü Eintrag im Kontextmenü anzeigen"
+
+msgctxt "#30117"
+msgid "Turn on SSL Certificate validation"
+msgstr "SSL Zertifikatprüfung einschalten"
+
+msgctxt "#30118"
+msgid "Show Addon-Settings in the overview"
+msgstr "Addon-Einstellungen in der Übersicht anzeigen"
+
+msgctxt "#30119"
+msgid "Detailed Addon-Debug (otherwise only Minimal-Log)"
+msgstr "Addon-Debug mit Details (sonst nur Minimal-Log)"
+
+# empty strings from id 30120 to 30229
+# SETTINGS-TITLES
+
+msgctxt "#30230"
+msgid "[B][COLOR ff0099ff]LANGUAGE[/COLOR][/B]"
+msgstr "[B][COLOR ff0099ff]SPRACHE[/COLOR][/B]"
+
+msgctxt "#30231"
+msgid "[B][COLOR ff0099ff]PLAYBACK[/COLOR][/B]"
+msgstr "[B][COLOR ff0099ff]WIEDERGABE[/COLOR][/B]"
+
+msgctxt "#30232"
+msgid "[B][COLOR ff0099ff]FANART[/COLOR][/B]"
+msgstr "[B][COLOR ff0099ff]FANART[/COLOR][/B]"
+
+msgctxt "#30233"
+msgid "[B][COLOR ff0099ff]HOME-BUTTON[/COLOR][/B]"
+msgstr "[B][COLOR ff0099ff]HOME-BUTTON[/COLOR][/B]"
+
+msgctxt "#30234"
+msgid "[B][COLOR ff0099ff]CERTIFICATE[/COLOR][/B]"
+msgstr "[B][COLOR ff0099ff]ZERTIFIKAT[/COLOR][/B]"
+
+msgctxt "#30235"
+msgid "[B][COLOR ff0099ff]SETTINGS[/COLOR][/B]"
+msgstr "[B][COLOR ff0099ff]EINSTELLUNGEN[/COLOR][/B]"
+
+msgctxt "#30236"
+msgid "[B][COLOR ff0099ff]LOG[/COLOR][/B]"
+msgstr "[B][COLOR ff0099ff]LOG[/COLOR][/B]"
+
+# empty strings from id 30237 to 30349
+# SETTINGS-DESCRIPTIONS
+
+msgctxt "#30350"
+msgid "[COLOR chartreuse]This Button allows you to return [B]DIRECTLY[/B] to the Main menu of the Addon without having to scroll back to each Page of a List individually.[/COLOR]"
+msgstr "[COLOR chartreuse]Dieser Button ermöglicht es [B]DIREKT[/B] zum Hauptmenü des Addons zurückzukehren ohne dabei jede aufgerufene Seite einer Liste einzeln zurückblättern zu müssen.[/COLOR]"
+
+# empty strings from id 30351 to 30500
+# WARNING/INFORMATION-MESSAGES-OK
+
+msgctxt "#30501"
+msgid "[COLOR orangered]ATTENTION : ... the required Addon ►[/COLOR][COLOR yellow]{}[/COLOR][COLOR orangered]◄ can NOT be activated automatically !!![/COLOR]"
+msgstr "[COLOR orangered]ACHTUNG : ... das benötigte Addon ►[/COLOR][COLOR yellow]{}[/COLOR][COLOR orangered]◄ kann NICHT automatisch aktiviert werden !!![/COLOR]"
+
+msgctxt "#30502"
+msgid "[COLOR orangered]ATTENTION : ... the required Addon ►[/COLOR][COLOR yellow]{}[/COLOR][COLOR orangered]◄ is NOT installed !!![/COLOR]"
+msgstr "[COLOR orangered]ACHTUNG : ... das benötigte Addon ►[/COLOR][COLOR yellow]{}[/COLOR][COLOR orangered]◄ ist NICHT installiert !!![/COLOR]"
+
+# empty strings from id 30503 to 30520
+# WARNING/INFORMATION-MESSAGES-NOTIFICATION
+
+msgctxt "#30521"
+msgid "ARTE.TV : [COLOR orangered]!!! {} - ERROR !!![/COLOR]"
+msgstr "ARTE.TV : [COLOR orangered]!!! {} - ERROR !!![/COLOR]"
+
+msgctxt "#30522"
+msgid "[COLOR orangered]An error has occured, please check *LOG* ![/COLOR]"
+msgstr "[COLOR orangered]Es ist ein Fehler aufgetreten, bitte *LOG* einsehen ![/COLOR]"
+
+msgctxt "#30523"
+msgid "ERROR = [COLOR orangered]{} ![/COLOR]"
+msgstr "ERROR = [COLOR orangered]{} ![/COLOR]"
+
+msgctxt "#30524"
+msgid "[COLOR orangered]Currently NO Entries under :[/COLOR]"
+msgstr "[COLOR orangered]Zurzeit KEINE Einträge unter :[/COLOR]"
+
+msgctxt "#30525"
+msgid "[B][COLOR blue]The respective search term[/COLOR][/B] at ARTE.TV"
+msgstr "[B][COLOR blue]Dem betr. Suchbegriff[/COLOR][/B] bei ARTE.TV"
+
+msgctxt "#30526"
+msgid "[B]≡ [COLOR blue]{}[/COLOR] ≡[/B] at ARTE.TV"
+msgstr "[B]≡ [COLOR blue]{}[/COLOR] ≡[/B] bei ARTE.TV"
+
+msgctxt "#30527"
+msgid "[B][COLOR orangered]!!! This video is DEFECTIVE (present but NOT playable) !!![/COLOR][/B]"
+msgstr "[B][COLOR orangered]!!! Dieses Video ist DEFEKT (vorh. aber NICHT abspielbar) !!![/COLOR][/B]"
+
+msgctxt "#30528"
+msgid "[B][COLOR orangered]!!! The requested *VideoLink* does NOT exist !!![/COLOR][/B]"
+msgstr "[B][COLOR orangered]!!! Der angeforderte *VideoLink* existiert NICHT !!![/COLOR][/B]"
+
+# empty strings from id 30529 to 30600
+# PLUGIN-MAIN and SIDEMENU
+# START - FOLDER
+
+msgctxt "#30601"
+msgid "[B]Homepage[/B]"
+msgstr "[B]Startseite[/B]"
+
+msgctxt "#30602"
+msgid "[B]Homepage[/B]"
+msgstr "[B]Page d'accueil[/B]"
+
+msgctxt "#30603"
+msgid "[B]All Categories[/B]"
+msgstr "[B]Alle Kategorien[/B]"
+
+msgctxt "#30604"
+msgid "[B]All Categories[/B]"
+msgstr "[B]Toutes les catégories[/B]"
+
+msgctxt "#30605"
+msgid "[B]Discover music[/B]"
+msgstr "[B]Musik entdecken[/B]"
+
+msgctxt "#30606"
+msgid "[B]Discover music[/B]"
+msgstr "[B]Découvrir la musique[/B]"
+
+msgctxt "#30607"
+msgid "[B]Broadcast A-Z[/B]"
+msgstr "[B]Sendungen A-Z[/B]"
+
+msgctxt "#30608"
+msgid "[B]Broadcast A-Z[/B]"
+msgstr "[B]Émissions A à Z[/B]"
+
+msgctxt "#30609"
+msgid "[B]Program sorted by date[/B]"
+msgstr "[B]Programm sortiert nach Datum[/B]"
+
+msgctxt "#30610"
+msgid "[B]Program sorted by date[/B]"
+msgstr "[B]Programme trié par date[/B]"
+
+msgctxt "#30611"
+msgid "[B]Most viewed[/B]"
+msgstr "[B]Meistgesehen[/B]"
+
+msgctxt "#30612"
+msgid "[B]Most viewed[/B]"
+msgstr "[B]Les plus vues[/B]"
+
+msgctxt "#30613"
+msgid "[B]New Videos[/B]"
+msgstr "[B]Neue Videos[/B]"
+
+msgctxt "#30614"
+msgid "[B]New Videos[/B]"
+msgstr "[B]Les vidéos récentes[/B]"
+
+msgctxt "#30615"
+msgid "[B]Last Chance[/B]"
+msgstr "[B]Letzte Chance[/B]"
+
+msgctxt "#30616"
+msgid "[B]Last Chance[/B]"
+msgstr "[B]Dernière chance[/B]"
+
+msgctxt "#30617"
+msgid "[B]Search ...[/B]"
+msgstr "[B]Suche ...[/B]"
+
+msgctxt "#30618"
+msgid "[B]Search ...[/B]"
+msgstr "[B]Recherche ...[/B]"
+
+msgctxt "#30619"
+msgid "[B]Live & Event TV[/B]"
+msgstr "[B]Live & Event TV[/B]"
+
+msgctxt "#30620"
+msgid "[B]Live & Event TV[/B]"
+msgstr "[B]TV direct et Événements[/B]"
+
+msgctxt "#30621"
+msgid "ARTE Settings"
+msgstr "ARTE Einstellungen"
+
+msgctxt "#30622"
+msgid "ARTE Settings"
+msgstr "ARTE Paramètres"
+
+msgctxt "#30623"
+msgid "Inputstream Settings"
+msgstr "Inputstream Einstellungen"
+
+msgctxt "#30624"
+msgid "Inputstream Settings"
+msgstr "Inputstream Paramètres"
+
+# empty strings from id 30625 to 30640
+# CATEGORIES - FOLDER
+
+msgctxt "#30641"
+msgid "[B]Homepage ARTE CONCERT[/B]"
+msgstr "[B]Startseite ARTE CONCERT[/B]"
+
+msgctxt "#30642"
+msgid "[B]Homepage ARTE CONCERT[/B]"
+msgstr "[B]Page d'accueil ARTE CONCERT[/B]"
+
+msgctxt "#30643"
+msgid "Baroque"
+msgstr "Barockmusik"
+
+msgctxt "#30644"
+msgid "Baroque"
+msgstr "Musique baroque"
+
+msgctxt "#30645"
+msgid "Performing Arts"
+msgstr "Bühnen Performance"
+
+msgctxt "#30646"
+msgid "Electronic"
+msgstr "Electronic"
+
+msgctxt "#30647"
+msgid "Electronic"
+msgstr "Musiques électroniques"
+
+msgctxt "#30648"
+msgid "Classical"
+msgstr "Klassik"
+
+msgctxt "#30649"
+msgid "[B][COLOR deepskyblue]■[/COLOR] {}[/B]"
+msgstr "[B][COLOR deepskyblue]■[/COLOR] {}[/B]"
+
+msgctxt "#30650"
+msgid "Broadcasts and Magazines"
+msgstr "Sendungen und Magazine"
+
+msgctxt "#30651"
+msgid "Broadcasts and Magazines"
+msgstr "Émissions et Magazines"
+
+# empty strings from id 30652 to 30670
+# VIDEODATES - FOLDER
+
+msgctxt "#30671"
+msgid "Mon"
+msgstr "Montag"
+
+msgctxt "#30672"
+msgid "Mon"
+msgstr "Lundi"
+
+msgctxt "#30673"
+msgid "Tue"
+msgstr "Dienstag"
+
+msgctxt "#30674"
+msgid "Tue"
+msgstr "Mardi"
+
+msgctxt "#30675"
+msgid "Wed"
+msgstr "Mittwoch"
+
+msgctxt "#30676"
+msgid "Wed"
+msgstr "Mercredi"
+
+msgctxt "#30677"
+msgid "Thu"
+msgstr "Donnerstag"
+
+msgctxt "#30678"
+msgid "Thu"
+msgstr "Jeudi"
+
+msgctxt "#30679"
+msgid "Fri"
+msgstr "Freitag"
+
+msgctxt "#30680"
+msgid "Fri"
+msgstr "Vendredi"
+
+msgctxt "#30681"
+msgid "Sat"
+msgstr "Samstag"
+
+msgctxt "#30682"
+msgid "Sat"
+msgstr "Samedi"
+
+msgctxt "#30683"
+msgid "Sun"
+msgstr "Sonntag"
+
+msgctxt "#30684"
+msgid "Sun"
+msgstr "Dimanche"
+
+msgctxt "#30685"
+msgid "[B][I][COLOR lime]{}, {}[/COLOR][/I][/B]"
+msgstr "[B][I][COLOR lime]{}, {}[/COLOR][/I][/B]"
+
+# empty strings from id 30686 to 30700
+# BROADCASTS- FOLDER
+
+msgctxt "#30701"
+msgid "[COLOR lime]Next Page ({})  >>>[/COLOR]"
+msgstr "[COLOR lime]Nächste Seite ({})  >>>[/COLOR]"
+
+msgctxt "#30702"
+msgid "[COLOR lime]Next Page ({})  >>>[/COLOR]"
+msgstr "[COLOR lime]Page suivante ({})  >>>[/COLOR]"
+
+# empty strings from id 30703 to 30710
+# SEARCH - FOLDER
+
+msgctxt "#30711"
+msgid "Search on ARTE ..."
+msgstr "Suche auf ARTE ..."
+
+msgctxt "#30712"
+msgid "Search on ARTE ..."
+msgstr "Recherche sur ARTE ..."
+
+# empty strings from id 30713 to 30720
+# CALLINGINFOS - FOLDER
+
+msgctxt "#30721"
+msgid "[B][COLOR lime]{}[/COLOR][/B][CR]"
+msgstr "[B][COLOR lime]{}[/COLOR][/B][CR]"
+
+msgctxt "#30722"
+msgid "[B][COLOR gold]Seriestitle:[/COLOR][/B] {}[CR]"
+msgstr "[B][COLOR gold]Serientitel:[/COLOR][/B] {}[CR]"
+
+msgctxt "#30723"
+msgid "[B][COLOR gold]Seriestitle:[/COLOR][/B] {}[CR]"
+msgstr "[B][COLOR gold]Titre de la série:[/COLOR][/B] {}[CR]"
+
+msgctxt "#30724"
+msgid "[B][COLOR gold]Productionyear:[/COLOR][/B] {}[CR]"
+msgstr "[B][COLOR gold]Produktionsjahr:[/COLOR][/B] {}[CR]"
+
+msgctxt "#30725"
+msgid "[B][COLOR gold]Productionyear:[/COLOR][/B] {}[CR]"
+msgstr "[B][COLOR gold]Année de production:[/COLOR][/B] {}[CR]"
+
+msgctxt "#30726"
+msgid "[B][COLOR gold]Runtime:[/COLOR][/B] {} Minute(s)[CR]"
+msgstr "[B][COLOR gold]Laufzeit:[/COLOR][/B] {} Minute(n)[CR]"
+
+msgctxt "#30727"
+msgid "[B][COLOR gold]Runtime:[/COLOR][/B] {} Minute(s)[CR]"
+msgstr "[B][COLOR gold]Durée:[/COLOR][/B] {} Minute(s)[CR]"
+
+msgctxt "#30728"
+msgid "[B][COLOR gold]Genre:[/COLOR][/B] {}[CR]"
+msgstr "[B][COLOR gold]Genre:[/COLOR][/B] {}[CR]"
+
+msgctxt "#30729"
+msgid "[B][COLOR gold]Country:[/COLOR][/B] {}[CR]"
+msgstr "[B][COLOR gold]Land:[/COLOR][/B] {}[CR]"
+
+msgctxt "#30730"
+msgid "[B][COLOR gold]Country:[/COLOR][/B] {}[CR]"
+msgstr "[B][COLOR gold]Pays:[/COLOR][/B] {}[CR]"
+
+msgctxt "#30731"
+msgid "[B][COLOR gold]Actors:[/COLOR][/B] {}[CR]"
+msgstr "[B][COLOR gold]Darsteller:[/COLOR][/B] {}[CR]"
+
+msgctxt "#30732"
+msgid "[B][COLOR gold]Actors:[/COLOR][/B] {}[CR]"
+msgstr "[B][COLOR gold]Acteurs:[/COLOR][/B] {}[CR]"
+
+msgctxt "#30733"
+msgid "[B][COLOR gold]Regie:[/COLOR][/B] {}[CR]"
+msgstr "[B][COLOR gold]Regie:[/COLOR][/B] {}[CR]"
+
+msgctxt "#30734"
+msgid "[B][COLOR gold]Regie:[/COLOR][/B] {}[CR]"
+msgstr "[B][COLOR gold]Réalisation:[/COLOR][/B] {}[CR]"
+
+msgctxt "#30735"
+msgid "[B][COLOR gold]Screenplay:[/COLOR][/B] {}[CR]"
+msgstr "[B][COLOR gold]Drehbuch:[/COLOR][/B] {}[CR]"
+
+msgctxt "#30736"
+msgid "[B][COLOR gold]Screenplay:[/COLOR][/B] {}[CR]"
+msgstr "[B][COLOR gold]Scénario:[/COLOR][/B] {}[CR]"
+
+msgctxt "#30737"
+msgid "[B][COLOR gold]Vacate:[/COLOR][/B] {}[CR]"
+msgstr "[B][COLOR gold]Freigegeben:[/COLOR][/B] {}[CR]"
+
+msgctxt "#30738"
+msgid "[B][COLOR gold]Vacate:[/COLOR][/B] {}[CR]"
+msgstr "[B][COLOR gold]Approuvé:[/COLOR][/B] {}[CR]"
+
+msgctxt "#30739"
+msgid "No Data available !"
+msgstr "Keine Daten verfügbar !"
+
+msgctxt "#30740"
+msgid "No Data available !"
+msgstr "Aucune donnée disponible !"
+
+msgctxt "#30741"
+msgid "VIDEO - INFORMATIONS"
+msgstr "VIDEO - INFORMATIONEN"
+
+msgctxt "#30742"
+msgid "VIDEO - INFORMATIONS"
+msgstr "VIDÉO - INFORMATIONS"
+
+# empty strings from id 30743 to 30760
+# CREATE_SUBSTANCES - FOLDER
+
+msgctxt "#30761"
+msgid "FSK {}"
+msgstr "FSK {}"
+
+msgctxt "#30762"
+msgid "{}[CR]"
+msgstr "{}[CR]"
+
+msgctxt "#30763"
+msgid "[B][COLOR deepskyblue]Season {} • Episode {}[/COLOR][/B][CR]"
+msgstr "[B][COLOR deepskyblue]Staffel {} • Folge {}[/COLOR][/B][CR]"
+
+msgctxt "#30764"
+msgid "[B][COLOR deepskyblue]Season {} • Episode {}[/COLOR][/B][CR]"
+msgstr "[B][COLOR deepskyblue]Saison {} - Épisode {}[/COLOR][/B][CR]"
+
+msgctxt "#30765"
+msgid "[B][COLOR deepskyblue]Episode {}[/COLOR][/B][CR]"
+msgstr "[B][COLOR deepskyblue]Folge {}[/COLOR][/B][CR]"
+
+msgctxt "#30766"
+msgid "[B][COLOR deepskyblue]Episode {}[/COLOR][/B][CR]"
+msgstr "[B][COLOR deepskyblue]Épisode {}[/COLOR][/B][CR]"
+
+msgctxt "#30767"
+msgid "From [COLOR chartreuse]{}[/COLOR] to [COLOR orangered]{}[/COLOR][CR][CR]"
+msgstr "Vom [COLOR chartreuse]{}[/COLOR] bis [COLOR orangered]{}[/COLOR][CR][CR]"
+
+msgctxt "#30768"
+msgid "From [COLOR chartreuse]{}[/COLOR] to [COLOR orangered]{}[/COLOR][CR][CR]"
+msgstr "De [COLOR chartreuse]{}[/COLOR] à [COLOR orangered]{}[/COLOR][CR][CR]"
+
+msgctxt "#30769"
+msgid "From [COLOR chartreuse]{}[/COLOR][CR][CR]"
+msgstr "Vom [COLOR chartreuse]{}[/COLOR][CR][CR]"
+
+msgctxt "#30770"
+msgid "From [COLOR chartreuse]{}[/COLOR][CR][CR]"
+msgstr "De [COLOR chartreuse]{}[/COLOR][CR][CR]"
+
+# empty strings from id 30771 to 32200
+# STREAMTV - FOLDER
+
+msgctxt "#32201"
+msgid "ARTE ► Germany live"
+msgstr "ARTE ► Deutschland live"
+
+msgctxt "#32202"
+msgid "ARTE ► Germany live"
+msgstr "ARTE ► Allemagne direct"
+
+msgctxt "#32203"
+msgid "ARTE ► France live"
+msgstr "ARTE ► Frankreich live"
+
+msgctxt "#32204"
+msgid "ARTE ► France live"
+msgstr "ARTE ► France direct"
+
+msgctxt "#32205"
+msgid "ARTE Event 1"
+msgstr "ARTE Event 1"
+
+msgctxt "#32206"
+msgid "ARTE Event 1"
+msgstr "ARTE événement 1"
+
+msgctxt "#32207"
+msgid "ARTE Event 2"
+msgstr "ARTE Event 2"
+
+msgctxt "#32208"
+msgid "ARTE Event 2"
+msgstr "ARTE événement 2"
+
+msgctxt "#32209"
+msgid "ARTE Event 3"
+msgstr "ARTE Event 3"
+
+msgctxt "#32210"
+msgid "ARTE Event 3"
+msgstr "ARTE événement 3"
+
+msgctxt "#32211"
+msgid "ARTE Event 4"
+msgstr "ARTE Event 4"
+
+msgctxt "#32212"
+msgid "ARTE Event 4"
+msgstr "ARTE événement 4"
+
+msgctxt "#32213"
+msgid "ARTE Event 5"
+msgstr "ARTE Event 5"
+
+msgctxt "#32214"
+msgid "ARTE Event 5"
+msgstr "ARTE événement 5"
+
+msgctxt "#32215"
+msgid "ARTE Event 6"
+msgstr "ARTE Event 6"
+
+msgctxt "#32216"
+msgid "ARTE Event 6"
+msgstr "ARTE événement 6"
+
+# empty strings from id 32217 to 32230
+# CONTEXT-MENUE - FOLDER
+
+msgctxt "#32231"
+msgid "[I][B][COLOR cyan]More Infos about the Video...[/COLOR][/B][/I]"
+msgstr "[I][B][COLOR cyan]Mehr Infos zum Video...[/COLOR][/B][/I]"
+
+msgctxt "#32232"
+msgid "[I][B][COLOR cyan]More Infos about the Video...[/COLOR][/B][/I]"
+msgstr "[I][B][COLOR cyan]Plus d'infos sur la Vidéo...[/COLOR][/B][/I]"
+
+msgctxt "#32233"
+msgid "[I][B][COLOR ffff3296]<<< Back to the Main-menu[/COLOR][/B][/I]"
+msgstr "[I][B][COLOR ffff3296]<<< Zurück zum Hauptmenü[/COLOR][/B][/I]"
+
+msgctxt "#32234"
+msgid "[I][B][COLOR ffff3296]<<< Back to the Main-menu[/COLOR][/B][/I]"
+msgstr "[I][B][COLOR ffff3296]<<< Retour au menu principal[/COLOR][/B][/I]"

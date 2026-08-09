@@ -3,6 +3,8 @@
 
 from yt_dlp import YoutubeDL
 
+from js_runtimes import info, runtime
+
 from iapc import Client
 from nuttig import getSetting, localizedString
 
@@ -13,6 +15,21 @@ from nuttig import getSetting, localizedString
 class MyYtDlp(object):
 
     __service_id__ = "service.yt-dlp"
+
+    __params__ = {
+        "verbose": True,
+        "remote_components": ["ejs:github"],
+        #"extractor_args": {
+        #    "youtube": {
+        #        "player_client": [
+        #            "android_vr",
+        #            "ios_downgraded",
+        #            "web",
+        #            "web_safari"
+        #        ]
+        #    }
+        #}
+    }
 
     __fps_limits__ = {0: 48211, 30: 48212}
 
@@ -26,12 +43,65 @@ class MyYtDlp(object):
         "av01": 48315
     }
 
+    __heights__ = {
+        2160: 48411,
+        1440: 48412,
+        1080: 48413,
+        720: 48414,
+        480: 48415,
+        360: 48416,
+        0: 90011
+    }
+
+    __tracks__ = {
+        None: 90200,
+        "ar": 90201,
+        "bn": 90202,
+        "de": 90203,
+        "en": 90204,
+        "es": 90205,
+        "fr": 90206,
+        "he": 90207,
+        "hi": 90208,
+        "id": 90209,
+        "it": 90210,
+        "ja": 90211,
+        "ko": 90212,
+        "ml": 90213,
+        "nl": 90214,
+        "pa": 90215,
+        "pl": 90216,
+        "pt": 90217,
+        "ro": 90218,
+        "ru": 90219,
+        "tr": 90220,
+        "uk": 90221,
+        "vi": 90222,
+        "zh": 90223
+    }
+
     def __init__(self, logger):
         self.logger = logger.getLogger(component="ytdlp")
         self.__infos__ = YoutubeDL()
         self.__client__ = Client(self.__service_id__)
 
-    def __setup__(self):
+    def __setup__(self, headers=None):
+        if headers:
+            self.__params__["http_headers"] = headers
+        # js_runtimes
+        self.__params__["js_runtimes"] = {
+            k: rt
+            for k in getSetting("javascript.runtimes").split(",")
+            if (rt := runtime(k))
+        }
+        #self.logger.info(self.__params__["js_runtimes"])
+        self.logger.info(
+            f"{localizedString(49211)}: "
+            f"""{
+                ', '.join('{name} {version}'.format(**info(k))
+                for k in self.__params__['js_runtimes'])
+            }"""
+        )
         # include automatic captions
         self.__captions__ = getSetting("subs.captions", bool)
         self.logger.info(f"{localizedString(48110)}: {self.__captions__}")
@@ -57,6 +127,18 @@ class MyYtDlp(object):
                 for codec in self.__exclude__
             )
         self.logger.info(f"{localizedString(48310)}: {labels}")
+        # preferred resolution
+        self.__height__ = getSetting("prefs.height", int)
+        self.logger.info(
+            f"{localizedString(48410)}: "
+            f"{localizedString(self.__heights__[self.__height__])}"
+        )
+        # preferred audio track
+        self.__track__ = getSetting("prefs.track", str) or None
+        self.logger.info(
+            f"{localizedString(48420)}: "
+            f"{localizedString(self.__tracks__[self.__track__])}"
+        )
 
     def __stop__(self):
         self.__infos__ = self.__infos__.close()
@@ -64,14 +146,18 @@ class MyYtDlp(object):
 
     # --------------------------------------------------------------------------
 
-    def video(self, url):
+    def video(self, url, **kwargs):
         #self.logger.info(f"video(url={url})")
         return self.__client__.video(
             url,
             captions=self.__captions__,
             exclude=self.__exclude__,
             fps_limit=self.__fps_limit__,
-            fps_hint=self.__fps_hint__
+            fps_hint=self.__fps_hint__,
+            height=self.__height__,
+            track=self.__track__,
+            params=self.__params__,
+            **kwargs
         )
 
     def extract(self, url):

@@ -27,7 +27,7 @@ from datetime import datetime, timedelta
 
 TMDB_CLOWNCAR = 'af3a53eb387d57fc935e9128468b1899'
 FANARTTV_CLOWNCAR = 'b018086af0e1478479adfc55634db97d'
-TRAKT_CLOWNCAR = '90901c6be3b2de5a4fa0edf9ab5c75e9a5a0fef2b4ee7373d8b63dcf61f95697'
+TRAKT_CLOWNCAR = 'xqBLoK5gcAsW3ilQutfwvP2kb1-3HXh3wMjf3oClHkc'
 MAXIMAGES = 200
 FANARTTV_MAPPING = {'showbackground': 'backdrops',
                     'tvposter': 'posters',
@@ -36,7 +36,7 @@ FANARTTV_MAPPING = {'showbackground': 'backdrops',
                     'clearlogo': 'clearlogo',
                     'hdclearart': 'clearart',
                     'clearart': 'clearart',
-                    'tvthumb': 'landscape',
+                    'tvthumb': 'backdrops',
                     'characterart': 'characterart',
                     'seasonposter': 'seasonposters',
                     'seasonbanner': 'seasonbanner',
@@ -84,6 +84,7 @@ def getSourceSettings():
     settings["KEEPTITLE"] = source_settings.get(
         'keeporiginaltitle', addon.getSettingBool('keeporiginaltitle'))
     settings["CATLANDSCAPE"] = source_settings.get('cat_landscape', True)
+    settings["CATKEYART"] = source_settings.get('cat_keyart', True)
     settings["STUDIOCOUNTRY"] = source_settings.get('studio_country', False)
     settings["ENABTRAILER"] = source_settings.get(
         'enab_trailer', addon.getSettingBool('enab_trailer'))

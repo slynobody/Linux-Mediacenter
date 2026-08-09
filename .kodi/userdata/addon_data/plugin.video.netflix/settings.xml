@@ -81,13 +81,13 @@
     <setting id="ResumeManager_enabled" default="true">true</setting>
     <setting id="ResumeManager_dialog" default="true">false</setting>
     <setting id="UpNextNotifier_enabled" default="true">false</setting>
-    <setting id="enable_dolby_sound" default="true">true</setting>
+    <setting id="enable_dolby_sound">false</setting>
     <setting id="enable_vp9_profiles">true</setting>
     <setting id="enable_vp9.2_profiles" default="true">false</setting>
     <setting id="enable_hevc_profiles" default="true">false</setting>
     <setting id="enable_hdr_profiles" default="true">false</setting>
     <setting id="enable_dolbyvision_profiles" default="true">false</setting>
-    <setting id="enable_av1_profiles" default="true">false</setting>
+    <setting id="enable_av1_profiles">true</setting>
     <setting id="isa_streamselection_override" default="true">disabled</setting>
     <setting id="stream_max_resolution" default="true">--</setting>
     <setting id="stream_force_hdcp" default="true">--</setting>

@@ -33,6 +33,12 @@ def selectLocation():
     return Client().selectLocation()
 
 
+# javascript -------------------------------------------------------------------
+
+def selectRuntimes():
+    return Client().selectRuntimes()
+
+
 # feed -------------------------------------------------------------------------
 
 def addChannelToFeed(channelId, channel):
@@ -43,6 +49,9 @@ def removeChannelFromFeed(channelId):
 
 def clearChannelsFromFeed():
     return Client().feed.clearChannels()
+
+def refreshFeed():
+    return Client().feed.refresh()
 
 
 # search -----------------------------------------------------------------------
@@ -67,9 +76,11 @@ __scripts__ = {
     "goToChannel": goToChannel,
     "selectLanguage": selectLanguage,
     "selectLocation": selectLocation,
+    "selectRuntimes": selectRuntimes,
     "addChannelToFeed": addChannelToFeed,
     "removeChannelFromFeed": removeChannelFromFeed,
     "clearChannelsFromFeed": clearChannelsFromFeed,
+    "refreshFeed": refreshFeed,
     "updateQueryType": updateQueryType,
     "updateQuerySort": updateQuerySort,
     "removeQuery": removeQuery,

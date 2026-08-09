@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
 
 import base64
 import os
@@ -13,21 +12,17 @@ import threading
 import time
 from copy import deepcopy
 from os.path import join as OSPJoin
+from urllib.parse import quote_plus, urlencode
 
+import xbmc, xbmcgui, xbmcvfs, xbmcplugin
 from inputstreamhelper import Helper
-from kodi_six import xbmc, xbmcgui, xbmcvfs, xbmcplugin
-from kodi_six.utils import py2_decode
 
-from .common import Globals, Settings, jsonRPC, sleep, MechanizeLogin, findKey
+from .common import Globals, Settings, jsonRPC, sleep, MechanizeLogin, findKey, return_item, get_key
 from .logging import Log
 from .configs import getConfig
 from .network import getURL, getURLData, getATVData, GrabJSON
 from .l10n import getString
 
-try:
-    from urllib.parse import quote_plus, urlencode
-except ImportError:
-    from urllib import quote_plus, urlencode
 
 _g = Globals()
 _s = Settings()
@@ -43,7 +38,7 @@ def _playDummyVid():
 
 
 def _getListItem(li):
-    return py2_decode(xbmc.getInfoLabel('ListItem.%s' % li))
+    return xbmc.getInfoLabel(f'ListItem.{li}')
 
 
 def _Input(mousex=0, mousey=0, click=0, keys=None, delay='0.2'):
@@ -68,7 +63,7 @@ def _Input(mousex=0, mousey=0, click=0, keys=None, delay='0.2'):
         if click:
             pyautogui.click(clicks=click)
 
-    Log('Input command: Mouse(x={}, y={}, click={}), Keyboard({})'.format(mousex, mousey, click, keys))
+    Log(f'Input command: Mouse(x={mousex}, y={mousey}, click={click}), Keyboard({keys})')
 
 
 def PlayVideo(name, asin, adultstr, streamtype, forcefb=0):
@@ -95,6 +90,7 @@ def PlayVideo(name, asin, adultstr, streamtype, forcefb=0):
         bypassproxy = bypassproxy if streamtype != 1 else True
         subUrls = []
         hosts = []
+        auxKey = None
 
         if not suc:
             return False, data, None
@@ -109,15 +105,12 @@ def PlayVideo(name, asin, adultstr, streamtype, forcefb=0):
         elif 'playbackUrls' in data.keys():
             defid = data['playbackUrls']['defaultUrlSetId']
             h_dict = data['playbackUrls']['urlSets']
-            '''
-            defid_dis = [h_dict[k]['urlSetId'] for k in h_dict if 'DUB' in h_dict[k]['urls']['manifest']['origin']]
-            defid = defid_dis[0] if defid_dis else defid
-            failover = h_dict[defid]['failover']
-            defid_dis = [failover[k]['urlSetId'] for k in failover if failover[k]['mode'] == 'discontinuous']
-            defid = defid_dis[0] if defid_dis else defid
-            '''
             hosts = [h_dict[k] for k in h_dict]
             hosts.insert(0, h_dict[defid])
+            if 'auxCacheKey' in data['playbackUrls'] and len(data['playbackUrls']['auxCacheKey']) > 0:
+                auxKey = data['playbackUrls']['auxCacheKey'][1:]
+
+        Log(f"auxCacheKey: {auxKey}", Log.DEBUG)
 
         while hosts:
             for cdn in hosts:
@@ -139,19 +132,26 @@ def PlayVideo(name, asin, adultstr, streamtype, forcefb=0):
                     continue
 
                 returl = urlset['url']
-                if (not _s.audio_description) and (streamtype != 2) and webid:
-                    if urlset['cdn'] == 'Cloudfront':
-                        import random, string
-                        let = string.ascii_letters + string.digits
-                        rnd = [random.choice(let) for _ in range(random.randint(2, 10))]
-                        try:
-                            returl = re.sub(r'(\/3\$[^\/]*)', r'\1' + ''.join(rnd), returl)
-                        except:
-                            pass
-                if not bypassproxy:
-                    returl = 'http://{}/mpd/{}'.format(_s.proxyaddress, quote_plus(returl))
-                return (returl, subUrls, timecodes) if retmpd else (True, _extrFr(data), None)
+                Log(f"returl before mod: {returl}", Log.DEBUG)
+                if auxKey and auxKey in returl:
+                    regex = r'(.*\/)([^\/]*' + auxKey + r'[^\/]*\/)'
+                    returl = re.sub(regex, r'\1', returl)
 
+                if (not _s.audio_description) and (streamtype != 2) and webid:
+                    while '$' in returl:
+                        regex = r'(.*\/)([^\/]*\$[^\/]*\/)'
+                        returl = re.sub(regex, r'\1', returl)
+                    if 'amazon.pv-cdn.net' in returl:
+                        returl = returl.replace( '/dm/', '/')
+                    returl = re.sub(r'(\/ww_[^\/]*)', '', returl)
+                    returl = returl.replace('/ondemand/', '/').replace('/iad_2/', '/')
+                    if not getURL(returl, rjson=False, check=retmpd):
+                        returl = urlset['url']
+
+                if not bypassproxy:
+                    returl = f'http://{_s.proxyaddress}/mpd/{quote_plus(returl)}'
+
+                return (returl, subUrls, timecodes) if retmpd else (True, _extrFr(data), None)
         return False, getString(30217), None
 
     def _getCmdLine(videoUrl, asin):
@@ -199,7 +199,7 @@ def PlayVideo(name, asin, adultstr, streamtype, forcefb=0):
                         br_path = path + exe_file
                         break
                     else:
-                        Log('Browser %s not found' % (path + exe_file), Log.DEBUG)
+                        Log(f'Browser {path + exe_file} not found', Log.DEBUG)
                 if br_path:
                     break
 
@@ -218,7 +218,7 @@ def PlayVideo(name, asin, adultstr, streamtype, forcefb=0):
             if br_args.strip():
                 br_args = '--args ' + br_args
 
-        br_path += ' %s"%s"' % (br_args, videoUrl)
+        br_path += f' {br_args}"{videoUrl}"'
 
         return True, br_path
 
@@ -244,7 +244,7 @@ def PlayVideo(name, asin, adultstr, streamtype, forcefb=0):
             _g.dialog.notification(getString(30203), url, xbmcgui.NOTIFICATION_ERROR)
             return
 
-        Log('Executing: %s' % url)
+        Log(f'Executing: {url}')
         if _g.platform & _g.OS_WINDOWS:
             process = subprocess.Popen(url, startupinfo=_getStartupInfo())
         else:
@@ -301,45 +301,89 @@ def PlayVideo(name, asin, adultstr, streamtype, forcefb=0):
             gti = 'gti' if _g.UsePrimeVideo else 'asin'
             pkg = 'com.amazon.avod.thirdpartyclient' if avodapp else 'com.amazon.amazonvideo.livingroom'
             act = 'android.intent.action.VIEW'
-            url = '{}/watch?{}={}'.format(burl, gti, asin)
+            url = f'{burl}/watch?{gti}={asin}'
             if not _g.UsePrimeVideo and avodapp:
-                url = '%s/piv-apk-play?asin=%s%s' % (_g.BaseUrl, asin, '&playTrailer=T' if streamtype == 1 else '')
+                url = f"{_g.BaseUrl}/piv-apk-play?asin={asin}{'&playTrailer=T' if streamtype == 1 else ''}"
 
-        subprocess.Popen(['log', '-p', 'v', '-t', 'Kodi-Amazon', 'Manufacturer: %s' % manu])
-        subprocess.Popen(['log', '-p', 'v', '-t', 'Kodi-Amazon', 'Starting App: %s Video: %s' % (pkg, url)])
-        Log('Manufacturer: %s' % manu)
-        Log('Starting App: %s Video: %s' % (pkg, url))
+        subprocess.Popen(['log', '-p', 'v', '-t', 'Kodi-Amazon', f'Manufacturer: {manu}'])
+        subprocess.Popen(['log', '-p', 'v', '-t', 'Kodi-Amazon', f'Starting App: {pkg} Video: {url}'])
+        Log(f'Manufacturer: {manu}')
+        Log(f'Starting App: {pkg} Video: {url}')
 
         if _s.logging:
             amaz_pkgs = ''
             if os.access('/system/xbin/su', os.X_OK) or os.access('/system/bin/su', os.X_OK):
-                Log('Logcat:\n%s' % _check_output(['su', '-c', 'logcat -d | grep -iE "(avod|amazonvideo)']))
-            Log('Properties:\n%s' % _check_output(['sh', '-c', 'getprop | grep -iE "(ro.product|ro.build|google)"']))
+                Log('Logcat:\n{}'.format(_check_output(['su', '-c', 'logcat -d | grep -iE "(avod|amazonvideo)'])))
+            Log('Properties:\n{}'.format(_check_output(['sh', '-c', 'getprop | grep -iE "(ro.product|ro.build|google)"'])))
             if os.access('/system/bin/cmd', os.X_OK):
                 amaz_pkgs = _check_output(['sh', '-c', 'cmd package list packages | grep -i amazon'])
             elif os.access('/system/bin/pm', os.X_OK):
                 amaz_pkgs = _check_output(['sh', '-c', 'pm', 'list', 'packages', 'com.amazon'])
-            Log('Installed Amazon Packages:\n%s' % amaz_pkgs)
+            Log(f'Installed Amazon Packages:\n{amaz_pkgs}')
 
-        xbmc.executebuiltin('StartAndroidActivity("%s", "%s", "", "%s")' % (pkg, act, url))
+        xbmc.executebuiltin(f'StartAndroidActivity("{pkg}", "{act}", "", "{url}")')
+
+    def _EventState(asin):
+        streamtype = 2
+        u_path = '' if _g.UsePrimeVideo else '/gp/video'
+        data = GrabJSON(_g.BaseUrl + u_path + '/detail/' + asin)
+        if data:
+            state = data['state']
+            tid = state['pageTitleId']
+            detail = return_item(state, 'detail', 'detail', tid)
+            msg = return_item(state, 'action', 'atf',  tid, 'messages')
+            ent = msg.get('entitlementType', 'entitled').lower() == 'entitled'
+            notif = get_key('', msg, 'buyBoxMessage' if ent else 'focusMessage', 'dvMessage', 'string').replace('{lineBreak}', '\n')
+            pid, livestate = _listStreams(state, tid, detail['liveState'].get('id', '').lower())
+            if not livestate:
+                return -1, -1
+            asin = pid if pid else asin
+            tt = detail['titleType'].lower()
+            if not notif:
+                if livestate == 'ended':
+                    livestate = 'replay'
+                notif = detail['dateTimeBadge']
+            if livestate in ['upcoming', 'ended'] or not pid:
+                _g.dialog.notification(getString(30203), notif, xbmcgui.NOTIFICATION_INFO)
+                return -1, -1
+            if livestate != 'live' and tt == 'event':
+                streamtype = 0
+        return streamtype, asin
+
+    def _listStreams(state, tid, livestate):
+        pid = findKey('playbackID', state)
+        container = get_key([], state, 'containers', tid)
+        pbActions = get_key([], state, 'action', 'atf', tid, 'playbackActions', 'main', 'children')
+        str_list = []
+        for child in pbActions:
+            title = child['label'].replace('{lineBreak}', ' / ')
+            state = 'live' if child['videoMaterialType'].lower() == 'live' else 'replay'
+            str_list.append([title, child['playbackID'], state])
+        for cont in container:
+            heading = cont['title']
+            streams = cont.get('entities', [])
+            for stream in streams:
+                ec = stream.get('entitlementCues', {})
+                live_state = get_key('replay', stream, 'liveInfo', 'status').lower()
+                live_badge = 'inactive' not in get_key('inactive', ec, 'titleMetadataBadge', 'level')
+                is_entitled = get_key('', ec, 'focusMessage', 'icon') != 'OFFER_ICON'
+                widget_type = stream.get('widgetType', '').lower()
+                if live_badge and live_state == 'upcoming':
+                    live_state = 'live'
+                if live_state not in ['upcoming', 'ended'] and widget_type != 'titlecard' and is_entitled and stream['titleID'] not in [x[1] for x in str_list]:
+                    str_list.append([f"{heading}: {stream['displayTitle']}", stream['titleID'], live_state])
+        if len(str_list) > 0:
+            num = 0 if len(str_list) == 1 else _g.dialog.select('', [s[0] for s in str_list], preselect=0)
+            return [str_list[num][1], str_list[num][2]] if num > -1 else [pid, False]
+        return pid, livestate
 
     def _IStreamPlayback(asin, name, streamtype, isAdult, extern):
-        if streamtype == 3:
-            streamtype = 2
-            u_path = '' if _g.UsePrimeVideo else '/gp/video'
-            data = GrabJSON(_g.BaseUrl + u_path + '/detail/' + asin)
-            if data:
-                action = findKey('playbackActions', data)
-                msg = findKey('dvMessage', data).get('string', '').replace('{lineBreak}', '\n')
-                if not action and msg:
-                    _g.dialog.notification(getString(30203), msg, xbmcgui.NOTIFICATION_INFO)
-                    return False
-                live = findKey('liveState', data).get('isLive', False)
-                tt = findKey('titleType', data)
-                if not live and tt.lower() == 'event':
-                    streamtype = 0
-
         from .ages import AgeRestrictions
+        bypassproxy = _s.proxy_mpdalter or (streamtype > 1)
+        if streamtype == 3:
+            streamtype, asin = _EventState(asin)
+            if streamtype < 0:
+                return False
         vMT = ['Feature', 'Trailer', 'LiveStreaming'][streamtype]
         dRes = 'PlaybackUrls' if streamtype > 1 else 'PlaybackUrls,SubtitleUrls,ForcedNarratives,TransitionTimecodes'
         opt = '&liveManifestType=accumulating,live&playerType=xp&playerAttributes={"frameRate":"HFR"}&deviceFrameRateOverride=High' if streamtype > 1 else ''
@@ -350,15 +394,13 @@ def PlayVideo(name, asin, adultstr, streamtype, forcefb=0):
             Log('No Inputstream Addon found or activated')
             return False
 
-        bypassproxy = _s.proxy_mpdalter or (streamtype > 1)
-
         # The following code can run two times. In the first iteration, token auth
         # will be prefered. If the request is successful, the loop will be aborted.
         # If not, then the second iteration will fall back to cookie authentification
         # and try again. This is neccessary for content like Amazon Freevee, which is not
         # available though token based authentification.
 
-        for preferTokenToCookie in ([True, False] if _s.wvl1_device else [False]):
+        for preferTokenToCookie in ([True, False] if _s.wvl1_device and streamtype != 2 else [False]):
             cookie, req_param, headers, dtid, req_headers = _getPlaybackVars(preferToken=preferTokenToCookie)
             if not cookie:
                 _g.dialog.notification(getString(30203), getString(30200), xbmcgui.NOTIFICATION_ERROR)
@@ -377,7 +419,7 @@ def PlayVideo(name, asin, adultstr, streamtype, forcefb=0):
 
         licURL = getURLData('catalog/GetPlaybackResources', asin, devicetypeid=dtid, opt=req_param, extra=True, vMT=vMT, dRes='Widevine2License', retURL=True)
         skip = timecodes.get('skipElements')
-        Log('Skip Items: %s' % skip, Log.DEBUG)
+        Log(f'Skip Items: {skip}', Log.DEBUG)
 
         from xbmcaddon import Addon as KodiAddon
         is_version = KodiAddon(_g.is_addon).getAddonInfo('version') if _g.is_addon else '0'
@@ -400,21 +442,21 @@ def PlayVideo(name, asin, adultstr, streamtype, forcefb=0):
         if mpaa_check and not AgeRestrictions().RequestPin():
             return True
 
-        Log('Using %s Version: %s' % (_g.is_addon, is_version))
+        Log(f'Using {_g.is_addon} Version: {is_version}')
 
         listitem = xbmcgui.ListItem(label=title, path=mpd)
         if (_g.KodiVersion < 21) and ('adaptive' in _g.is_addon):
             listitem.setProperty('inputstream.adaptive.manifest_type', 'mpd')
         listitem.setArt({'thumb': thumb})
         listitem.setSubtitles(subs)
-        listitem.setProperty('inputstreamaddon' if _g.KodiVersion < 19 else 'inputstream', _g.is_addon)
+        listitem.setProperty('inputstream', _g.is_addon)
         listitem.setMimeType('application/dash+xml')
-        listitem.setProperty('%s.manifest_headers' % _g.is_addon, urlencode(headers))
+        listitem.setProperty(f'{_g.is_addon}.manifest_headers', urlencode(headers))
         listitem.setContentLookup(False)
 
         if list(map(int, is_version.split('.'))) < [22, 1, 5]:
-            listitem.setProperty('%s.license_type' % _g.is_addon, 'com.widevine.alpha')
-            listitem.setProperty('%s.license_key' % _g.is_addon, licURL + req_param)
+            listitem.setProperty(f'{_g.is_addon}.license_type', 'com.widevine.alpha')
+            listitem.setProperty(f'{_g.is_addon}.license_key', licURL + req_param)
         else:
             drm_cfg = {'com.widevine.alpha':
                            {'force_single_session': True,
@@ -471,7 +513,7 @@ def PlayVideo(name, asin, adultstr, streamtype, forcefb=0):
                 dtid = _g.dtid_android
                 headers = _g.headers_android
             else:
-                req_headers = {'Cookie': ';'.join(['%s=%s' % (k, v) for k, v in cookie.items()])}
+                req_headers = {'Cookie': ';'.join([f'{k}={v}' for k, v in cookie.items()])}
                 headers = {'User-Agent': getConfig('UserAgent')}
             req_headers.update({'Content-Type': 'application/octet-stream'})
             req_headers.update(headers)
@@ -482,8 +524,8 @@ def PlayVideo(name, asin, adultstr, streamtype, forcefb=0):
         return False
 
     isAdult = adultstr == '1'
-    amazonUrl = _g.BaseUrl + "/dp/" + (py2_decode(name) if _g.UsePrimeVideo else asin)
-    videoUrl = "%s/?autoplay=%s" % (amazonUrl, ('trailer' if streamtype == 1 else '1'))
+    amazonUrl = _g.BaseUrl + "/dp/" + (name if _g.UsePrimeVideo else asin)
+    videoUrl = f"{amazonUrl}/?autoplay={'trailer' if streamtype == 1 else '1'}"
     extern = not xbmc.getInfoLabel('Container.PluginName').startswith('plugin.video.amazon')
     suc = False
 
@@ -511,7 +553,7 @@ class _window(xbmcgui.WindowDialog):
     @staticmethod
     def _SetVol(step):
         vol = jsonRPC('Application.GetProperties', 'volume')
-        xbmc.executebuiltin('SetVolume(%d,showVolumeBar)' % (vol + step))
+        xbmc.executebuiltin(f'SetVolume({vol + step},showVolumeBar)')
 
     def _wakeUpThreadProc(self, process):
         starttime = time.time()
@@ -549,7 +591,7 @@ class _window(xbmcgui.WindowDialog):
         xbmcgui.WindowDialog.close(self)
         watched = xbmc.getInfoLabel('Listitem.PlayCount')
         pBTime = time.time() - self._pbStart
-        Log('Dur:%s State:%s PlbTm:%s' % (self._vidDur, watched, pBTime), Log.DEBUG)
+        Log(f'Dur:{self._vidDur} State:{watched} PlbTm:{pBTime}', Log.DEBUG)
 
         if pBTime > self._vidDur * 0.9 and not watched:
             _playDummyVid()
@@ -578,7 +620,7 @@ class _window(xbmcgui.WindowDialog):
 
         actionId = action.getId()
         showinfo = action == ACTION_SHOW_INFO
-        Log('Action: Id:%s ButtonCode:%s' % (actionId, action.getButtonCode()))
+        Log(f'Action: Id:{actionId} ButtonCode:{action.getButtonCode()}')
 
         if action in [ACTION_SHOW_GUI, ACTION_STOP, ACTION_PARENT_DIR, ACTION_PREVIOUS_MENU, ACTION_NAV_BACK,
                       KEY_BUTTON_BACK, ACTION_MOUSE_MOVE]:
@@ -635,7 +677,7 @@ class _AmazonPlayer(xbmc.Player):
         if self.resume:
             li.setProperty('resumetime', str(self.resume))
             li.setProperty('totaltime', '1')
-            Log('Resuming Video at %s' % self.resume)
+            Log(f'Resuming Video at {self.resume}')
 
         xbmcplugin.setResolvedUrl(_g.pluginhandle, True, li)
         self.running = True
@@ -643,10 +685,10 @@ class _AmazonPlayer(xbmc.Player):
 
     def checkResume(self):
         self.dbid = int('0' + _getListItem('DBID'))
-        Log('DBID: %s' % self.dbid)
+        Log(f'DBID: {self.dbid}')
         if self.dbid:
             dbtype = _getListItem('DBTYPE')
-            result = jsonRPC('VideoLibrary.Get%sDetails' % dbtype, 'resume,playcount', {'%sid' % dbtype: self.dbid})
+            result = jsonRPC(f'VideoLibrary.Get{dbtype}Details', 'resume,playcount', {f'{dbtype}id': self.dbid})
             self.resume = int(result[dbtype.lower() + 'details']['resume']['position'])
             self.watched = int(result[dbtype.lower() + 'details']['playcount'])
         if self.watched:
@@ -697,7 +739,7 @@ class _AmazonPlayer(xbmc.Player):
 
     def onPlayBackSeek(self, time, seekOffset):
         cur_sub = jsonRPC('Player.GetProperties', 'currentsubtitle', param={'playerid': 1})
-        Log('Seeking / Current Subtitle: {}'.format(cur_sub), Log.DEBUG)
+        Log(f'Seeking / Current Subtitle: {cur_sub}', Log.DEBUG)
         if cur_sub:
             jsonRPC('Player.SetSubtitle', param={'playerid': 1, 'subtitle': cur_sub['index']})
 
@@ -706,7 +748,7 @@ class _AmazonPlayer(xbmc.Player):
             return
         perc = (self.video_lastpos * 100) / self.video_totaltime if self.video_lastpos > 0 and self.video_totaltime > 0 else 0
         if 0 < self.sendvp <= perc:
-            suc, msg = getURLData('usage/UpdateStream', self.asin, useCookie=self.cookie, opt='&event=%s&timecode=%s' % (self.event, self.video_lastpos))
+            suc, msg = getURLData('usage/UpdateStream', self.asin, useCookie=self.cookie, opt=f'&event={self.event}&timecode={self.video_lastpos}')
             self.event = 'PLAY'
             if suc and 'statusCallbackIntervalSeconds' in str(msg):
                 self.interval = msg['message']['body']['statusCallbackIntervalSeconds']
@@ -729,7 +771,7 @@ class _AmazonPlayer(xbmc.Player):
             if self.isPlaying() and self.getTotalTime() >= self.getTime() >= 0:
                 self.video_totaltime = self.getTotalTime()
                 self.video_lastpos = self.getTime()
-        Log('%s: %s/%s' % (msg, self.video_lastpos, self.video_totaltime))
+        Log(f'{msg}: {self.video_lastpos}/{self.video_totaltime}')
 
 
 class _SkipButton(xbmcgui.WindowDialog):
@@ -778,10 +820,10 @@ class _SkipButton(xbmcgui.WindowDialog):
             self.skipScene()
 
     def skipScene(self, wait=0):
-        Log('Seeking to: {}sec / cur pos {}sec'.format(self.seek_time, self.player.getTime()), Log.DEBUG)
+        Log(f'Seeking to: {self.seek_time}sec / cur pos {self.player.getTime()}sec', Log.DEBUG)
         self.player.seekTime(self.seek_time)
         sleep(0.75)
-        Log('Position: {}'.format(self.player.getTime()), Log.DEBUG)
+        Log(f'Position: {self.player.getTime()}', Log.DEBUG)
         xbmc.sleep(wait)
         self.hide()
 

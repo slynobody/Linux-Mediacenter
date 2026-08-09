@@ -1,9 +1,0 @@
-<settings version="2">
-    <setting id="language">1</setting>
-    <setting id="useInputstream" default="true">false</setting>
-    <setting id="prefer_stream" default="true">1</setting>
-    <setting id="entry_limitation" default="true">40</setting>
-    <setting id="useThumbAsFanart" default="true">true</setting>
-    <setting id="show_settings" default="true">true</setting>
-    <setting id="enableDebug" default="true">false</setting>
-</settings>

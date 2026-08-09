@@ -6,7 +6,9 @@ from urllib.parse import urlencode
 
 from inputstreamhelper import Helper
 
-from nuttig import action, getSetting, openSettings, parseQuery, Plugin
+from nuttig import (
+    action, getSetting, openSettings, parseQuery, Plugin, getKodiVersion
+)
 
 from mytube.client import MyClient
 from mytube.utils import channelsItem, navigationItem, newQueryItem, settingsItem
@@ -61,32 +63,38 @@ class MyPlugin(Plugin):
         self,
         item,
         manifestType,
-        mimeType=None,
-        language=None,
-        headers=None,
-        params=None
+        manifestHeaders=None,
+        manifestParams=None,
+        mimeType=None
     ):
         #self.logger.info(
-        #    f"playItem(item={item}, manifestType={manifestType}, "
-        #    f"mimeType={mimeType}, language={language}, "
-        #    f"headers={headers}, params={params})"
+        #    f"playItem("
+        #        f"item={item}, "
+        #        f"manifestType={manifestType}, "
+        #        f"manifestHeaders={manifestHeaders}, "
+        #        f"manifestParams={manifestParams}, "
+        #        f"mimeType={mimeType}"
+        #    f")"
         #)
         if item:
             if not Helper(manifestType).check_inputstream():
                 return False
             item.setProperty("inputstream", "inputstream.adaptive")
-            item.setProperty("inputstream.adaptive.manifest_type", manifestType)
-            if language:
+            # "inputstream.adaptive.manifest_type" is deprecated in omega
+            if (getKodiVersion()["major"] < 21):
                 item.setProperty(
-                    "inputstream.adaptive.original_audio_language", language
+                    "inputstream.adaptive.manifest_type",
+                    manifestType
                 )
-            if headers and isinstance(headers, dict):
+            if (manifestHeaders and isinstance(manifestHeaders, dict)):
                 item.setProperty(
-                    "inputstream.adaptive.manifest_headers", urlencode(headers)
+                    "inputstream.adaptive.manifest_headers",
+                    urlencode(manifestHeaders)
                 )
-            if params and isinstance(params, dict):
+            if (manifestParams and isinstance(manifestParams, dict)):
                 item.setProperty(
-                    "inputstream.adaptive.manifest_params", urlencode(params)
+                    "inputstream.adaptive.manifest_params",
+                    urlencode(manifestParams)
                 )
             return super(MyPlugin, self).playItem(item, mimeType=mimeType)
         return False

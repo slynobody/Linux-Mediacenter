@@ -22,7 +22,7 @@ CONST = {
                      'NDIzNTQzMzczODMzMzgzNjM2MzMzNQ==',
 
     'PRELOAD_JS_CONFIGS': {
-        'API_GW_API_KEY': r'API_GW_API_KEY.*?value:"(.*?)"',
+        'API_GW_API_KEY': r'API_GW_API_KEY.{0,2}?value:"(.*?)"',
     },
     'CHUNKS_JS_CONFIGS': {
         'PLAYERCONFIG_URL': 'https://playerconfig.*?.json',
@@ -374,14 +374,14 @@ CONST = {
         'LANDINGPAGECLIENT': {
             'OPERATION': 'LandingPageClient',
             'REQUIRED_VARIABLES': ['path'],
-            'HASH': 'bcd4468a3b6851cc09321b37ce8866ccf892859780ca7cf03fd8841d5a0f49ed',
+            'HASH': 'b71b3871aebfe266b63a4bf7daaa35645e17be2469b850265ba75146fa60affc',
         },
 
        'LANDINGBLOCKS': {
             'OPERATION': 'LandingBlocks',
             'REQUIRED_VARIABLES': ['ids'],
             'BOOKMARKS': True,
-            'HASH': 'bd421dd41dd88aa826bd7193de779960ad3fe7c75eef8047b13ba49072a56855',
+            'HASH': '1655591f83b0dc1508ad4d52c5f37f72d410f48ad08c3e5f2de8622f86a21c68',
         },
 
         'CHANNEL': {
@@ -395,28 +395,28 @@ CONST = {
             'OPERATION': 'PageCollectionsDetail',
             'REQUIRED_VARIABLES': ['path'],
             'BOOKMARKS': True,
-            'HASH': 'f700a30ceee32ea9ad245002e4ed5bf236bf54455608592a3ee1ecef5fffbe0e',
+            'HASH': 'bf3a273afa54de5a577de160cc82e55824b0e92c87c8bb0b470087eedaeb7c18',
         },
 
         'COMPILATION': {
             'OPERATION': 'CompilationDetailPageStatic',
             'REQUIRED_VARIABLES': ['path'],
             'BOOKMARKS': True,
-            'HASH': '0672194d788614168fba6effad2cf3f3de8cd73d980efd8a41991a177ded4693',
+            'HASH': 'f4103ea8a4ebecaf873e439029ea8e8e478031596097808596e7053b5618cae4',
         },
 
         'MOVIES': {
             'OPERATION': 'PageMovieDetailStatic',
             'REQUIRED_VARIABLES': ['path'],
             'BOOKMARKS': True,
-            'HASH': '5cd6d962be007c782b5049ec7077dd446b334f14461423a72baf34df294d11b2',
+            'HASH': '9ae6bcd8c45a5e350438d1cc415a022fe053e938c93438509f60ae3abb425fa7',
         },
 
         'SEASONS': {
-           'OPERATION': 'SeriesDetailPageStatic',
+           'OPERATION': 'SeriesDetailNewPageStatic',
            'REQUIRED_VARIABLES': ['path', 'licenseFilter'],
            'BOOKMARKS': True,
-           'HASH': '43cad327eeae12e14dfb629d662ebc947d78b71ec91d972ea1ef46ccdb29eede',
+           'HASH': 'e867452d17ef36e5c077db5cdcad7563a9aebede497c24ac8fae779723bc462d',
         },
 
         'EPISODES': {
@@ -465,16 +465,16 @@ CONST = {
 
         'SEARCH': {
             'OPERATION': 'SearchQ',
-            'REQUIRED_VARIABLES': ['text'],
+            'REQUIRED_VARIABLES': ['text', 'first', 'offset'],
             'NO_CACHE': True,
             'BOOKMARKS': True,
-            'HASH': '8090ccb2a0eeed97f306a7157a818d8e14195ddf1aad71076144b03afe92fcdc',
+            'HASH': 'bb2bab6cbe17321d7eddd5006e7f40765faedd79790b193a59d83f4640694856',
         },
 
         'ACCOUNT': {
             'OPERATION': 'GetMeState',
             'NO_CACHE': True,
-            'HASH': '18d7d43a02a35574c461f82932012fce225e98223e7f6ab7c9e79dbfe1aa99b4',
+            'HASH': '55ebb3812b45628017ee6c7f36f0b88a94e9778b9f11ad8a6fc05849182c07ec',
         },
 
         'LANEBOOKMARK': {

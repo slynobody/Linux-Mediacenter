@@ -1,37 +1,33 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
 
 import json
 import mechanicalsoup
 import re
 import requests
 from timeit import default_timer as timer
-from random import randint
 from bs4 import BeautifulSoup
 from copy import deepcopy
+from urllib.parse  import urlencode, quote_plus, urlparse, parse_qs
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
-from kodi_six import xbmcgui
+import xbmcgui
 
-from .common import Globals, Settings, sleep, MechanizeLogin
+from .common import Globals, Settings, sleep, MechanizeLogin, get_key, findKey
 from .logging import Log, WriteLog, LogJSON
 from .l10n import getString
 from .configs import getConfig, writeConfig
 from .metrics import addNetTime
 
-try:
-    from urlparse import urlparse, parse_qs, urlunparse
-    from urllib import urlencode, quote_plus
-except ImportError:
-    from urllib.parse import urlparse, parse_qs, urlencode, quote_plus, urlunparse
-
+_session = None
 _g = Globals()
 _s = Settings()
 
 
 def _Error(data):
     code = data['errorCode'].lower()
-    Log('%s (%s) ' % (data['message'], code), Log.ERROR)
+    Log(f"{data['message']} ({code}) ", Log.ERROR)
     if 'invalidrequest' in code:
         return getString(30204)
     elif 'noavailablestreams' in code:
@@ -43,7 +39,7 @@ def _Error(data):
     elif 'temporarilyunavailable' in code:
         return getString(30208)
     else:
-        return '%s (%s) ' % (data['message'], code)
+        return f"{data['message']} ({code}) "
 
 
 def getUA(blacklist=False):
@@ -55,20 +51,13 @@ def getUA(blacklist=False):
         UAcur = getConfig('UserAgent')
         UAlist = [i for i in UAlist if i not in UAcur]
         writeConfig('UAlist', json.dumps(UAlist))
-        Log('UA: %s blacklisted' % UAcur)
+        Log(f'UA: {UAcur} blacklisted')
 
     if not UAlist:
         Log('Loading list of common UserAgents')
-        # [{'pct': int percent, 'ua': 'useragent string'}, …]
-        html = getURL('https://www.useragents.me', rjson=False)
-        soup = BeautifulSoup(html, 'html.parser')
-        desk = soup.find('div', attrs={'id': 'most-common-desktop-useragents-json-csv'})
-        for div in desk.find_all('div'):
-            if div.h3.string == 'JSON':
-                ua = json.loads(div.textarea.string)
-                break
-        sorted_ua = sorted(ua, key=lambda x:x.get('pct', 0), reverse=True)
-        UAlist = [ua['ua'] for ua in sorted_ua if 'windows' in ua['ua'].lower() and ua['ua'] not in UAcur]
+        result = getURL('https://microlink.io/user-agents.json')
+        sorted_ua = result.get('user', {})
+        UAlist = [ua for ua in sorted_ua if 'windows' in ua.lower() and ua not in UAcur]
         if not UAlist:
             UAlist = ['Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36']
         writeConfig('UAlist', json.dumps(UAlist))
@@ -84,27 +73,34 @@ def mobileUA(content):
     return True if 'a-mobile' in res or 'a-tablet' in res else False
 
 
-def getURL(url, useCookie=False, silent=False, headers=None, rjson=True, attempt=1, check=False, postdata=None, binary=False, allow_redirects=True):
-    if not hasattr(getURL, 'sessions'):
-        getURL.sessions = {}  # Keep-Alive sessions
-        getURL.hostParser = re.compile(r'://([^/]+)(?:/|$)')
+def _get_session(retry=True):
+    global _session
 
-    # Static variable to store last response code. 0 means generic error (like SSL/connection errors),
-    # while every other response code is a specific HTTP status code
+    if _session is not None and retry:
+        return _session
+
+    session = requests.Session()
+    retries = Retry(
+        total=6 if retry else 0,
+        backoff_factor=0.5,
+        status_forcelist=[500, 502, 503, 504, 408, 429],
+        raise_on_status=False
+    )
+    adapter = HTTPAdapter(pool_connections=20, pool_maxsize=20, max_retries=retries)
+    session.mount("https://", adapter)
+    session.mount("http://", adapter)
+
+    _session = session
+    return session
+
+
+def getURL(url, useCookie=False, silent=False, headers=None, rjson=True, check=False, postdata=None, binary=False, allow_redirects=True):
     getURL.lastResponseCode = 0
-
-    # Create sessions for keep-alives and connection pooling
-    host = getURL.hostParser.search(url)  # Try to extract the host from the URL
-    if None is not host:
-        host = host.group(1)
-        if host not in getURL.sessions:
-            getURL.sessions[host] = requests.Session()
-        session = getURL.sessions[host]
-    else:
-        session = requests.Session()
-
     retval = {} if rjson else ''
+    method = 'POST' if postdata is not None else 'HEAD' if check else 'GET'
     headers = {} if not headers else deepcopy(headers)
+    session = _get_session(not check)
+
     if useCookie:
         cj = MechanizeLogin() if isinstance(useCookie, bool) else useCookie
         if isinstance(cj, bool):
@@ -115,8 +111,8 @@ def getURL(url, useCookie=False, silent=False, headers=None, rjson=True, attempt
             session.cookies.update(cj)
 
     if (not silent) or _s.logging:
-        dispurl = re.sub('(?i)%s|%s|&token=\\w+|&customerId=\\w+' % (_g.tvdb, _g.tmdb), '', url).strip()
-        Log('%sURL: %s' % ('check' if check else 'post' if postdata is not None else 'get', dispurl))
+        dispurl = re.sub(f'(?i){_g.tvdb}|{_g.tmdb}|&token=\\w+|&customerId=\\w+', '', url).strip()
+        Log(f"{'check' if check else method.lower()}URL: {dispurl}")
 
     def_headers = {'User-Agent': getConfig('UserAgent'),
                    'Accept-Language': _g.userAcceptLanguages,
@@ -138,74 +134,44 @@ def getURL(url, useCookie=False, silent=False, headers=None, rjson=True, attempt
     if '/api/' in url:
         headers['X-Requested-With'] = 'XMLHttpRequest'
 
-    class TryAgain(Exception):
-        pass  # Try again on temporary errors
-
-    class NoRetries(Exception):
-        pass  # Fail on permanent errors
-
     try:
         session.headers.update(headers)
         getURL.headers = session.headers
-        method = 'POST' if postdata is not None else 'GET'
         starttime = timer()
         r = session.request(method, url, data=postdata, verify=_s.ssl_verif, stream=True, allow_redirects=allow_redirects)
         getURL.lastResponseCode = r.status_code  # Set last response code
         response = 'OK' if 400 > r.status_code >= 200 else ''
         if not check:
-            response = r.content if binary else r.text
+            response = r.content if binary else r.json() if rjson else r.text
             if _s.log_http:
-                WriteLog(BeautifulSoup(response, 'html.parser').prettify(), 'html', True, comment='<-- {} -->'.format(url))
-        else:
-            rjson = False
+                WriteLog(BeautifulSoup(r.text, 'html.parser').prettify(), 'html', True, comment=f'<-- {url} -->')
         if useCookie and 'auth-cookie-warning-message' in response:
             Log('Cookie invalid', Log.ERROR)
             _g.dialog.notification(_g.__plugin__, getString(30266), xbmcgui.NOTIFICATION_ERROR)
             return retval
-        # 408 Timeout, 429 Too many requests and 5xx errors are temporary
-        # Consider everything else definitive fail (like 404s and 403s)
-        if (408 == r.status_code) or (429 == r.status_code) or (500 <= r.status_code):
-            raise TryAgain('{0} error'.format(r.status_code))
-        if 400 <= r.status_code:
-            raise NoRetries('{0} error'.format(r.status_code))
         if useCookie and not isinstance(useCookie, dict):
             from .users import saveUserCookies
             saveUserCookies(session.cookies)
-    except (TryAgain,
-            NoRetries,
-            requests.exceptions.Timeout,
+    except (requests.exceptions.Timeout,
             requests.exceptions.ConnectionError,
             requests.exceptions.SSLError,
             requests.exceptions.HTTPError,
-            requests.packages.urllib3.exceptions.InsecurePlatformWarning) as e:
+            requests.packages.urllib3.exceptions.InsecurePlatformWarning,
+            ValueError) as e:
         eType = e.__class__.__name__
-        Log('Error reason: %s (%s)' % (str(e), eType), Log.ERROR)
+        Log(f'Error reason: {e!s} ({eType})', Log.ERROR)
         if 'InsecurePlatformWarning' in eType:
             Log('Using an outdated SSL module.', Log.ERROR)
             _g.dialog.ok('SSL module outdated', 'The SSL module for Python is outdated.',
                          'You can find a Linux guide on how to update Python and its modules for Kodi here: https://goo.gl/CKtygz',
                          'Additionally, follow this guide to update the required modules: https://goo.gl/ksbbU2')
             exit()
-        if (not check) and (3 > attempt) and (('TryAgain' in eType) or ('Timeout' in eType)):
-            if _g.headers_android['User-Agent'] not in headers['User-Agent']:
-                getUA(True)
-            wait = 10 * attempt if '429' in str(e) else 0
-            attempt += 1
-            Log('Attempt #{0}{1}'.format(attempt, '' if 0 == wait else ' (Too many requests, pause %s seconds…)' % wait))
-            if 0 < wait:
-                sleep(wait)
-            return getURL(url, useCookie, silent, headers, rjson, attempt, check, postdata, binary)
         return retval
     res = response
-    if rjson:
-        try:
-            res = json.loads(response)
-        except ValueError:
-            res = retval
     duration = timer()
     duration -= starttime
     addNetTime(duration)
-    Log('Download Time: %s' % duration, Log.DEBUG)
+    Log(f'Download Time: {duration}', Log.DEBUG)
     return res
 
 
@@ -224,7 +190,7 @@ def getURLData(mode, asin, retformat='json', devicetypeid=_g.dtid_web, version=2
     url += '&version=' + str(version)
     url += '&gascEnabled=' + str(_g.UsePrimeVideo).lower()
     url += "&subtitleFormat=TTMLv2" if 'SubtitleUrls' in dRes else ''
-    url += '&operatingSystemName=Windows' if playback_req and (_g.platform & _g.OS_ANDROID) and devicetypeid == _g.dtid_web and _s.wvl1_device else ''  # cookie auth on android
+    url += '&operatingSystemName=Windows' if playback_req and (_g.platform & _g.OS_ANDROID or _g.platform & _g.OS_WEBOS) and devicetypeid == _g.dtid_web and _s.wvl1_device else ''  # cookie auth on android
     if extra:
         url += '&resourceUsage=ImmediateConsumption&consumptionType=Streaming&deviceDrmOverride=CENC' \
                '&deviceStreamingTechnologyOverride=DASH&deviceProtocolOverride=Https' \
@@ -241,7 +207,7 @@ def getURLData(mode, asin, retformat='json', devicetypeid=_g.dtid_web, version=2
     if retURL:
         return url
     url += opt
-    data = getURL(url if not proxyEndpoint else 'http://{}/{}/{}'.format(getConfig('proxyaddress'), proxyEndpoint, quote_plus(url)),
+    data = getURL(url if not proxyEndpoint else f"http://{getConfig('proxyaddress')}/{proxyEndpoint}/{quote_plus(url)}",
                   useCookie=useCookie, postdata='', silent=silent)
     if data:
         if 'error' in data.keys():
@@ -296,11 +262,10 @@ def getATVData(pg_mode, query='', version=2, useCookie=False, site_id=None):
         att = 0
         while titles == 0 and att <= ids:
             deviceTypeID = _TypeIDs[rem_pos][att]
-            parameter = '%s&deviceID=%s&format=json&version=%s&formatVersion=3&marketplaceId=%s' % (
-                deviceTypeID, _g.deviceID, version, _g.MarketID)
+            parameter = f'{deviceTypeID}&deviceID={_g.deviceID}&format=json&version={version}&formatVersion=3&marketplaceId={_g.MarketID}'
             if site_id:
                 parameter += '&id=' + site_id
-            jsondata = getURL('%s/cdp/%s?%s%s' % (_g.ATVUrl, pg_mode, parameter, query), useCookie=useCookie)
+            jsondata = getURL(f'{_g.ATVUrl}/cdp/{pg_mode}?{parameter}{query}', useCookie=useCookie)
             if not jsondata:
                 return False
             if jsondata['message']['statusCode'] != "SUCCESS":
@@ -324,7 +289,7 @@ def _sortedResult(result, query):
                 sorteditems[index] = item
                 break
     if sorteditems.count('empty') > 0:
-        Log('ASINs {} not found'.format([asinlist[n] for n, i in enumerate(sorteditems) if i == 'empty']))
+        Log(f"ASINs {[asinlist[n] for n, i in enumerate(sorteditems) if i == 'empty']} not found")
 
     result['titles'] = sorteditems
     return result
@@ -345,47 +310,13 @@ def FQify(URL):
 
 def GrabJSON(url, postData=None):
     """ Extract JSON objects from HTMLs while keeping the API ones intact """
-    try:
-        from htmlentitydefs import name2codepoint
-    except:
-        from html.entities import name2codepoint
+    from html import unescape
 
     def Unescape(text):
-        """ Unescape various html/xml entities in dictionary values, courtesy of Fredrik Lundh """
+        if not text.startswith('{&#34;'):
+            text = text.replace('&#34;', '\\"')
+        text = unescape(text)
 
-        def fixup(m):
-            """ Unescape entities except for double quotes, lest the JSON breaks """
-            text = m.group(0)  # First group is the text to replace
-
-            # Unescape if possible
-            if text[:2] == "&#":
-                # character reference
-                try:
-                    bHex = ("&#x" == text[:3])
-                    char = int(text[3 if bHex else 2:-1], 16 if bHex else 10)
-                    if 34 == char:
-                        text = u'\\"'
-                    else:
-                        try:
-                            text = unichr(char)
-                        except NameError:
-                            text = chr(char)
-                except ValueError:
-                    pass
-            else:
-                # named entity
-                char = text[1:-1]
-                if 'quot' == char:
-                    text = u'\\"'
-                elif char in name2codepoint:
-                    char = name2codepoint[char]
-                    try:
-                        text = unichr(char)
-                    except NameError:
-                        text = chr(char)
-            return text
-
-        text = re.sub('&#?\\w+;', fixup, text)
         try:
             text = text.encode('latin-1').decode('utf-8')
         except (UnicodeEncodeError, UnicodeDecodeError):
@@ -447,6 +378,7 @@ def GrabJSON(url, postData=None):
     def do(url, postData):
         GrabJSON.runs = True
         """ Wrapper to facilitate logging """
+        headers = {'accept': 'application/json', "X-Requested-With": "XMLHttpRequest"}
         if re.match(r'/(?:gp/video/)?search(?:Default)?/', url):
             up = urlparse(url)
             qs = parse_qs(up.query)
@@ -457,44 +389,40 @@ def GrabJSON(url, postData=None):
             url = up.geturl()
         if '/api/storefront' in url:
             postData = ""
-        r = getURL(FQify(url), silent=True, useCookie=True, rjson=False, postdata=postData)
+        if '/api/' in url:
+            headers = None
+        r = getURL(FQify(url), silent=True, useCookie=True, rjson=False, postdata=postData, headers=headers)
         if not r:
             return None
         r = r.strip()
-        if r.startswith('{'):
+        if '/api/' in url:
             o = json.loads(Unescape(r))
             if _s.json_dump_raw:
                 Prune(o)
-            return o
-
-        matches = BeautifulSoup(r, 'html.parser').find_all('script', {'type': re.compile('(?:text/template|application/json)'), 'id': ''})
-        if not matches:
-            matches = Captcha(r)
-            if not matches:
-                Log('No JSON objects found in the page', Log.ERROR)
-                return None
-
-        # Create a single object containing all the data from the multiple JSON objects in the page
-        o = {}
-        for m in matches:
-            m = json.loads(Unescape(m.string.strip()))
-
+        else:
+            m = HTMLdoc(r) if '<!doctype html>' in r else json.loads(r)
             if ('widgets' in m) and ('Storefront' in m['widgets']):
                 m = m['widgets']['Storefront']
-            elif 'props' in m:
-                m = m['props']
-                if 'body' in m and len(m['body']) > 0:
-                    bodies = m['body']
-                    if 'siteWide' in m and 'bodyStart' in m['siteWide'] and len(m['siteWide']['bodyStart']) > 0:
-                        for bs in m['siteWide']['bodyStart']:
+            elif 'body' in m or 'props' in m or 'init' in m:
+                bodies = findKey('body', m)
+                sw = findKey('siteWide', m)
+                m = m.get('props', m.get('init', m))
+                if len(bodies) > 0:
+                    if 'bodyStart' in sw and len(sw['bodyStart']) > 0:
+                        for bs in sw['bodyStart']:
                             if 'name' in bs and bs['name'] == 'navigation-bar' and 'props' in bs:
                                 m = bs['props']
-                    for bd in bodies:
-                        if 'props' in bd:
-                            body = bd['props']
+                    else:
+                        m = bodies['sitewide'].get('sitewide-navigation-bar', {}) if 'sitewide' in bodies else {}
+                        if isinstance(bodies, dict):
+                            bodies = [bodies]
+
+                    if isinstance(bodies, list):
+                        for body in bodies:
+                            body = body.get('props', body)
                             for p in ['atf', 'btf', 'landingPage', 'browse', 'search', 'categories', 'genre']:
                                 Merge(m, body.get(p, {}))
-                            for p in ['content']:
+                            for p in ['content', 'containers', 'pagination']:
                                 Merge(m, {p: body.get(p, {})})
 
                 if _s.json_dump_raw:
@@ -509,11 +437,30 @@ def GrabJSON(url, postData=None):
                                 del st[k]
                             elif k in ['features', 'customerPreferences']:
                                 del st[k]
+            else:
+                m = {}
             # Prune sensitive context info and merge into o
             if _s.json_dump_raw:
                 Prune(m)
-            Merge(o, m)
+            o = m
         return o if o else None
+
+    def HTMLdoc(r):
+        matches = BeautifulSoup(r, 'html.parser').find_all('script', {'type': re.compile('(?:text/template|application/json)')})
+        if not matches:
+            matches = Captcha(r)
+            if not matches:
+                Log('No JSON objects found in the page', Log.ERROR)
+                return None
+
+        # Create a single object containing all the data from the multiple JSON objects in the page
+        o = {}
+        for m in matches:
+            if not (m.id is None or 'hydration-data' in m.id):
+                continue
+            m = json.loads(Unescape(m.string.strip()))
+            Merge(o, m)
+        return o
 
     def Captcha(r):
         from .login import MFACheck

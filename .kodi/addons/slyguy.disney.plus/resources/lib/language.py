@@ -39,6 +39,7 @@ class Language(BaseLanguage):
     BRANDS                   = 30057
     REMOVE_CONTINUE_WATCHING = 30058
     NOT_SUBSCRIBER           = 30059
+    LOCKED                   = 30060
 
 
 _ = Language()

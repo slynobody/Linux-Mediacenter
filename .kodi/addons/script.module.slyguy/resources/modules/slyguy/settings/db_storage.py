@@ -31,9 +31,7 @@ class DBStorage():
         self._cache = cache
 
     def get(self, addon_id, key, inherit=True):
-        if not self._cache:
-            for row in Settings.select().where(Settings.addon_id.in_((ADDON_ID, COMMON_ADDON_ID))):
-                self._cache[row.addon_id][row.key] = (row.addon_id, row.value)
+        self._refresh_cache()
 
         try:
             return deepcopy(self._cache[addon_id][key])
@@ -48,7 +46,13 @@ class DBStorage():
 
         return (addon_id, DBStorage.NO_ENTRY)
 
+    def _refresh_cache(self):
+        if not self._cache:
+            for row in Settings.select().where(Settings.addon_id.in_((ADDON_ID, COMMON_ADDON_ID))):
+                self._cache[row.addon_id][row.key] = (row.addon_id, row.value)
+
     def set(self, addon_id, key, value):
+        self._refresh_cache()
         if self._cache[addon_id].get(key) == (addon_id, value):
             return
 
@@ -56,6 +60,10 @@ class DBStorage():
         self._cache[addon_id][key] = (addon_id, value)
 
     def delete(self, addon_id, key):
+        self._refresh_cache()
+        if key not in self._cache[addon_id]:
+            return
+
         Settings.delete_where(Settings.addon_id == addon_id, Settings.key == key)
         self._cache[addon_id].pop(key, None)
 

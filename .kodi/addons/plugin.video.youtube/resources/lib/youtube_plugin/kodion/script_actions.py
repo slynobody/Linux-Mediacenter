@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 
-    Copyright (C) 2024-present plugin.video.youtube
+    Copyright (C) 2024-2025 plugin.video.youtube
 
     SPDX-License-Identifier: GPL-2.0-only
     See LICENSES/GPL-2.0-only for more information.
@@ -10,22 +10,31 @@
 from __future__ import absolute_import, division, unicode_literals
 
 import os
-import socket
 
+from . import logging
 from .compatibility import parse_qsl, urlsplit, xbmc, xbmcaddon, xbmcvfs
 from .constants import (
     DATA_PATH,
     DEFAULT_LANGUAGES,
     DEFAULT_REGIONS,
+    PATHS,
     RELOAD_ACCESS_MANAGER,
     SERVER_WAKEUP,
     TEMP_PATH,
     WAIT_END_FLAG,
 )
 from .context import XbmcContext
-from .network import Locator, get_client_ip_address, httpd_status
-from .utils import rm_dir, validate_ip_address
+from .network import (
+    Locator,
+    get_client_ip_address,
+    get_listen_addresses,
+    httpd_status,
+)
+from .utils.file_system import rm_dir
 from ..youtube import Provider
+
+
+log = logging.getLogger(__name__)
 
 
 def _config_actions(context, action, *_args):
@@ -64,13 +73,14 @@ def _config_actions(context, action, *_args):
         fallback = ('ASR' if preferred[0].startswith('en') else
                     context.get_language_name('en'))
         preferred = '/'.join(map(context.get_language_name, preferred))
+        preferred_no_asr = '%s (%s)' % (preferred, localize('subtitles.no_asr'))
 
         sub_opts = [
             localize('none'),
             localize('select'),
-            localize('subtitles.with_fallback') % (preferred, fallback),
-            preferred,
-            '%s (%s)' % (preferred, localize('subtitles.no_asr')),
+            localize('subtitles.with_fallback', (preferred, fallback)),
+            localize('subtitles.with_fallback', (preferred_no_asr, fallback)),
+            preferred_no_asr,
         ]
 
         if settings.use_mpd_videos():
@@ -99,35 +109,30 @@ def _config_actions(context, action, *_args):
                 settings.set_subtitle_download(result == 1)
 
     elif action == 'listen_ip':
-        local_ranges = (
-            ((10, 0, 0, 0), (10, 255, 255, 255)),
-            ((172, 16, 0, 0), (172, 31, 255, 255)),
-            ((192, 168, 0, 0), (192, 168, 255, 255)),
-        )
-        addresses = [xbmc.getIPAddress()]
-        for interface in socket.getaddrinfo(socket.gethostname(), None):
-            address = interface[4][0]
-            if interface[0] != socket.AF_INET or address in addresses:
-                continue
-            octets = validate_ip_address(address)
-            if not any(octets):
-                continue
-            if any(lo <= octets <= hi for lo, hi in local_ranges):
-                addresses.append(address)
-        addresses += ['127.0.0.1', '0.0.0.0']
+        addresses = get_listen_addresses()
         selected_address = ui.on_select(localize('select.listen.ip'), addresses)
         if selected_address != -1:
             settings.httpd_listen(addresses[selected_address])
 
     elif action == 'show_client_ip':
-        context.wakeup(SERVER_WAKEUP, timeout=5)
-        if httpd_status(context):
-            client_ip = get_client_ip_address(context)
+        context.ipc_exec(SERVER_WAKEUP, timeout=5, payload={'force': True})
+        url = httpd_status(context, path=PATHS.IP)
+        if url:
+            client_ip = get_client_ip_address(context, url)
             if client_ip:
                 ui.on_ok(context.get_name(),
-                         context.localize('client.ip') % client_ip)
+                         context.localize('client.ip.is.x', client_ip))
             else:
                 ui.show_notification(context.localize('client.ip.failed'))
+        else:
+            ui.show_notification(context.localize('httpd.not.running'))
+
+    elif action == 'show_api_config_page_address':
+        context.ipc_exec(SERVER_WAKEUP, timeout=5, payload={'force': True})
+        url = httpd_status(context, path=PATHS.API)
+        if url:
+            ui.on_ok(context.localize('api.config'),
+                     context.localize('go_to.x', ui.bold(url)))
         else:
             ui.show_notification(context.localize('httpd.not.running'))
 
@@ -151,7 +156,10 @@ def _config_actions(context, action, *_args):
         base_kodi_language = kodi_language.partition('-')[0]
 
         json_data = client.get_supported_languages(kodi_language)
-        items = json_data.get('items') or DEFAULT_LANGUAGES['items']
+        if json_data:
+            items = json_data.get('items') or DEFAULT_LANGUAGES['items']
+        else:
+            items = DEFAULT_LANGUAGES['items']
 
         selected_language = [None]
 
@@ -190,7 +198,10 @@ def _config_actions(context, action, *_args):
             return
 
         json_data = client.get_supported_regions(language=language_id)
-        items = json_data.get('items') or DEFAULT_REGIONS['items']
+        if json_data:
+            items = json_data.get('items') or DEFAULT_REGIONS['items']
+        else:
+            items = DEFAULT_REGIONS['items']
 
         selected_region = [None]
 
@@ -237,6 +248,7 @@ def _maintenance_actions(context, action, params):
             'feed_history': context.get_feed_history,
             'function_cache': context.get_function_cache,
             'playback_history': context.get_playback_history,
+            'requests_cache': context.get_requests_cache,
             'search_history': context.get_search_history,
             'watch_later': context.get_watch_later_list,
         }
@@ -297,6 +309,7 @@ def _maintenance_actions(context, action, params):
             'feed_history': 'feeds.sqlite',
             'function_cache': 'cache.sqlite',
             'playback_history': 'history.sqlite',
+            'requests_cache': 'requests_cache.sqlite',
             'search_history': 'search.sqlite',
             'watch_later': 'watch_later.sqlite',
             'api_keys': 'api_keys.json',
@@ -380,10 +393,9 @@ def _user_actions(context, action, params):
 
     def switch_to_user(user):
         access_manager.set_user(user, switch_to=True)
-        ui.show_notification(
-            localize('user.changed') % access_manager.get_username(user),
-            localize('user.switch')
-        )
+        ui.show_notification(localize('user.changed_to.x',
+                                      access_manager.get_username(user)),
+                             localize('user.switch'))
 
     if action == 'switch':
         result, user_index_map = select_user(localize('user.switch'),
@@ -404,7 +416,7 @@ def _user_actions(context, action, params):
         if user is not None:
             result = ui.on_yes_no_input(
                 localize('user.switch'),
-                localize('user.switch.now') % details.get('name')
+                localize('user.switch_to.x', details.get('name'))
             )
             if result:
                 switch_to_user(user)
@@ -419,7 +431,7 @@ def _user_actions(context, action, params):
         username = access_manager.get_username(user)
         if ui.on_remove_content(username):
             access_manager.remove_user(user)
-            ui.show_notification(localize('removed') % username,
+            ui.show_notification(localize('removed.name.x', username),
                                  localize('remove'))
             if user == 0:
                 access_manager.add_user(username=localize('user.default'),
@@ -446,10 +458,9 @@ def _user_actions(context, action, params):
             return False
 
         if access_manager.set_username(user, new_username):
-            ui.show_notification(
-                localize('renamed') % (old_username, new_username),
-                localize('rename')
-            )
+            ui.show_notification(localize('renamed.x.y',
+                                          (old_username, new_username)),
+                                 localize('rename'))
         reload = True
 
     if reload:
@@ -478,19 +489,36 @@ def run(argv):
             if params:
                 params = dict(parse_qsl(args.query))
 
+        log_level = context.get_settings().log_level()
+        if log_level:
+            log.debugging = True
+            # Verbose
+            if log_level & 2:
+                log.stack_info = True
+                log.verbose_logging = True
+            # Enabled or Auto on
+            else:
+                log.stack_info = False
+                log.verbose_logging = False
+        # Disabled or Auto off
+        else:
+            log.debugging = False
+            log.stack_info = False
+            log.verbose_logging = False
+
         system_version = context.get_system_version()
-        context.log_notice('Script: Running v{version}'
-                           '\n\tKodi:     v{kodi}'
-                           '\n\tPython:   v{python}'
-                           '\n\tCategory: |{category}|'
-                           '\n\tAction:   |{action}|'
-                           '\n\tParams:   |{params}|'
-                           .format(version=context.get_version(),
-                                   kodi=str(system_version),
-                                   python=system_version.get_python_version(),
-                                   category=category,
-                                   action=action,
-                                   params=params))
+        log.info(('Running v{version}',
+                  'Kodi:     v{kodi}',
+                  'Python:   v{python}',
+                  'Category: {category!r}',
+                  'Action:   {action!r}',
+                  'Params:   {params!r}'),
+                 version=context.get_version(),
+                 kodi=str(system_version),
+                 python=system_version.get_python_version(),
+                 category=category,
+                 action=action,
+                 params=params)
 
         if not category:
             xbmcaddon.Addon().openSettings()

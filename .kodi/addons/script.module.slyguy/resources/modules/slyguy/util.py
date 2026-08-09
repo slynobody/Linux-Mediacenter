@@ -2,6 +2,7 @@ import os
 import sys
 import hashlib
 import shutil
+import time
 import platform
 import base64
 import struct
@@ -15,10 +16,11 @@ import socket
 import binascii
 from contextlib import closing
 
+import ntplib
 import requests
 from kodi_six import xbmc, xbmcgui, xbmcaddon, xbmcvfs
 from six.moves import queue, range
-from six.moves.urllib.parse import urlparse, urlunparse, quote, parse_qsl
+from six.moves.urllib.parse import urlparse, urlunparse, quote, parse_qsl, unquote_plus
 from requests.models import PreparedRequest
 from six import PY2
 
@@ -28,22 +30,105 @@ else:
     from six.moves.html_parser import HTMLParser
     html = HTMLParser()
 
-from slyguy import log, _
+try:
+    from functools import lru_cache
+except ImportError:
+    from _backports.functools_lru_cache import lru_cache
+
+
+from slyguy import log, router, monitor, _
 from slyguy.exceptions import Error
 from slyguy.constants import *
 
 
+def get_epoch(_cache={'offset': None}):
+    # cache offset to avoid multiple NTP calls which can be slow
+    # uses monotonic clock so system clock adjustments don't affect the cached offset
+    if _cache['offset'] == 'local':
+        return time.time()
+    elif _cache['offset'] is not None:
+        return time.monotonic() - _cache['offset']
+
+    try:
+        log.debug("NTP request to pool.ntp.org for accurate time")
+        ntp_client = ntplib.NTPClient()
+        response = ntp_client.request('pool.ntp.org', version=3)
+        epoch = response.tx_time
+    except Exception as e:
+        log.warning("Error connecting to NTP: {}. Using local time".format(e))
+        epoch = time.time()
+        _cache['offset'] = 'local'
+    else:
+        _cache['offset'] = time.monotonic() - epoch
+        diff = time.time() - epoch
+        if abs(diff) > 10:
+            log.warning("System clock is off by {:.3f} seconds".format(diff))
+        else:
+            log.debug("System clock offset to epoch: {:.3f} seconds".format(diff))
+    return epoch
+
+
+def restart_service(addon_id=ADDON_ID, delay=4):
+    try:
+        kodi_rpc('Addons.SetAddonEnabled', {'addonid': addon_id, 'enabled': False})
+        sleep(delay) # time for service to finish
+    finally:
+        kodi_rpc('Addons.SetAddonEnabled', {'addonid': addon_id, 'enabled': True})
+
+
+def sleep(seconds):
+    end = time.time() + seconds
+    while time.time() < end:
+        if monitor.abortRequested():
+            break
+        time.sleep(0.1)
+
+
+def remove_kodi_formatting(title):
+    # Remove tags like [b], [/b], [i], [/i], [u], [/u], [color=...], [/color]
+    return re.sub(r'\[/?[a-z]+(?:=[^\]]+)?\]', '', title, flags=re.IGNORECASE)
+
+
 def get_qr_img(qr_data, size=324):
-    return 'http://api.qrserver.com/v1/create-qr-code/?data={}&size={}x{}'.format(qr_data, size, size)
+    return 'http://api.qrserver.com/v1/create-qr-code/?data={}&size={}x{}'.format(quote(qr_data), size, size)
 
 
-def run_plugin(path, wait=False):
+def run_plugin(path, wait=True, check=True):
     if wait:
-        dirs, files = xbmcvfs.listdir(path)
-        return dirs, files
+        if check:
+            path = router.add_url_args(path, _run_plugin=1)
+
+        files = xbmcvfs.listdir(path)[1]
+        if not check:
+            return files
+
+        content = unquote_plus(files[0])
+        if not content:
+            raise Error('No result returned')
+
+        if content[0] in ('1', '0'):
+            # legacy return data
+            result, msg = int(content[0]), content[1:]
+            if not result:
+                raise Error(msg)
+            return msg
+
+        data = json.loads(content)
+        if data.get('error'):
+            raise Error(data['error'])
+        if 'result' not in data:
+            raise Error('No result returned')
+
+        return data['result']
     else:
         xbmc.executebuiltin('RunPlugin({})'.format(path))
-        return [], []
+        return True
+
+
+def add_url_args(url, params=None):
+    req = PreparedRequest()
+    req.prepare_url(url, params)
+    return req.url
 
 
 def fix_url(url):
@@ -52,12 +137,6 @@ def fix_url(url):
         parse = parse._replace(path=re.sub('/{2,}','/',parse.path))
     url = urlunparse(parse)
     return url
-
-
-def add_url_args(url, params=None):
-    req = PreparedRequest()
-    req.prepare_url(url, params)
-    return req.url
 
 
 def check_port(port=0, default=False):
@@ -87,6 +166,7 @@ def kodi_db(name):
         return options[0][0]
     else:
         return None
+
 
 def async_tasks(tasks, workers=DEFAULT_WORKERS, raise_on_error=True):
     def worker():
@@ -136,6 +216,7 @@ def async_tasks(tasks, workers=DEFAULT_WORKERS, raise_on_error=True):
 
     return [x[0] for x in sorted(results, key=lambda x: x[1])]
 
+
 def get_addon(addon_id, required=False, install=True):
     try:
         try: return xbmcaddon.Addon(addon_id)
@@ -153,6 +234,7 @@ def get_addon(addon_id, required=False, install=True):
         else:
             return None
 
+
 def require_country(required=None, _raise=False):
     if not required:
         return ''
@@ -168,6 +250,7 @@ def require_country(required=None, _raise=False):
 
     return ''
 
+
 def user_country():
     try:
         country = requests.get('http://ip-api.com/json/?fields=countryCode').json()['countryCode'].upper()
@@ -176,6 +259,7 @@ def user_country():
     except:
         log.debug('Unable to get users country')
         return ''
+
 
 def FileIO(file_name, method, chunksize=CHUNK_SIZE):
     if xbmc.getCondVisibility('System.Platform.Android'):
@@ -186,6 +270,7 @@ def FileIO(file_name, method, chunksize=CHUNK_SIZE):
             return io.BufferedWriter(file_obj, buffer_size=chunksize)
     else:
         return open(file_name, method, chunksize)
+
 
 def same_file(path_a, path_b):
     if path_a.lower().strip() == path_b.lower().strip():
@@ -200,6 +285,7 @@ def same_file(path_a, path_b):
         return False
 
     return (stat_a.st_dev == stat_b.st_dev) and (stat_a.st_ino == stat_b.st_ino) and (stat_a.st_mtime == stat_b.st_mtime)
+
 
 def safe_copy(src, dst, del_src=False):
     src = xbmc.translatePath(src)
@@ -222,6 +308,7 @@ def safe_copy(src, dst, del_src=False):
     if del_src:
         xbmcvfs.delete(src)
 
+
 def gzip_extract(in_path, chunksize=CHUNK_SIZE, raise_error=True):
     log.debug('Gzip Extracting: {}'.format(in_path))
     out_path = in_path + '_extract'
@@ -241,6 +328,7 @@ def gzip_extract(in_path, chunksize=CHUNK_SIZE, raise_error=True):
         remove_file(in_path)
         shutil.move(out_path, in_path)
         return True
+
 
 def xz_extract(in_path, chunksize=CHUNK_SIZE, raise_error=True):
     if PY2:
@@ -267,6 +355,7 @@ def xz_extract(in_path, chunksize=CHUNK_SIZE, raise_error=True):
         shutil.move(out_path, in_path)
         return True
 
+
 def load_json(filepath, encoding='utf8', raise_error=True):
     try:
         with codecs.open(filepath, 'r', encoding='utf8') as f:
@@ -276,6 +365,7 @@ def load_json(filepath, encoding='utf8', raise_error=True):
             raise
         else:
             return False
+
 
 def save_json(filepath, data, raise_error=True, pretty=False, **kwargs):
     _kwargs = {'ensure_ascii': False}
@@ -301,24 +391,30 @@ def save_json(filepath, data, raise_error=True, pretty=False, **kwargs):
         else:
             return False
 
+
 def jwt_data(token):
     b64_string = token.split('.')[1]
     b64_string += "=" * ((4 - len(b64_string) % 4) % 4) #fix padding
     return json.loads(base64.b64decode(b64_string))
 
+
 def set_kodi_string(key, value=''):
     xbmcgui.Window(10000).setProperty(key, u"{}".format(value))
+
 
 def get_kodi_string(key, default=''):
     value = xbmcgui.Window(10000).getProperty(key)
     return value or default
 
+
 def get_kodi_setting(key, default=None):
     data = kodi_rpc('Settings.GetSettingValue', {'setting': key})
     return data.get('value', default)
 
+
 def set_kodi_setting(key, value):
     return kodi_rpc('Settings.SetSettingValue', {'setting': key, 'value': value})
+
 
 def kodi_rpc(method, params=None, raise_on_error=False):
     try:
@@ -338,14 +434,18 @@ def kodi_rpc(method, params=None, raise_on_error=False):
         else:
             return {}
 
-def remove_file(file_path):
-    try:
-        if os.path.exists(file_path):
-            os.remove(file_path)
-    except:
+
+def remove_dir(dir_path):
+    if xbmcvfs.exists(dir_path) and not xbmcvfs.rmdir(dir_path):
         return False
-    else:
-        return True
+    return True
+
+
+def remove_file(file_path):
+    if xbmcvfs.exists(file_path) and not xbmcvfs.delete(file_path):
+        return False
+    return True
+
 
 def hash_6(value, default=None, length=6):
     if not value:
@@ -354,11 +454,12 @@ def hash_6(value, default=None, length=6):
     h = hashlib.md5(u'{}'.format(value).encode('utf8'))
     return base64.b64encode(h.digest()).decode('utf8')[:length]
 
+
 def md5sum(filepath):
     if not os.path.exists(filepath):
         return None
-
     return hashlib.md5(open(filepath,'rb').read()).hexdigest()
+
 
 ## to find BCOV-POLICY. Open below url
 ## account_id / player_id / videoid can be found by right clicking player and selecting Player Information
@@ -430,7 +531,7 @@ def process_brightcove(data):
         raise Error(_.NO_BRIGHTCOVE_SRC)
 
 
-# TODO: Cache me
+@lru_cache(maxsize=1)
 def get_system():
     if IS_ANDROID:
         return 'Android'
@@ -452,7 +553,7 @@ def get_system():
         return platform.system()
 
 
-# TODO: Cache me
+@lru_cache(maxsize=1)
 def get_system_arch():
     system = get_system()
 
@@ -482,8 +583,6 @@ def get_system_arch():
 
     if 'appletv' in arch:
         arch = 'arm64'
-
-    log.debug('System: {}, Arch: {}'.format(system, arch))
 
     return system, arch
 
@@ -690,7 +789,20 @@ def fix_language(language=None):
     if language.lower() == 'pt-br':
         return 'pb'
 
-    if language.lower() == 'cmn-tw':
+    if language.lower() == 'none':
+        return None
+
+    # Chines Hong Kong -> Yue / Cantonese https://en.wikipedia.org/wiki/Yue_Chinese
+    if language.lower() in ('zh-hk'):
+        # not supported in kodi?
+        pass
+
+    # Chinese Hans -> Chinese Simple
+    if language.lower() in ('zh-hans'):
+        return 'zh-CN'
+
+    # Chinese Hant -> Chinese Traditional
+    if language.lower() in ('cmn-tw', 'zh-hant'):
         return 'zh-TW'
 
     if language.lower() in ('nb','nn'):
@@ -698,6 +810,9 @@ def fix_language(language=None):
 
     if language.lower() == 'ekk':
         return 'et'
+
+    if language.lower() == 'el':
+        return 'el-GR'
 
     if language.lower() == 'lvs':
         return 'lv'
@@ -718,33 +833,35 @@ def get_kodi_proxy():
     except ValueError:
         httpproxytype = 0
 
-    proxy_types = ['http', 'socks4', 'socks4a', 'socks5', 'socks5h']
+    proxy_types = ['http', 'socks4', 'socks4a', 'socks5', 'socks5h', 'https']
 
     proxy = dict(
-        scheme = proxy_types[httpproxytype] if 0 <= httpproxytype < 5 else 'http',
+        scheme = proxy_types[httpproxytype],
         server = get_kodi_setting('network.httpproxyserver'),
         port = get_kodi_setting('network.httpproxyport'),
         username = get_kodi_setting('network.httpproxyusername'),
         password = get_kodi_setting('network.httpproxypassword'),
     )
 
-    if proxy.get('username') and proxy.get('password') and proxy.get('server') and proxy.get('port'):
-        proxy_address = '{scheme}://{username}:{password}@{server}:{port}'.format(**proxy)
-    elif proxy.get('username') and proxy.get('server') and proxy.get('port'):
-        proxy_address = '{scheme}://{username}@{server}:{port}'.format(**proxy)
-    elif proxy.get('server') and proxy.get('port'):
-        proxy_address = '{scheme}://{server}:{port}'.format(**proxy)
-    elif proxy.get('server'):
-        proxy_address = '{scheme}://{server}'.format(**proxy)
-    else:
+    if not proxy['server']:
         return None
 
-    return proxy_address
+    if proxy['port']:
+        host_port_string = ':'.join((proxy['server'], str(proxy['port'])))
+    else:
+        host_port_string = proxy['server']
 
+    if proxy['username']:
+        if proxy['password']:
+            auth_string = ':'.join((proxy['username'], proxy['password']))
+        else:
+            auth_string = proxy['username']
+        auth_string += '@'
+    else:
+        auth_string = ''
 
-def unique(sequence):
-    seen = set()
-    return [x for x in sequence if not (x in seen or seen.add(x))]
+    proxy_string = ''.join((proxy['scheme'], '://', auth_string, host_port_string))
+    return proxy_string
 
 
 def get_url_headers(headers=None, cookies=None):
@@ -784,3 +901,7 @@ def makedirs(path):
 def remove_duplicates(seq):
     seen = set()
     return [x for x in seq if not (x in seen or seen.add(x))]
+
+
+def unique(sequence):
+    return remove_duplicates(sequence)

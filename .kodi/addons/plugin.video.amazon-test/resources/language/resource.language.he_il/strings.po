@@ -900,6 +900,19 @@ msgctxt "#30288"
 msgid "Export not aired episodes"
 msgstr ""
 
+msgctxt "#30289"
+msgid "Filter"
+msgstr ""
+
+msgctxt "#30290"
+msgid "Category"
+msgstr ""
+
+#, fuzzy
+msgctxt "#30291"
+msgid "Display categories"
+msgstr "הצג תוכן בתשלום"
+
 # msgctxt "#30285"
 # msgid "Audio Languages"
 # msgstr "שפה"

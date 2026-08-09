@@ -884,3 +884,63 @@ msgstr "Einloggen nicht möglich, da ein nicht unterstütztes Captcha angezeigt 
 msgctxt "#30288"
 msgid "Export not aired episodes"
 msgstr "Nicht ausgestrahlte Episoden exportieren"
+
+msgctxt "#30289"
+msgid "Filter"
+msgstr "Filter"
+
+msgctxt "#30290"
+msgid "Category"
+msgstr "Kategorie"
+
+msgctxt "#30291"
+msgid "Display categories"
+msgstr "Kategorien anzeigen"
+
+msgctxt "#30292"
+msgid "Color for paid content"
+msgstr "Farbe für Bezahlinhalte"
+
+msgctxt "#30293"
+msgid "Color for Prime content"
+msgstr "Farbe für Primeinhalte"
+
+msgctxt "#30294"
+msgid "Browser"
+msgstr "Browser"
+
+msgctxt "#30295"
+msgid "UltraHD / 4K"
+msgstr "UltraHD / 4K"
+
+msgctxt "#30296"
+msgid "HDR10+"
+msgstr "HDR10+"
+
+msgctxt "#30297"
+msgid "Dolby Vision"
+msgstr "Dolby Vision"
+
+msgctxt "#30298"
+msgid "Dolby Atmos"
+msgstr "Dolby Atmos"
+
+msgctxt "#30299"
+msgid "View ID"
+msgstr "View ID"
+
+msgctxt "#30300"
+msgid "Artwork"
+msgstr "Artwork"
+
+msgctxt "#30301"
+msgid "Parameter ({u} - URL / {f} - Framerate)"
+msgstr "Parameter ({u} - URL / {f} - Framerate)"
+
+msgctxt "#30302"
+msgid "Region"
+msgstr "Region"
+
+msgctxt "#30303"
+msgid "Log"
+msgstr "Log"

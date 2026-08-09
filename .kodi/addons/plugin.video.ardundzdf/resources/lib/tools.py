@@ -7,8 +7,8 @@
 #		Filterliste, Suchwortliste
  
 ################################################################################
-# 	<nr>10</nr>								# Numerierung für Einzelupdate
-#	Stand: 29.12.2024
+# 	<nr>24</nr>								# Numerierung für Einzelupdate
+#	Stand: 18.07.2026
 
 # Python3-Kompatibilität:
 from __future__ import absolute_import		# sucht erst top-level statt im akt. Verz. 
@@ -39,15 +39,26 @@ import time, datetime
 
 # Addonmodule:
 from resources.lib.util import *
+import resources.lib.EPG as EPG
 
 # Globals
 ICON_FILTER		= 'icon-filter.png'
+ICON_DIR_FOLDER	= "Dir-folder.png"
+ICON_INFO 		= "icon-info.png"
+
 MAX_LEN 		= 24	
 
 ADDON_ID      	= 'plugin.video.ardundzdf'
 SETTINGS 		= xbmcaddon.Addon(id=ADDON_ID)
 ADDON_NAME    	= SETTINGS.getAddonInfo('name')
 ADDON_PATH    	= SETTINGS.getAddonInfo('path')
+
+DICTSTORE 		= os.path.join(ADDON_DATA, "Dict") 
+EPGACTIVE = os.path.join(DICTSTORE, 'EPGActive') 		# Marker thread_getepg aktiv
+PLAYLIST 		= 'livesenderTV.xml'					# TV-Sender-Logos 											
+
+HEADERS="{'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36',\
+	'Referer': '%s', 'Accept-Encoding': 'gzip, deflate, br', 'Accept': 'application/json, text/plain, */*'}"
 
 FILTER_SET 	= os.path.join(ADDON_DATA, "filter_set")
 AKT_FILTER	= ''
@@ -74,21 +85,27 @@ def SearchWordTools():
 	icon = R("icon_searchwords.png")
 	if len(searchwords) == 0:	
 		msg1 = "Problem Suchwortliste"
-		msg2 = 'Liste fehlt oder ist noch leer'				
+		msg2 = 'Liste fehlt oder ist leer'				
 		PLog(msg2)
 		xbmcgui.Dialog().notification(msg1,msg2,icon,5000)
 												
 	summ = u"Suchwörter für die Suche in ARD Mediathek und ZDF Mediathek"	
-
-	title = u"alle Suchwörter [B]zeigen[/B] (%d)" % len(searchwords)
-	fparams="&fparams={'action': 'show_list'}" 
-	addDir(li=li, label=title, action="dirList", dirID="resources.lib.tools.SearchWordWork", fanart=R(FANART), 
-		thumb=R('icon_searchwords.png'), summary=summ, fparams=fparams)				
 		
 	if 	len(searchwords) > 0:		
+		title = u"alle Suchwörter [B]zeigen[/B] (%d)" % len(searchwords)
+		fparams="&fparams={'action': 'show_list'}" 
+		addDir(li=li, label=title, action="dirList", dirID="resources.lib.tools.SearchWordWork", fanart=R(FANART), 
+
+		thumb=R('icon_searchwords.png'), summary=summ, fparams=fparams)				
 		title = u"Suchwort [B]löschen[/B]"
 		tag = u"ein Suchwort aus der Liste [B]löschen[/B]" 
 		fparams="&fparams={'action': 'delete'}" 
+		addDir(li=li, label=title, action="dirList", dirID="resources.lib.tools.SearchWordWork", fanart=R(FANART), 
+			thumb=R('icon_searchwords.png'), tagline=tag, summary=summ, fparams=fparams)
+		
+		title = u"[B]alle Suchwörter löschen[/B]"
+		tag = u"[B]gesamte Liste der Suchwörter löschen[/B]" 
+		fparams="&fparams={'action': 'delete_all'}" 
 		addDir(li=li, label=title, action="dirList", dirID="resources.lib.tools.SearchWordWork", fanart=R(FANART), 
 			thumb=R('icon_searchwords.png'), tagline=tag, summary=summ, fparams=fparams)		
 		
@@ -115,7 +132,7 @@ def SearchWordWork(action):
 	PLog(len(searchwords))
 
 	if searchwords == '':
-		msg1 = "Problem Suchwortliste"
+		msg1 = "Suchwortliste:"
 		msg2 = 'Liste fehlt oder ist noch leer'				
 		dialog.notification(msg1,msg2,icon,5000)
 		PLog(msg2); 
@@ -125,7 +142,7 @@ def SearchWordWork(action):
 		PLog("do: " + action)
 		title = u"aktuelle Liste der Suchwörter (+ steht für Leerzeichen)"
 		searchwords = "\n".join(searchwords)
-		dialog.textviewer(title, searchwords, usemono=True)
+		textviewer(title, searchwords, usemono=True)
 		
 	if action == 'delete':
 		PLog("do: " + action)
@@ -150,12 +167,29 @@ def SearchWordWork(action):
 				dialog.notification(msg1,msg2,icon,3000)
 				PLog(msg2)
 
+	if action == 'delete_all':
+		PLog("do: " + action)
+		title = u"alle Suchwörter löschen"
+		msg1 = u"[B]gesamte Liste wirklich löschen?[/B]"
+		del_ret = MyDialog(msg1=msg1, msg2='', msg3='', ok=False, cancel='Abbruch', yes='JA', heading=title)
+		PLog(del_ret)
+		if del_ret:
+			msg1 = title
+			msg2 = u"Liste wurde gelöscht."
+			searchwords = ""
+			err_msg =  RSave(searchwordfile, searchwords)	# speichern
+			if err_msg:										# RSave-Problem?
+				msg1 = u"Fehler beim Speichern der Suchwortliste"
+				PLog(msg1)	
+				msg2 = err_msg
+			PLog(msg2)										# Notification entfällt, Dialog für leere Liste folgt
+
 	if action == 'add':
 		PLog("do: " + action)
 		
 		if len(searchwords) >= MAX_LEN:
 			msg1 = "Suchwortliste"
-			msg2 = u'maximale Länge bereits erreicht: [B]%d[/B] ' % max_len
+			msg2 = u'maximale Länge bereits erreicht: [B]%d[/B] ' % MAX_LEN
 			MyDialog(msg1, msg2, '')
 			return
 					
@@ -279,7 +313,7 @@ def FilterToolsWork(action):
 	if action == 'show_set':									# gesetzte Filter zeigen
 		title = u"aktuell gesetzte(r) Filter"
 		akt_filter = "\n".join(akt_filter)
-		dialog.textviewer(title, akt_filter,usemono=True)
+		textviewer(title, akt_filter,usemono=True)
 			
 	if action == 'set':
 		index_list = get_list_indices(akt_filter, filter_list)	# akt. Filter-Indices ermitteln
@@ -381,7 +415,7 @@ def FilterToolsWork(action):
 	if action == 'show_list':									# Filterliste zeigen
 		title = u"Liste verfügbarer Filter"
 		filter_list = "\n".join(filter_list)
-		dialog.textviewer(title, filter_list,usemono=True)
+		textviewer(title, filter_list,usemono=True)
 		
 	if action == 'state_change':								# aus Kontextmenü
 		msg1 = "Ausschluss-Filter:"
@@ -527,6 +561,8 @@ def get_foruminfo():
 	dt=''
 	path = "https://www.kodinerds.net/index.php?thread/64244-release-kodi-addon-ardundzdf/"
 	page, msg = get_page(path=path)
+	if PYTHON2:
+		page = py2_decode(page)
 	
 	dt = stringextract(u"Update (Stand ", u")", page)		# Stand: Datum, Uhrzeit
 	if dt == "":
@@ -543,13 +579,176 @@ def get_foruminfo():
 		last_item = items[-1]
 		last_item = cleanhtml(last_item)
 		last_item = transl_json(last_item)
+		last_item = unescape(last_item)
 		last_item = last_item.replace('\\\"','*')				# z.B. Meldung \"Streamlink\" bei..
 	PLog("last_item: " + last_item)
 	
 	return dt, last_item
 	
 #----------------------------------------------------------------
+# Aufruf InfoAndFilter
+# stößt die Aktualisierung des EPG an 
+#
+def refresh_epg():
+	PLog('refresh_epg:') 
 	
+	EPG.thread_getepg(EPGACTIVE, DICTSTORE, PLAYLIST)
+	return
+
+#----------------------------------------------------------------
+# Kontextmenü 
+# Aufruf addDir -> RunScript
+# bei Bedarf Sender-spez. Funktionen auslagern, hier verteilen
+# ShowSeason z.Z. nur für ARD (api) und ZDF (futura-api, Web)
+# 
+def Context(title, path, img, mode):
+	PLog('Context:'); 
+	PLog("title: %s, path: %s, img: %s, mode: %s" % (title, path, img, mode))
+	title_org=title		
+	
+	#-------------------------
+	mode_list = ["ShowSeason", "GetMP3"]					# bisher erlaubt, ShowSumm s. EPG
+	OK=False
+	for item in mode_list:
+		if mode in item:
+			OK = True
+			break		
+	if not OK:
+		PLog("not_supported: " + mode) 
+		return
+
+	if "ShowSeason" in mode:
+		msg1 = "Suche Serie zum Video:"
+		msg2 = 'keine Serie gefunden.'
+	if "GetMP3" in mode:
+		msg1 = "MP3-Download:"
+		msg2 = 'fehlgeschlagen.'
+
+	#-------------------------
+	# Aufruf thread_getfile hier, da Nutzung Podcontent.DownloadStart nach Call aus Kontext-Menü
+	#	nicht möglich (dort Import-Error Kodi 21 für import ardundzdf).
+	#
+	if "GetMP3" in mode:									# MP3-Download
+		dest_path = SETTINGS.getSetting('pref_download_path')
+		if 	SETTINGS.getSetting('pref_generate_filenames') == "true":	# Dateiname aus Titel generieren
+			dfname = make_filenames(py2_encode(title)) + '.mp3'
+			PLog(dfname)
+		else:												# Bsp.: Download_2016-12-18_09-15-00.mp3
+			now = datetime.datetime.now()
+			mydate = now.strftime("%Y-%m-%d_%H-%M-%S")	
+			dfname = 'Download_' + mydate + '.mp3'
+		# Format: Zieldatei_kompletter_Pfad|Podcast
+		path_url_list=[]
+		fullpath = os.path.join(dest_path, dfname)
+		fullpath = os.path.abspath(fullpath)				# os-spezischer Pfad
+		path_url_list.append('%s|%s' % (fullpath, path))	
+		PLog("path_url_list:" + str(path_url_list))
+		
+
+		from threading import Thread						# Dialog +  Abbruchmögl. in thread_getfile
+		from ardundzdf import thread_getfile
+		textfile='';pathtextfile='';storetxt='';url='';fulldestpath=''
+		now = datetime.datetime.now()
+		timemark = now.strftime("%d.%m.%Y, %H:%M:%S Uhr")
+		background_thread = Thread(target=thread_getfile,
+			args=(textfile,pathtextfile,storetxt,url,fulldestpath,path_url_list,timemark))
+		background_thread.start()	
+	
+		# DownloadStart(path_url_list)								
+		exit()	
+	#-------------------------
+	if "zdf-prod-futura" in path or "www.zdf.de" in path:
+		if "www.zdf.de" in path:								# Web-Url schon vorhanden
+			img = R(ICON_DIR_FOLDER)
+		else:		
+			page, msg = get_page(path=path, header=HEADERS)		# futura ZDF. Web-Url ermitteln
+			try:
+				jsonObject = json.loads(page)
+				PLog(str(jsonObject)[:80])
+				# Bsp.: www.zdf.de/video/serien/the-rookie-100/the-hammer-100 ->
+				#		www.zdf.de/video/serien/the-rookie-100:
+				surl = jsonObject["document"]["sharingUrl"]	# Web-Url
+				PLog("sharingUrl: " + surl)
+				new_url, msg = get_page(surl, GetOnlyRedirect=True)				
+				if "/video" in new_url:							# Video-Url-Korrektur (z.B. Trailer):
+					pos = new_url.rfind("/")					# Pfad-Anteil für Video entf.
+					new_url = new_url[:pos]
+					new_url = new_url.replace("/video", "")		# /video" im Pfad entf.
+					PLog("video_clean_Url: " + new_url)
+					path, msg = get_page(new_url, GetOnlyRedirect=True)
+				else:
+					path = new_url								# Redirect hat selbst korrigiert
+				
+				page, msg = get_page(path)						# img holen
+				imgset = stringextract("imageSrcSet=", '/>', page)
+				imgset = blockextract("https", imgset)
+				img = R(ICON_DIR_FOLDER)
+				for item in imgset:
+					PLog(item)
+					if "1280w" in item:
+						img = item.split(" ")[0]				# ..1280x720?cb=1743085107028 1280w
+						break
+			except Exception as exception:
+				path=""
+				msg = str(exception)
+				PLog("ShowSeason_error_ZDF: " + msg)
+		
+		PLog("params_Context: "); PLog(path); PLog(img);
+		if "www.zdf.de" in path and "-movie-" not in path:		# ungültig z.B. www.zdfheute.de
+			dirID = "ZDF_KatSeriePre"
+			fparams="&fparams={'title': '%s', 'path': '%s', 'img': '%s'}" %\
+				(quote(title), quote(path), quote(img))
+			action="action=dirList&dirID=%s&fparams=%s"	% (dirID, fparams)
+			PLog("action_Context: " + action)
+			action=quote(action)
+			xbmc.executebuiltin('RunAddon(%s, %s)'  % (ADDON_ID, action))
+			exit()
+	
+	#-------------------------
+	if "api.ardmediathek" in path:							# ARD
+		path=path + "&seasoned=true"						# 12.05.2026 früheres Format funktioniert nicht mehr,
+		new_url, msg = getRedirect(path)					# 	seasoned=true für Serien erforderlich
+		page=""
+		if new_url:
+			page, msg = get_page(path=new_url)
+		base64_id =  stringextract('/item/', '?', new_url)	# wird ersetzt durch show_id
+		PLog("base64_id: " + base64_id)
+					
+		# typ:  SEASON_SERIES, SINGLE, INFINITE_SERIES (z.B. Nachrichten, nicht verw.):
+		typ = stringextract('coreAssetType":"', '"', page)	
+		pub =  stringextract('publicationService":', 'logo"', page)
+		sender = stringextract('name":"', '"', pub)
+		show = stringextract('"show":', 'availableSeasons"', page)
+		PLog("show: " + show)
+		show_id = stringextract('id":"', '"', show)			# Bsp.: Y3JpZDovL2Rhc2Vyc3RlLmRlL3RvdGVuZnJhdQ für
+		title = stringextract('title":"', '"', show)		#	crid://daserste.de/totenfrau
+		img = stringextract('src":"', '"', show)
+		img = img.replace('{width}', "640")
+		if not title:
+			title=title_org
+		new_url = new_url.replace(base64_id, show_id).replace("item", "grouping")
+	
+		PLog("coreAssetType: %s, title: %s, sender: %s, show_id: %s, img: %s, new_url: %s" %\
+			(typ, title, sender, show_id, img, new_url))				
+		
+		if new_url and "SEASON" in typ:
+			new_url, msg = getRedirect(new_url)				# Check
+			if new_url:
+				dirID = "resources.lib.ARDnew.ARD_KatSeriePre"	# -> ARD_KatSeriePre
+				fparams="&fparams={'path': '%s', 'title': '%s', 'img': '%s'}" %\
+					(quote(new_url), quote(title), quote(img))
+				action="action=dirList&dirID=%s&fparams=%s"	% (dirID, fparams)
+				PLog("action_Context: " + unquote(action))
+				action=quote(action)
+				xbmc.executebuiltin('RunAddon(%s, %s)'  % (ADDON_ID, action))
+				exit()		
+		
+	# -----------------------------------					# Fehlschlag
+	icon = R(ICON_INFO)
+	PLog(msg2)
+	xbmcgui.Dialog().notification(msg1,msg2,icon,3000)				
+	
+#----------------------------------------------------------------
 
 
 

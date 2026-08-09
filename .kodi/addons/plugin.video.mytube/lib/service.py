@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 
+from js_runtimes import infos, runtime
+
 from iapc import public, Service
 from nuttig import (
     containerRefresh, getSetting, makeProfile, selectDialog, setSetting
@@ -57,7 +59,7 @@ class MyService(Service):
     @public
     def video(self, **kwargs):
         if (videoId := kwargs.pop("videoId", None)):
-            return self.__session__.video(videoId)
+            return self.__session__.video(videoId, **kwargs)
         self.logger.error(f"Invalid videoId: {videoId}", notify=True)
 
     # folders ------------------------------------------------------------------
@@ -98,6 +100,28 @@ class MyService(Service):
     @public
     def selectLocation(self):
         self.__regional__(locations, "session.gl", 41222)
+
+    # javascript ---------------------------------------------------------------
+
+    @public
+    def selectRuntimes(self):
+        current = getSetting("javascript.runtimes").split(",")
+        runtimes = infos()
+        keys = list(runtimes.keys())
+        values = list(runtimes[k]["name"] for k in keys)
+        preselect = [keys.index(k) for k in current if k in keys]
+        indices = selectDialog(
+            values, heading=49211, multi=True, preselect=preselect
+        )
+        if indices is not None:
+            selected = [
+                k for k in ([keys[i] for i in indices] if indices else ["deno"])
+                if runtime(k, force=True)
+            ]
+            #self.logger.info(f"selected: {selected}")
+            setSetting("javascript.runtimes", ",".join(k for k in selected))
+            text = ", ".join(runtimes[k]["name"] for k in selected)
+            setSetting("javascript.runtimes.text", text, str)
 
 
 # __main__ ---------------------------------------------------------------------

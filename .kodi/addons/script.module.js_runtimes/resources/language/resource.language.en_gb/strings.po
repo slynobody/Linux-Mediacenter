@@ -1,0 +1,50 @@
+# Addon Name: JavaScript runtimes
+# Addon id: script.module.js_runtimes
+msgid ""
+msgstr ""
+"Project-Id-Version: script.module.js_runtimes\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: en_GB\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+msgctxt "#30000"
+msgid "JavaScript runtimes"
+msgstr ""
+
+msgctxt "#30001"
+msgid "JavaScript runtime: {}"
+msgstr ""
+
+msgctxt "#30002"
+msgid "Do you want to install {}?"
+msgstr ""
+
+msgctxt "#30003"
+msgid "Installing {}..."
+msgstr ""
+
+msgctxt "#30004"
+msgid "Downloading {}..."
+msgstr ""
+
+msgctxt "#30005"
+msgid "{} installed."
+msgstr ""
+
+msgctxt "#30006"
+msgid "{} uninstalled."
+msgstr ""
+
+msgctxt "#30007"
+msgid "Failed to check if {} was outdated"
+msgstr ""
+
+msgctxt "#30008"
+msgid "Failed to install {}"
+msgstr ""
+
+msgctxt "#30009"
+msgid "Failed to get latest version of {}"
+msgstr ""

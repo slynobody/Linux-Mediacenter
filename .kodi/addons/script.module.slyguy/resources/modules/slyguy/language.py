@@ -96,14 +96,13 @@ class BaseLanguage(object):
     ERROR_DOWNLOADING_FILE      = 32033
     VERIFY_SSL                  = 32037
     SELECT_IA_VERSION           = 32038
-    SERVICE_DELAY               = 32039
+
     MD5_MISMATCH                = 32040
     NO_ITEMS                    = 32041
     MIGRATE_ADDON_NOT_FOUND     = 32042
     QUALITY_BEST                = 32043
     HTTP_TIMEOUT                = 32044
     HTTP_RETRIES                = 32045
-    IA_WEBOS_ERROR              = 32046
     QUALITY_SKIP                = 32048
     NO_AUTOPLAY_FOUND           = 32049
     CONFIRM_MIGRATE             = 32050
@@ -317,6 +316,13 @@ class BaseLanguage(object):
     VALID_TO                    = 32228
     EXTRAS                      = 32229
     REMOVE_FRAMERATE            = 32230
+    KEEP_ALIVE_ENABLED          = 32231
+    WATCHLIST                   = 32232
+    ADD_WATCHLIST               = 32233
+    REMOVE_WATCHLIST            = 32234
+    WATCHLIST_ADDED             = 32235
+    WATCHLIST_REMOVED           = 32236
+    IA_WEBOS_ERROR              = 32237
 
     def __init__(self):
         self._addon_map = {}    

@@ -1,3 +1,4 @@
+import os
 import sys
 import traceback
 from contextlib import contextmanager
@@ -45,7 +46,11 @@ def exception(heading=None):
                 trace[0] = os.path.basename(trace[0])
                 tb.append(trace)
 
-    error = '{}\n{}'.format(''.join(traceback.format_exception_only(exc_type, exc_value)), ''.join(traceback.format_list(tb)))
+    plugin_url = str(sys.argv[0])
+    if len(sys.argv) > 2:
+        plugin_url += sys.argv[2]
+
+    error = '{}\n\n{}\n{}'.format(plugin_url, ''.join(traceback.format_exception_only(exc_type, exc_value)), ''.join(traceback.format_list(tb)))
     text(error, heading=heading)
 
 
@@ -116,12 +121,14 @@ class ProgressQR(Progress):
 
 
 @contextmanager
-def busy():
-    xbmc.executebuiltin('ActivateWindow(busydialognocancel)')
+def busy(show=1):
+    if int(show):
+        xbmc.executebuiltin('ActivateWindow(busydialognocancel)')
     try:
         yield
     finally:
-        xbmc.executebuiltin('Dialog.Close(busydialognocancel)')
+        if int(show):
+            xbmc.executebuiltin('Dialog.Close(busydialognocancel)')
 
 
 @contextmanager
@@ -151,10 +158,10 @@ def input(message, default='', hide_input=False, **kwargs):
 
 
 def numeric(message, default='', type=0, **kwargs):
-    try:
-        return int(xbmcgui.Dialog().numeric(type, message, defaultt=str(default), **kwargs))
-    except:
+    result = xbmcgui.Dialog().numeric(type, message, defaultt=str(default), **kwargs).strip()
+    if result == "":
         return None
+    return int(result)
 
 
 def error(message, heading=None):

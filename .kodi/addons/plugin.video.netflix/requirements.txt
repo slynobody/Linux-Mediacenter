@@ -1,0 +1,11 @@
+codecov
+kodi-addon-checker
+mysql-connector-python
+polib
+pycryptodomex
+pylint
+requests
+setuptools
+tox
+xmlschema
+Kodistubs==19.0.3

@@ -1,0 +1,607 @@
+﻿# Kodi Media Center language file
+# Addon Name: ARTE.TV
+# Addon id: plugin.video.artetv.de
+# Addon Provider: realvito
+msgid ""
+msgstr ""
+"Project-Id-Version: KODI-Addons\n"
+"Report-Msgid-Bugs-To: alanwww1@kodi.org\n"
+"POT-Creation-Date: 2026-02-14 16:00+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: realvito\n"
+"Language-Team: ENGLISH\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: en_GB\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+# strings start
+# SETTINGS-CATEGORIES
+
+msgctxt "#30000"
+msgid "General"
+msgstr ""
+
+msgctxt "#30001"
+msgid "Advanced"
+msgstr ""
+
+# empty strings from id 30002 to 30109
+# SETTINGS-BUTTONS
+
+msgctxt "#30110"
+msgid "ARTE - Language"
+msgstr ""
+
+msgctxt "#30111"
+msgid "[B]German[/B]"
+msgstr ""
+
+msgctxt "#30112"
+msgid "[B]French[/B]"
+msgstr ""
+
+msgctxt "#30113"
+msgid "Play HLS-Videos with [B][COLOR yellow]Inputstream.Adaptive[/COLOR][/B]"
+msgstr ""
+
+msgctxt "#30114"
+msgid "Preferred video file format [COLOR yellow](m3u8|mp4)[/COLOR]"
+msgstr ""
+
+msgctxt "#30115"
+msgid "Use Thumb as Background-Fanart"
+msgstr ""
+
+msgctxt "#30116"
+msgid "Return to main menu entry show in context menu"
+msgstr ""
+
+msgctxt "#30117"
+msgid "Turn on SSL Certificate validation"
+msgstr ""
+
+msgctxt "#30118"
+msgid "Show Addon-Settings in the overview"
+msgstr ""
+
+msgctxt "#30119"
+msgid "Detailed Addon-Debug (otherwise only Minimal-Log)"
+msgstr ""
+
+# empty strings from id 30120 to 30229
+# SETTINGS-TITLES
+
+msgctxt "#30230"
+msgid "[B][COLOR ff0099ff]LANGUAGE[/COLOR][/B]"
+msgstr ""
+
+msgctxt "#30231"
+msgid "[B][COLOR ff0099ff]PLAYBACK[/COLOR][/B]"
+msgstr ""
+
+msgctxt "#30232"
+msgid "[B][COLOR ff0099ff]FANART[/COLOR][/B]"
+msgstr ""
+
+msgctxt "#30233"
+msgid "[B][COLOR ff0099ff]HOME-BUTTON[/COLOR][/B]"
+msgstr ""
+
+msgctxt "#30234"
+msgid "[B][COLOR ff0099ff]CERTIFICATE[/COLOR][/B]"
+msgstr ""
+
+msgctxt "#30235"
+msgid "[B][COLOR ff0099ff]SETTINGS[/COLOR][/B]"
+msgstr ""
+
+msgctxt "#30236"
+msgid "[B][COLOR ff0099ff]LOG[/COLOR][/B]"
+msgstr ""
+
+# empty strings from id 30237 to 30349
+# SETTINGS-DESCRIPTIONS
+
+msgctxt "#30350"
+msgid "[COLOR chartreuse]This Button allows you to return [B]DIRECTLY[/B] to the Main menu of the Addon without having to scroll back to each Page of a List individually.[/COLOR]"
+msgstr ""
+
+# empty strings from id 30351 to 30500
+# WARNING/INFORMATION-MESSAGES-OK
+
+msgctxt "#30501"
+msgid "[COLOR orangered]ATTENTION : ... the required Addon ►[/COLOR][COLOR yellow]{}[/COLOR][COLOR orangered]◄ can NOT be activated automatically !!![/COLOR]"
+msgstr ""
+
+msgctxt "#30502"
+msgid "[COLOR orangered]ATTENTION : ... the required Addon ►[/COLOR][COLOR yellow]{}[/COLOR][COLOR orangered]◄ is NOT installed !!![/COLOR]"
+msgstr ""
+
+# empty strings from id 30503 to 30520
+# WARNING/INFORMATION-MESSAGES-NOTIFICATION
+
+msgctxt "#30521"
+msgid "ARTE.TV : [COLOR orangered]!!! {} - ERROR !!![/COLOR]"
+msgstr ""
+
+msgctxt "#30522"
+msgid "[COLOR orangered]An error has occured, please check *LOG* ![/COLOR]"
+msgstr ""
+
+msgctxt "#30523"
+msgid "ERROR = [COLOR orangered]{} ![/COLOR]"
+msgstr ""
+
+msgctxt "#30524"
+msgid "[COLOR orangered]Currently NO Entries under :[/COLOR]"
+msgstr ""
+
+msgctxt "#30525"
+msgid "[B][COLOR blue]The respective search term[/COLOR][/B] at ARTE.TV"
+msgstr ""
+
+msgctxt "#30526"
+msgid "[B]≡ [COLOR blue]{}[/COLOR] ≡[/B] at ARTE.TV"
+msgstr ""
+
+msgctxt "#30527"
+msgid "[B][COLOR orangered]!!! This video is DEFECTIVE (present but NOT playable) !!![/COLOR][/B]"
+msgstr ""
+
+msgctxt "#30528"
+msgid "[B][COLOR orangered]!!! The requested *VideoLink* does NOT exist !!![/COLOR][/B]"
+msgstr ""
+
+# empty strings from id 30529 to 30600
+# PLUGIN-MAIN and SIDEMENU
+# START - FOLDER
+
+msgctxt "#30601"
+msgid "[B]Homepage[/B]"
+msgstr ""
+
+msgctxt "#30602"
+msgid "[B]Homepage[/B]"
+msgstr ""
+
+msgctxt "#30603"
+msgid "[B]All Categories[/B]"
+msgstr ""
+
+msgctxt "#30604"
+msgid "[B]All Categories[/B]"
+msgstr ""
+
+msgctxt "#30605"
+msgid "[B]Discover music[/B]"
+msgstr ""
+
+msgctxt "#30606"
+msgid "[B]Discover music[/B]"
+msgstr ""
+
+msgctxt "#30607"
+msgid "[B]Broadcast A-Z[/B]"
+msgstr ""
+
+msgctxt "#30608"
+msgid "[B]Broadcast A-Z[/B]"
+msgstr ""
+
+msgctxt "#30609"
+msgid "[B]Program sorted by date[/B]"
+msgstr ""
+
+msgctxt "#30610"
+msgid "[B]Program sorted by date[/B]"
+msgstr ""
+
+msgctxt "#30611"
+msgid "[B]Most viewed[/B]"
+msgstr ""
+
+msgctxt "#30612"
+msgid "[B]Most viewed[/B]"
+msgstr ""
+
+msgctxt "#30613"
+msgid "[B]New Videos[/B]"
+msgstr ""
+
+msgctxt "#30614"
+msgid "[B]New Videos[/B]"
+msgstr ""
+
+msgctxt "#30615"
+msgid "[B]Last Chance[/B]"
+msgstr ""
+
+msgctxt "#30616"
+msgid "[B]Last Chance[/B]"
+msgstr ""
+
+msgctxt "#30617"
+msgid "[B]Search ...[/B]"
+msgstr ""
+
+msgctxt "#30618"
+msgid "[B]Search ...[/B]"
+msgstr ""
+
+msgctxt "#30619"
+msgid "[B]Live & Event TV[/B]"
+msgstr ""
+
+msgctxt "#30620"
+msgid "[B]Live & Event TV[/B]"
+msgstr ""
+
+msgctxt "#30621"
+msgid "ARTE Settings"
+msgstr ""
+
+msgctxt "#30622"
+msgid "ARTE Settings"
+msgstr ""
+
+msgctxt "#30623"
+msgid "Inputstream Settings"
+msgstr ""
+
+msgctxt "#30624"
+msgid "Inputstream Settings"
+msgstr ""
+
+# empty strings from id 30625 to 30640
+# CATEGORIES - FOLDER
+
+msgctxt "#30641"
+msgid "[B]Homepage ARTE CONCERT[/B]"
+msgstr ""
+
+msgctxt "#30642"
+msgid "[B]Homepage ARTE CONCERT[/B]"
+msgstr ""
+
+msgctxt "#30643"
+msgid "Baroque"
+msgstr ""
+
+msgctxt "#30644"
+msgid "Baroque"
+msgstr ""
+
+msgctxt "#30645"
+msgid "Performing Arts"
+msgstr ""
+
+msgctxt "#30646"
+msgid "Electronic"
+msgstr ""
+
+msgctxt "#30647"
+msgid "Electronic"
+msgstr ""
+
+msgctxt "#30648"
+msgid "Classical"
+msgstr ""
+
+msgctxt "#30649"
+msgid "[B][COLOR deepskyblue]■[/COLOR] {}[/B]"
+msgstr ""
+
+msgctxt "#30650"
+msgid "Broadcasts and Magazines"
+msgstr ""
+
+msgctxt "#30651"
+msgid "Broadcasts and Magazines"
+msgstr ""
+
+# empty strings from id 30652 to 30670
+# VIDEODATES - FOLDER
+
+msgctxt "#30671"
+msgid "Mon"
+msgstr "Monday"
+
+msgctxt "#30672"
+msgid "Mon"
+msgstr "Monday"
+
+msgctxt "#30673"
+msgid "Tue"
+msgstr "Tuesday"
+
+msgctxt "#30674"
+msgid "Tue"
+msgstr "Tuesday"
+
+msgctxt "#30675"
+msgid "Wed"
+msgstr "Wednesday"
+
+msgctxt "#30676"
+msgid "Wed"
+msgstr "Wednesday"
+
+msgctxt "#30677"
+msgid "Thu"
+msgstr "Thursday"
+
+msgctxt "#30678"
+msgid "Thu"
+msgstr "Thursday"
+
+msgctxt "#30679"
+msgid "Fri"
+msgstr "Friday"
+
+msgctxt "#30680"
+msgid "Fri"
+msgstr "Friday"
+
+msgctxt "#30681"
+msgid "Sat"
+msgstr "Saturday"
+
+msgctxt "#30682"
+msgid "Sat"
+msgstr "Saturday"
+
+msgctxt "#30683"
+msgid "Sun"
+msgstr "Sunday"
+
+msgctxt "#30684"
+msgid "Sun"
+msgstr "Sunday"
+
+msgctxt "#30685"
+msgid "[B][I][COLOR lime]{}, {}[/COLOR][/I][/B]"
+msgstr ""
+
+# empty strings from id 30686 to 30700
+# BROADCASTS- FOLDER
+
+msgctxt "#30701"
+msgid "[COLOR lime]Next Page ({})  >>>[/COLOR]"
+msgstr ""
+
+msgctxt "#30702"
+msgid "[COLOR lime]Next Page ({})  >>>[/COLOR]"
+msgstr ""
+
+# empty strings from id 30703 to 30710
+# SEARCH - FOLDER
+
+msgctxt "#30711"
+msgid "Search on ARTE ..."
+msgstr ""
+
+msgctxt "#30712"
+msgid "Search on ARTE ..."
+msgstr ""
+
+# empty strings from id 30713 to 30720
+# CALLINGINFOS - FOLDER
+
+msgctxt "#30721"
+msgid "[B][COLOR lime]{}[/COLOR][/B][CR]"
+msgstr ""
+
+msgctxt "#30722"
+msgid "[B][COLOR gold]Seriestitle:[/COLOR][/B] {}[CR]"
+msgstr ""
+
+msgctxt "#30723"
+msgid "[B][COLOR gold]Seriestitle:[/COLOR][/B] {}[CR]"
+msgstr ""
+
+msgctxt "#30724"
+msgid "[B][COLOR gold]Productionyear:[/COLOR][/B] {}[CR]"
+msgstr ""
+
+msgctxt "#30725"
+msgid "[B][COLOR gold]Productionyear:[/COLOR][/B] {}[CR]"
+msgstr ""
+
+msgctxt "#30726"
+msgid "[B][COLOR gold]Runtime:[/COLOR][/B] {} Minute(s)[CR]"
+msgstr ""
+
+msgctxt "#30727"
+msgid "[B][COLOR gold]Runtime:[/COLOR][/B] {} Minute(s)[CR]"
+msgstr ""
+
+msgctxt "#30728"
+msgid "[B][COLOR gold]Genre:[/COLOR][/B] {}[CR]"
+msgstr ""
+
+msgctxt "#30729"
+msgid "[B][COLOR gold]Country:[/COLOR][/B] {}[CR]"
+msgstr ""
+
+msgctxt "#30730"
+msgid "[B][COLOR gold]Country:[/COLOR][/B] {}[CR]"
+msgstr ""
+
+msgctxt "#30731"
+msgid "[B][COLOR gold]Actors:[/COLOR][/B] {}[CR]"
+msgstr ""
+
+msgctxt "#30732"
+msgid "[B][COLOR gold]Actors:[/COLOR][/B] {}[CR]"
+msgstr ""
+
+msgctxt "#30733"
+msgid "[B][COLOR gold]Regie:[/COLOR][/B] {}[CR]"
+msgstr ""
+
+msgctxt "#30734"
+msgid "[B][COLOR gold]Regie:[/COLOR][/B] {}[CR]"
+msgstr ""
+
+msgctxt "#30735"
+msgid "[B][COLOR gold]Screenplay:[/COLOR][/B] {}[CR]"
+msgstr ""
+
+msgctxt "#30736"
+msgid "[B][COLOR gold]Screenplay:[/COLOR][/B] {}[CR]"
+msgstr ""
+
+msgctxt "#30737"
+msgid "[B][COLOR gold]Vacate:[/COLOR][/B] {}[CR]"
+msgstr ""
+
+msgctxt "#30738"
+msgid "[B][COLOR gold]Vacate:[/COLOR][/B] {}[CR]"
+msgstr ""
+
+msgctxt "#30739"
+msgid "No Data available !"
+msgstr ""
+
+msgctxt "#30740"
+msgid "No Data available !"
+msgstr ""
+
+msgctxt "#30741"
+msgid "VIDEO - INFORMATIONS"
+msgstr ""
+
+msgctxt "#30742"
+msgid "VIDEO - INFORMATIONS"
+msgstr ""
+
+# empty strings from id 30743 to 30760
+# CREATE_SUBSTANCES - FOLDER
+
+msgctxt "#30761"
+msgid "FSK {}"
+msgstr ""
+
+msgctxt "#30762"
+msgid "{}[CR]"
+msgstr ""
+
+msgctxt "#30763"
+msgid "[B][COLOR deepskyblue]Season {} • Episode {}[/COLOR][/B][CR]"
+msgstr ""
+
+msgctxt "#30764"
+msgid "[B][COLOR deepskyblue]Season {} • Episode {}[/COLOR][/B][CR]"
+msgstr ""
+
+msgctxt "#30765"
+msgid "[B][COLOR deepskyblue]Episode {}[/COLOR][/B][CR]"
+msgstr ""
+
+msgctxt "#30766"
+msgid "[B][COLOR deepskyblue]Episode {}[/COLOR][/B][CR]"
+msgstr ""
+
+msgctxt "#30767"
+msgid "From [COLOR chartreuse]{}[/COLOR] to [COLOR orangered]{}[/COLOR][CR][CR]"
+msgstr ""
+
+msgctxt "#30768"
+msgid "From [COLOR chartreuse]{}[/COLOR] to [COLOR orangered]{}[/COLOR][CR][CR]"
+msgstr ""
+
+msgctxt "#30769"
+msgid "From [COLOR chartreuse]{}[/COLOR][CR][CR]"
+msgstr ""
+
+msgctxt "#30770"
+msgid "From [COLOR chartreuse]{}[/COLOR][CR][CR]"
+msgstr ""
+
+# empty strings from id 30771 to 32200
+# STREAMTV - FOLDER
+
+msgctxt "#32201"
+msgid "ARTE ► Germany live"
+msgstr ""
+
+msgctxt "#32202"
+msgid "ARTE ► Germany live"
+msgstr ""
+
+msgctxt "#32203"
+msgid "ARTE ► France live"
+msgstr ""
+
+msgctxt "#32204"
+msgid "ARTE ► France live"
+msgstr ""
+
+msgctxt "#32205"
+msgid "ARTE Event 1"
+msgstr ""
+
+msgctxt "#32206"
+msgid "ARTE Event 1"
+msgstr ""
+
+msgctxt "#32207"
+msgid "ARTE Event 2"
+msgstr ""
+
+msgctxt "#32208"
+msgid "ARTE Event 2"
+msgstr ""
+
+msgctxt "#32209"
+msgid "ARTE Event 3"
+msgstr ""
+
+msgctxt "#32210"
+msgid "ARTE Event 3"
+msgstr ""
+
+msgctxt "#32211"
+msgid "ARTE Event 4"
+msgstr ""
+
+msgctxt "#32212"
+msgid "ARTE Event 4"
+msgstr ""
+
+msgctxt "#32213"
+msgid "ARTE Event 5"
+msgstr ""
+
+msgctxt "#32214"
+msgid "ARTE Event 5"
+msgstr ""
+
+msgctxt "#32215"
+msgid "ARTE Event 6"
+msgstr ""
+
+msgctxt "#32216"
+msgid "ARTE Event 6"
+msgstr ""
+
+# empty strings from id 32217 to 32230
+# CONTEXT-MENUE - FOLDER
+
+msgctxt "#32231"
+msgid "[I][B][COLOR cyan]More Infos about the Video...[/COLOR][/B][/I]"
+msgstr ""
+
+msgctxt "#32232"
+msgid "[I][B][COLOR cyan]More Infos about the Video...[/COLOR][/B][/I]"
+msgstr ""
+
+msgctxt "#32233"
+msgid "[I][B][COLOR ffff3296]<<< Back to the Main-menu[/COLOR][/B][/I]"
+msgstr ""
+
+msgctxt "#32234"
+msgid "[I][B][COLOR ffff3296]<<< Back to the Main-menu[/COLOR][/B][/I]"
+msgstr ""

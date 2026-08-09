@@ -1,3 +1,28 @@
+2.5.47
+- fix: enhance EPG title handling and add fallback messages
+2.5.46
+- fix: improve episode fetching logic in season_episodes
+2.5.45
+- fix: update string formatting
+- fix: update landingpage URL for joyn bookmarks
+2.5.44
+- fix: update landingpage path
+- fix: add destribution tenant to GraphQL headers based on country
+2.5.43
+- fix: VOD channels and LiveTV
+2.5.42
+- chore: updated hashes
+- fix: ensure response item ID is present before appending to list
+- fix: add checks for livestream presence
+2.5.41
+- fix: update regex for API key
+- chore: update operation name and hash for seasons
+2.5.40
+- chore: updated hashes
+2.5.39
+- fix: update search functionality to include pagination and handle empty items
+2.5.38
+- fix: add handling for ENT_VALIDATION_TOKEN_ERROR in entitlement data retrieval
 2.5.37
 - fix: remove duplicate condition for CollectionLane in categories function
 - fix: update view settings to use 'Custom' instead of numeric values

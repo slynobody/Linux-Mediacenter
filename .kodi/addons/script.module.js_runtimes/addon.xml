@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="script.module.js_runtimes"
+       name="JavaScript runtimes"
+       version="2.0.24"
+       provider-name="lekma">
+
+    <requires>
+        <import addon="xbmc.python" version="3.0.1" />
+        <import addon="script.module.packaging" version="26.0" />
+    </requires>
+
+    <extension point="xbmc.python.module" library="lib" />
+
+    <extension point="xbmc.addon.metadata">
+        <summary lang="en_GB">JavaScript runtimes</summary>
+        <description lang="en_GB">JavaScript runtimes</description>
+        <license>Unlicense</license>
+        <platform>linux</platform>
+        <source>https://github.com/lekma/script.module.js_runtimes</source>
+    </extension>
+
+</addon>

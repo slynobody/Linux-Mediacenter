@@ -24,6 +24,7 @@ from slyguy.exceptions import Exit
 from slyguy.session import RawSession
 from slyguy.router import add_url_args
 from slyguy.smart_urls import get_dns_rewrites
+from slyguy.inputstream import install_widevine
 
 H264 = 'H.264'
 H265 = 'H.265'
@@ -62,6 +63,10 @@ class Redirect(Exception):
         self.url = url
 
 
+class ProxyException(Exception):
+    pass
+
+
 def middleware_regex(response, pattern, **kwargs):
     data = response.stream.content.decode('utf8')
     match = re.search(pattern, data)
@@ -91,11 +96,10 @@ def middleware_plugin(response, url, **kwargs):
         shutil.copy(real_path, real_path+'.in')
 
     url = add_url_args(url, _path=path)
-    dirs, files = run_plugin(url, wait=True)
-    data = json.loads(unquote_plus(files[0]))
+    data = run_plugin(url)
 
     if not os.path.exists(real_path):
-        raise Exception('No data returned from plugin')
+        raise ProxyException('No data returned from plugin')
 
     with open(real_path, 'rb') as f:
         response.stream.content = f.read()
@@ -118,7 +122,7 @@ def codec_rank(_codecs):
     for codec in _codecs:
         for rank, _codec in enumerate(CODECS):
             if _codec[0].search(codec):
-                if not highest or rank > highest:
+                if highest == -1 or rank > highest:
                     highest = rank
 
     return highest
@@ -132,6 +136,15 @@ class RequestHandler(BaseHTTPRequestHandler):
 
     def log_message(self, format, *args):
         return
+
+    def handle(self):
+        try:
+            BaseHTTPRequestHandler.handle(self)
+        except Exception as e:
+            log.exception(e)
+            log.error("PROXY ERROR: {}".format(e))
+            self.send_response(204) # stop retries
+            self.end_headers()
 
     def setup(self):
         BaseHTTPRequestHandler.setup(self)
@@ -200,8 +213,8 @@ class RequestHandler(BaseHTTPRequestHandler):
         if url == new_url:
             return new_url
 
-        if url == self._session.get('manifest'):
-            self._session['manifest'] = new_url
+        if url in self._session.get('manifest'):
+            self._session['manifest'].append(new_url)
         if url == self._session.get('license_url'):
             self._session['license_url'] = new_url
         if url in self._session.get('middleware', {}):
@@ -224,14 +237,13 @@ class RequestHandler(BaseHTTPRequestHandler):
             url = add_url_args(url, _path=path)
 
         url = add_url_args(url, _headers=json.dumps(self._headers))
+        data = run_plugin(url)
 
-        dirs, files = run_plugin(url, wait=True)
-        data = json.loads(unquote_plus(files[0]))
         for key in data.get('headers', {}):
             self._headers[key.lower()] = data['headers'][key]
 
         if 'url' not in data:
-            raise Exception('No data returned from plugin')
+            raise ProxyException('No data returned from plugin')
 
         return data['url']
 
@@ -284,29 +296,36 @@ class RequestHandler(BaseHTTPRequestHandler):
         try:
             response = self._proxy_request('GET', url)
 
-            if not self._session.get('type') and url == manifest:
+            if not self._session.get('type') and manifest and url in manifest:
                 if response.headers.get('content-type') == 'application/x-mpegURL':
                     self._session['type'] = 'm3u8'
                 elif response.headers.get('content-type') == 'application/dash+xml':
                     self._session['type'] = 'mpd'
+                elif response.headers.get('content-type') == 'audio/x-scpls':
+                    self._session['type'] = 'pls'
 
             if self._session.get('redirecting') or not self._session.get('type') or not manifest or int(response.headers.get('content-length', 0)) > 1000000:
                 self._output_response(response)
                 return
 
             parse = urlparse(self.path.lower())
-            if self._session.get('type') == 'm3u8' and (url == manifest or parse.path.endswith('.m3u') or parse.path.endswith('.m3u8') or response.headers.get('content-type') == 'application/x-mpegURL'):
+            if self._session.get('type') == 'm3u8' and (url in manifest or parse.path.endswith('.m3u') or parse.path.endswith('.m3u8') or response.headers.get('content-type') == 'application/x-mpegURL'):
                 self._parse_m3u8(response)
 
-            elif self._session.get('type') == 'mpd' and url == manifest:
+            elif self._session.get('type') == 'mpd' and url in manifest:
                 self._parse_dash(response)
+
+            elif self._session.get('type') == 'pls' and url in manifest:
+                self._parse_pls(response)
         except Redirect as e:
             log.info('Redirecting to: {}'.format(e.url))
             response.status_code = 302
             response.headers['location'] = e.url
             response.stream.content = b''
         except Exception as e:
-            log.exception(e)
+            if type(e) != Exit:
+                log.exception(e)
+                log.error("PROXY ERROR: {}".format(e))
 
             def output_error(url):
                 response.status_code = 200
@@ -321,10 +340,10 @@ class RequestHandler(BaseHTTPRequestHandler):
                 if type(e) == Exit:
                     output_error(self.proxy_path+STOP_URL)
 
-                elif url == manifest:
+                elif url in manifest:
                     output_error(self.proxy_path+ERROR_URL)
         else:
-            if url == manifest:
+            if url in manifest:
                 PROXY_GLOBAL['error_count'] = 0
 
         self._output_response(response)
@@ -399,14 +418,17 @@ class RequestHandler(BaseHTTPRequestHandler):
 
             return _(_.QUALITY_LABEL, bandwidth=bandwidth, resolution=resolution, fps=fps, codecs=codec_string, _color=color, _strip=True).replace('  ', ' ')
 
+        self._session['selected_quality_time'] = 0
         if self._session.get('selected_quality') is not None:
             if self._session['selected_quality'] == QUALITY_EXIT:
                 raise Exit('Cancelled quality select')
 
             if self._session['selected_quality'] == QUALITY_SKIP:
                 return None
-            else:
+            elif self._session['selected_quality'] < len(qualities):
                 return qualities[self._session['selected_quality']]
+            else:
+                return None
 
         quality_compare = cmp_to_key(compare)
         streams = sorted(qualities, key=quality_compare, reverse=True)
@@ -489,6 +511,8 @@ class RequestHandler(BaseHTTPRequestHandler):
             return None
 
     def _parse_dash(self, response):
+        self._session['manifest_init'] = True
+
         start = time.time()
         data = response.stream.content.decode('utf8')
         response.stream.content = b''
@@ -514,8 +538,9 @@ class RequestHandler(BaseHTTPRequestHandler):
         try:
             root = parseString(data.encode('utf8'))
         except Exception as e:
-            log.error('Failed to parse dash: {}'.format(data))
-            raise
+            # partial update 204 with empty content can cause this
+            # if we return empty - IA will fail and stop playing - however if we raise here IA will go download the initial full manifest and keep playing
+            raise ProxyException('Failed to parse dash: "{}"'.format(data))
 
         if ADDON_DEV:
             pretty = root.toprettyxml(encoding='utf-8')
@@ -804,11 +829,11 @@ class RequestHandler(BaseHTTPRequestHandler):
         default_languages = []
         default_subtitles = []
         for adap_set in root.getElementsByTagName('AdaptationSet'):
-            language = adap_set.getAttribute('lang')
+            language = fix_language(adap_set.getAttribute('lang'))
             if not language:
                 continue
 
-            adap_set.setAttribute('lang', fix_language(language))
+            adap_set.setAttribute('lang', language)
 
             if is_audio(adap_set):
                 if adap_set.getAttribute('default') == 'true':
@@ -829,8 +854,9 @@ class RequestHandler(BaseHTTPRequestHandler):
                     log.debug('Removed audio adapt set: {}'.format(adap_set.getAttribute('id')))
                     continue
 
-                is_audio_description = any([elem for elem in adap_set.getElementsByTagName('Accessibility') if elem.getAttribute('schemeIdUri') == 'urn:tva:metadata:cs:AudioPurposeCS:2007'])
-                #any([elem for elem in adap_set.getElementsByTagName('Role') if elem.getAttribute('schemeIdUri') == 'urn:mpeg:dash:role:2011' and elem.getAttribute('value') == 'description'])
+                is_audio_description = any([elem for elem in adap_set.getElementsByTagName('Accessibility') if elem.getAttribute('schemeIdUri') == 'urn:tva:metadata:cs:AudioPurposeCS:2007']) \
+                    or any([elem for elem in adap_set.getElementsByTagName('Role') if elem.getAttribute('schemeIdUri') == 'urn:mpeg:dash:role:2011' and elem.getAttribute('value') == 'description'])
+
                 if is_audio_description:
                     if not audio_description:
                         log.debug('Removed audio description adapt set: {}'.format(adap_set.getAttribute('id')))
@@ -904,27 +930,38 @@ class RequestHandler(BaseHTTPRequestHandler):
         set_default_laguage(user_default_subtitles, default_subtitles, subs)
         ################
 
-        ## Convert BaseURLS
-        base_url_parents = []
-        for elem in root.getElementsByTagName('BaseURL'):
-            url = elem.firstChild.nodeValue
+        ## Convert BaseURLS to absolute urls
+        # walk from top to bottom tracking the parent baseurl and appending to children
+        def walk(node, current_base):
+            baseurl_seen = False
 
-            if elem.parentNode in base_url_parents:
-                log.debug('Non-1st BaseURL removed: {}'.format(url))
-                elem.parentNode.removeChild(elem)
-                continue
+            for child in list(node.childNodes):
+                # Only element nodes
+                if child.nodeType != child.ELEMENT_NODE:
+                    continue
 
-            if url.startswith('/'):
-                url = urljoin(response.url, url)
+                if child.tagName == 'BaseURL':
+                    raw = child.firstChild.nodeValue.strip()
 
-            if '://' in url:
-                elem.firstChild.nodeValue = self.proxy_path + url
+                    # Only first BaseURL per parent
+                    if baseurl_seen:
+                        log.debug('Non-1st BaseURL removed: {}'.format(raw))
+                        node.removeChild(child)
+                        continue
 
-            base_url_parents.append(elem.parentNode)
+                    resolved = urljoin(current_base, raw)
+
+                    child.firstChild.nodeValue = self.proxy_path + resolved
+
+                    # Update base for children
+                    current_base = resolved
+                    baseurl_seen = True
+                else:
+                    # Recurse
+                    walk(child, current_base)
+
+        walk(root, response.url)
         ################
-
-        # wipe out manifest so not passed again
-        self._session['manifest'] = None
 
         ## Convert Location
         for elem in root.getElementsByTagName('Location'):
@@ -934,7 +971,7 @@ class RequestHandler(BaseHTTPRequestHandler):
 
             elem.firstChild.nodeValue = self.proxy_path + url
             # update our manifest url to the location url
-            self._session['manifest'] = url
+            self._session['manifest'].append(url)
         ################
 
         ## Convert to proxy paths
@@ -957,9 +994,10 @@ class RequestHandler(BaseHTTPRequestHandler):
                     return
 
                 url = e.getAttribute(attrib)
+                # TODO: replace relative paths as well like we now do in m3u8 parser
                 if '://' in url:
                     e.setAttribute(attrib, self.proxy_path + url)
-                else:
+                elif KODI_VERSION < 21:
                     ## Fixed with https://github.com/xbmc/inputstream.adaptive/pull/606
                     base_url = get_parent_node(e, 'BaseURL')
                     if base_url and not base_url.firstChild.nodeValue.endswith('/'):
@@ -1045,6 +1083,8 @@ class RequestHandler(BaseHTTPRequestHandler):
         return '\n'.join(lines)
 
     def _parse_m3u8_master(self, m3u8, manifest_url):
+        self._session['manifest_init'] = True
+
         def _remove_quotes(string):
             quotes = ('"', "'")
             if string and string[0] in quotes and string[-1] in quotes:
@@ -1176,7 +1216,6 @@ class RequestHandler(BaseHTTPRequestHandler):
             if stream['key'] not in unique_streams:
                 unique_streams[stream['key']] = stream
 
-        # select quality
         selected = self._quality_select(list(unique_streams.values()))
         if selected:
             if self._session.get('custom_quality'):
@@ -1264,6 +1303,10 @@ class RequestHandler(BaseHTTPRequestHandler):
             new_lines.append(new_line.rstrip(','))
 
         for attribs in subs:
+            # IA before PR https://github.com/xbmc/inputstream.adaptive/pull/1914 treated below as CC when its not if its the only characteristcs (eg. Disney+)
+            if attribs.get('CHARACTERISTICS','').lower().strip(', ') == 'public.accessibility.transcribes-spoken-dialog':
+                del attribs['CHARACTERISTICS']
+
             if not subs_forced and attribs.get('FORCED','').upper() == 'YES':
                 continue
 
@@ -1272,6 +1315,10 @@ class RequestHandler(BaseHTTPRequestHandler):
 
             new_line = '#EXT-X-MEDIA:' if attribs else ''
             for key in attribs:
+                if key == 'NAME':
+                    # remove [CC] from name as Kodi marks these as captions for us
+                    if 'public.accessibility' in attribs.get('CHARACTERISTICS','').lower():
+                        attribs[key] = attribs[key].replace('[CC]','').strip()
                 if key == 'LANGUAGE':
                     attribs[key] = fix_language(attribs[key])
                 if attribs[key] is not None:
@@ -1300,7 +1347,7 @@ class RequestHandler(BaseHTTPRequestHandler):
 
         is_master = False
         if '#EXTM3U' not in m3u8:
-            raise Exception('Invalid m3u8: {}'.format(m3u8))
+            raise ProxyException('Invalid m3u8: {}'.format(m3u8))
 
         if '#EXT-X-STREAM-INF' in m3u8:
             is_master = True
@@ -1319,18 +1366,16 @@ class RequestHandler(BaseHTTPRequestHandler):
         else:
             m3u8 = self._parse_m3u8_sub(m3u8, response.url)
 
-        base_url = urljoin(response.url, '/')
-
         def relative_replace(match):
             return match.group(0).replace(match.group(1), urljoin(response.url, match.group(1)))
 
-        m3u8 = re.sub(r'^/', r'{}'.format(base_url), m3u8, flags=re.I|re.M)
-        m3u8 = re.sub(r'^(\.\./.*)$', relative_replace, m3u8, flags=re.I|re.M)
-        m3u8 = re.sub(r'URI="(\.\./.*)"', relative_replace, m3u8, flags=re.I|re.M)
-        m3u8 = re.sub(r'URI="/', r'URI="{}'.format(base_url), m3u8, flags=re.I|re.M)
+        m3u8 = re.sub(r'^(?!https?://)(?!#)(.*)$', relative_replace, m3u8, flags=re.I|re.M)
+        m3u8 = re.sub(r'URI="(?!https?://)(.*)"', relative_replace, m3u8, flags=re.I|re.M)
 
         ## Convert to proxy paths
         m3u8 = re.sub(r'^(https?)://', r'{}\1://'.format(self.proxy_path), m3u8, flags=re.I|re.M)
+        m3u8 = re.sub(r'^(plugin)://', r'{}\1://'.format(self.proxy_path), m3u8, flags=re.I|re.M)
+        m3u8 = re.sub(r'^(special)://', r'{}\1://'.format(self.proxy_path), m3u8, flags=re.I|re.M)
         m3u8 = re.sub(r'"(https?)://', r'"{}\1://'.format(self.proxy_path), m3u8, flags=re.I|re.M)
 
         m3u8 = m3u8.encode('utf8')
@@ -1345,6 +1390,13 @@ class RequestHandler(BaseHTTPRequestHandler):
             m3u8 = b"\n".join([ll.rstrip() for ll in m3u8.splitlines() if ll.strip()])
             with open(xbmc.translatePath('special://temp/'+file_name+'-out.m3u8'), 'wb') as f:
                 f.write(m3u8)
+
+    def _parse_pls(self, response):
+        pls = response.stream.content.decode('utf8')
+        match = re.search(r'^File\d+=(https?://[^\s]+)', pls, flags=re.MULTILINE)
+        if match:
+            url = match.group(1)
+            raise Redirect(url)
 
     def _proxy_request(self, method, url):
         self._session['redirecting'] = False
@@ -1361,7 +1413,7 @@ class RequestHandler(BaseHTTPRequestHandler):
                 with open(real_path, 'rb') as f:
                     response.stream.content = f.read()
             else:
-                raise Exception("File not found: {}".format(real_path))
+                raise ProxyException("File not found: {}".format(real_path))
 
             return response
 
@@ -1393,7 +1445,7 @@ class RequestHandler(BaseHTTPRequestHandler):
             response = self._session['session'].request(method=method, url=url, headers=self._headers, data=self._post_data, allow_redirects=False, stream=True)
         except Exception as e:
             log.exception(e)
-            raise
+            raise ProxyException(e)
 
         log.debug('REQUEST TIME: {}'.format(time.time() - start))
         log.debug('RESPONSE IN: {} ({})'.format(url, response.status_code))
@@ -1465,7 +1517,7 @@ class RequestHandler(BaseHTTPRequestHandler):
     def do_POST(self):
         url = self._get_url('POST')
 
-        for i in range(3):
+        for i in range(4):
             response = self._proxy_request('POST', url)
             if url != self._session.get('license_url'):
                 break
@@ -1481,7 +1533,8 @@ class RequestHandler(BaseHTTPRequestHandler):
             if response.ok and license_data:
                 log.info('WV License response OK and returned data')
                 self._session['license_init'] = True
-                break
+                self._output_response(response)
+                return
 
             if not license_data:
                 license_data = b'None'
@@ -1491,14 +1544,17 @@ class RequestHandler(BaseHTTPRequestHandler):
             except:
                 license_data = '...'
 
-            log.error('WV License attempt: {}/3 failed: {}'.format(i+1, license_data))
-            time.sleep(0.5)
-        else:
-            # only show error on initial license fail
-            if not self._session.get('license_init'):
-                gui.notification(_.PLAYBACK_FAILED_CHECK_LOG, heading=_.WV_FAILED, icon=xbmc.getInfoLabel('Player.Icon'))
+            log.error('WV License attempt: {}/4 failed: {}'.format(i+1, license_data))
+            time.sleep(0.1)
 
+        # stop IA/CDM retrying by returning an OK status
+        response.status_code = 204
         self._output_response(response)
+
+        # only show error on initial license fail
+        if not self._session.get('license_init'):
+            gui.notification(_.PLAYBACK_FAILED_CHECK_LOG, heading=_.WV_FAILED, icon=xbmc.getInfoLabel('Player.Icon'))
+            install_widevine(license_failed=True)
 
 class Response(object):
     def __init__(self):
@@ -1518,7 +1574,7 @@ class ResponseStream(object):
 
     @property
     def content(self):
-        if not self._bytes:
+        if self._bytes is None:
             self.content = self._response.content
 
         return self._bytes
@@ -1526,7 +1582,7 @@ class ResponseStream(object):
     @content.setter
     def content(self, _bytes):
         if not type(_bytes) is bytes:
-            raise Exception('Only bytes allowed when setting content')
+            raise ProxyException('Only bytes allowed when setting content')
 
         self._bytes = _bytes
         self._response.headers['content-length'] = str(len(_bytes))
@@ -1592,7 +1648,7 @@ class Proxy(object):
             gui.error(error)
             return
 
-        settings.PROXY_PORT._set_value(port)
+        settings.PROXY_PORT.store_value(port)
         self._server.allow_reuse_address = True
         self._httpd_thread = threading.Thread(target=self._server.serve_forever)
         self._httpd_thread.start()
@@ -1619,4 +1675,4 @@ class Proxy(object):
             log.exception(e)
 
         settings.set('_proxy_path', '')
-        log.debug("Proxy: Stopped")
+        log.debug("Proxy Stopped")

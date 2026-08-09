@@ -7,8 +7,8 @@
 #	Listing der Einträge weiter in ShowFavs (Haupt-PRG)
 # 	Funktions-Calls via Auswertung sys.argv s. Modulende
 ################################################################################
-# 	<nr>9</nr>										# Numerierung für Einzelupdate
-#	Stand: 11.05.2024
+# 	<nr>11</nr>										# Numerierung für Einzelupdate
+#	Stand: 12.02.2026
 #
 
 from __future__ import absolute_import
@@ -35,14 +35,7 @@ elif PYTHON3:
 	except:
 		pass
 
-try:											
-	from util import *						# Aufruf Kontextmenü
-	err="callfrom_context"
-except Exception as exception:
-	err=str(exception) 
-	err= "%s | callfromstart_script" % err
-	from resources.lib.util import *		# Aufruf start_script (Haupt-PRG)
-PLog(err)
+from resources.lib.util import *
 
 
 ADDON_ID      	= 'plugin.video.ardundzdf'
@@ -65,7 +58,7 @@ MERKFILTER 		= os.path.join(DICTSTORE, 'Merkfilter')
 
 ICON 			= 'icon.png'		# ARD + ZDF
 ICON_DIR_WATCH	= "Dir-watch.png"
-PLog('Script merkliste.py geladen')
+PLog('Modul_merkliste_loaded')
 
 # Basis-Ordner-Liste (wird in Merkliste eingefügt, falls noch ohne Ordnerliste,
 #	einschl. ORDNER_INFO - Quelle ZDF-Rubriken +Audio+Talk):
@@ -242,8 +235,11 @@ def Watch_items(action, name, thumb='', Plot='', url=''):
 				new_name = get_new_name(iname, add='')					# <- neue Bez. oder iname
 				if new_name != iname:
 					insert = 'name="%s"' % new_name
-					if exist_in_list(insert, my_items) == False:		 
-						item = item.replace('name="%s"' % py2_encode(iname), 'name="%s"' % py2_encode(new_name))
+					if exist_in_list(insert, my_items) == False:
+						item = 	cleanmark(item)	 						# replace schlägt mit Markierungen fehl
+						PLog("iname: %s | new_name: %s" % (iname, new_name))
+						PLog("item: " + item)
+						item = item.replace('name="%s"' % py2_encode(iname), 'name="%s"' % py2_encode(new_name))						
 						renamed = True
 					else:
 						msg1 = ">%s< existiert bereits - Abbruch" % new_name 				
@@ -331,6 +327,7 @@ def get_new_name(iname, add=''):
 	if add:
 		line = iname + add
 	new_name = get_keyboard_input(line=line, head=u'Merklisten-Eintrag umbenennen')
+	PLog("new_name: " + new_name)
 	if new_name.strip() != '':
 		return new_name
 	else:
@@ -566,8 +563,8 @@ def do_folder():
 
 	dialog = xbmcgui.Dialog()
 	head = 'Merklisten-Ordner bearbeiten'
-	slist = [	u'INFO: aktuelle Liste der Merklisten-Ordner',
-				u'INFO: Regeln für neue Merklisten-Ordner',
+	slist = [	u'INFO: [B]aktuelle Liste[/B] der Merklisten-Ordner',
+				u'INFO: [B]Regeln[/B] für neue Merklisten-Ordner',
 				u'Ordner entfernen (nur möglich, wenn nicht verknüpft)',
 				u'Neuen Ordner hinzufügen (bitte die Regeln beachten - s.o.)',
 				u'[COLOR red]RESET:[/COLOR] Basis-Ordnerliste wiederherstellen'] 
@@ -732,13 +729,16 @@ def clear_merkliste():
 		return
 		
 	tsecs = 3												# Timeout urlopen 	
-	templ = "%03d | %15s | %36s"							# "Index | Fehler | Name "
-	name_len = 30
+	templ = "%03d | %s | %s"								# "Index | Fehler | Name ", ljust s.u.
+	name_len = 30; info_len = 15
 
+	# dirID_list: Funktionen ohne Web- oder API-Url (durchwinken)
 	dirID_list = ["ZDF_Search", "SearchARDundZDFnew", "AudioSearch", "AudioSearch_cluster",
 				"arte_Search", "Kika_Search", "Tivi_Search", "Search", "phoenix_Search",
 				"XL_Search", "MVWSearch", "ARDSearchnew", "BilderDasErste",
-				"resources.lib.my3Sat.Bilder3sat", "PodFavoritenListe"
+				"Bilder3sat", "PodFavoritenListe", "update_single", "DownloadTools",
+				"DownloadsList", "Verpasst", "refresh_epg", "refresh_streamlinks",
+				"lib.merkliste.", ".strm.strm_tools", "AddonStartlist"
 			]
 	
 	my_list=[]; selected=[]; cnt=-1; note_cnt=0
@@ -753,91 +753,83 @@ def clear_merkliste():
 			msg2 = "Check ab Nr. %d" % cnt
 			xbmcgui.Dialog().notification(msg1,msg2,icon,5000,sound=False)
 			note_cnt=0
-		#if cnt > 10:				# Debug
-		#	break
 		item = unquote_plus(item)		
 		PLog(item[:60])										# Bsp.: <merk name="HR-FERNSEHEN ..
 		
 		line=""
 		name = stringextract('merk name="', '"', item)
 		name = py2_decode(name)								# Leia
-		dirID = stringextract('dirID=', '&amp', item)
-		if dirID in dirID_list:								# Suchen durchwinken
-			line = templ % (cnt+1, u"OK - verfügbar", name[:name_len])
-			my_list.append(line)
-			PLog("dirID_hit: " + line)
+		dirID = stringextract('dirID=', '&amp', item)		# Abgleich dirID_list
+		ok=False
+		for entry in dirID_list:							# Suchen, Merkliste u.ä. Funktionen durchwinken
+			if 	entry in dirID:	
+				t1=cnt+1; t2=u"OK - verfügbar"[:info_len];	t3=name[:name_len]				
+				line = templ % (t1, t2.ljust(info_len), t3.ljust(name_len))	# linksbündig,  templ="%03d | %s | %s"
+				my_list.append(line)
+				PLog("dirID_hit: " + line)
+				ok=True
+				break
+		if ok:
 			continue
-			
+
+		tab1=cnt+1; tab2=""; tab3=name[:name_len]			# -> templ -> Dialog-Tabelle
+		
 		fparams = stringextract('fparams={', '}',item)
 		fparams = unquote_plus(fparams)						# Parameter sind zusätzl. quotiert
 		if fparams == "":									# ev. alter Base64-kodierter Eintrag
-			line = templ % (cnt+1, "Daten fehlen ", name[:name_len])
+			tab2="Daten fehlen"[:info_len]
+			line = templ % (tab1, tab2, tab3)				# wie oben
 			my_list.append(line)
 			selected.append(cnt)
-			PLog(line)
+			PLog("data_missing_line: %s, dirID: %s" % (line, dirID))
+			PLog(fparams)
 			continue
+
+		if "':'" in fparams:								# abweichendes Format
+			fparams = fparams.replace("':'", "': '")
+		PLog("fparams: " + fparams[:40])
 		path= stringextract("path': '", "'", fparams)		# 1. Altern. Web-Url
 		if path == '':
 			path= stringextract("url': '", "'", fparams)	# 2. Altern. Web-Url
 		if path == '':
-			path= stringextract("img': '", "'", fparams)	# 3. Altern.: Bild
+			path= stringextract("urlkey': '", "'", fparams)	# 3. Altern. Web-Url (Bsp. ZDF_PageMenu)
+			if "#" in path:
+				path = path.split("#")[0]					# ..document/zdfheute-live-102#cluster#1
 		if path == '':
-			path= stringextract("img':'", "'", fparams)		# 4. Altern.: Bild (o.Blank, Arte)
+			path= stringextract("img': '", "'", fparams)	# 4. Altern.: Bild
 		if path == '':
-			path= stringextract("thumb': '", "'", fparams)	# 5. Altern.: Bild phoenix
+			path= stringextract("thumb': '", "'", fparams)	# 6. Altern.: Bild phoenix
 		if path == '':
-			path= stringextract("thumb=", "&amp", fparams)	# 6. Altern.: Bild außerhalb fparams (Layout Button)
+			path= stringextract("thumb=", "&amp", fparams)	# 7. Altern.: Bild außerhalb fparams (Layout Button)
 		if path == "":
-			line = templ % (cnt+1, "Web-Url fehlt ", name[:name_len])
+			tab2="Web-Url fehlt"[:info_len]
+			line = templ % (tab1, tab2, tab3)
 			my_list.append(line)
 			selected.append(cnt)
-			PLog(line)
+			PLog("url_missing_line: " + line)
 			continue
 
 		if "//www.ardaudiothek" in path:					# Pfadergänzung "/" gegen Error HTTP308_301
 			if path.endswith("/") == False:
 				path = path + "/"
 			
-		try:												# Link-Test - nicht via get_page (Performance)
-			err=""
-			PLog("getpath: " + path)
-			r = urlopen(path, timeout=tsecs)
-			url = r.geturl()
-			PLog("url_OK: " + url)
-		except Exception as e:
-			PLog(str(e))
-			err = str(e)
-			try:
-				if "308:" in str(e) or "301:" in str(e):	# Permanent-Redirect-Url
-					new_url = e.hdrs.get("Location")
-					parsed = urlparse(path)
-					if new_url.startswith("http") == False:	# Serveradr. vorh.?
-						new_url = 'https://%s%s/' % (parsed.netloc, new_url)
-					PLog("HTTP308_301_new_url: " + new_url)
-					r.close()
-					r = urlopen(new_url, timeout=tsecs)		# Link-Test mit new_url
-			except Exception as e:
-				PLog(str(e))
-				err = str(e)
-			
-			err_msg = "Url unbekannt"						# Default-Error
-			if "operation timed out" in err:				# Hinw. auf Bedeutung Timeout im Button-Info
-				err_msg = "HTTP Timeout"
-			line = templ % (cnt+1, err_msg, name[:name_len])
+		newpath, msg = getRedirect(path)					# Url-Check 
+		if not newpath:										# nicht erreichbar
+			tab2="Url unbekannt"[:info_len]					# Default-Error
+			line = templ % (tab1, tab2, tab3)
 			my_list.append(line)
 			selected.append(cnt)
 			PLog(line)
-			continue			
+			continue
 			
-		line = templ % (cnt+1, u"OK - verfügbar", name[:name_len])
-		PLog(line)
-		my_list.append(line)
-	
+		tab2=u"OK - verfügbar"[:info_len]
+		line = templ % (tab1, tab2, tab3)
+		PLog("OK_line: " + line)
+		my_list.append(line)			
 			
 	title = u"Ausgewählte Einträge löschen? Auswahl bei Bedarf ändern"
 	ret_ind = xbmcgui.Dialog().multiselect(title, my_list, preselect=selected, useDetails=False)
-	PLog("Mark0")
-	PLog(str(ret_ind))										# 0,3,9,.. 
+	PLog("ret_ind: " + str(ret_ind))										# 0,3,9,.. 
 		
 	heading = u'Bereinigung Merkliste'
 	if ret_ind:
@@ -863,89 +855,38 @@ def clear_merkliste():
 	return # -> network_error s.u.
 
 ######################################################################## 
-# Direkter Funktionscall aus Kontext-Menü bisher nicht möglich, daher			
-# sys.argv-Verarbeitung wie in router (Haupt-PRG)
-# Beim Menü Favoriten (add) endet json.loads in exception
-# Aufrufe aus Haupt-PRG ohne fparams: clear_merkliste,
-# 	do_folder - return via network_error.
-
-PLog(str(sys.argv))
-PLog(sys.argv[2])
-paramstring = unquote_plus(sys.argv[2])
-PLog('params: ' + paramstring)
-params = dict(parse_qs(paramstring[1:]))
-PLog('merk_params_dict: ' + str(params))
-
-# ------------------------------------------------- # callfromstart_script (2 Varianten möglich):
-
-if "'fparams_add': 'clear'" in str(params):			# 1. Aufruf InfoAndFilter -> start_script -> router
-	clear_merkliste()
-	ignore_this_network_error()						# network_error statt threading Exception	
-
-if "'fparams_add': 'do_folder'" in str(params):		# 2. Aufruf InfoAndFilter -> router
-	do_folder()
-	PLog("exit_callfromstart_script")
-	exit()
-
 # ------------------------------------------------- # callfrom_context:
+# url: add_url (kompl. Plugin-Url einschl. fparams)
+#
+def do_context(action,name,thumb="",Plot="",url=""):
+	PLog("do_context: %s | %s" % (action, name))
+	icon = R(ICON_DIR_WATCH)	
 
-icon = R(ICON_DIR_WATCH)
-PLog('action: ' + params['action'][0]) 				# context: immer action="dirList"
-PLog('dirID: ' + params['dirID'][0])				# context: immer dirID="Watch"
-# PLog('fparams: ' + params['fparams'][0])
-
-func_pars = params['fparams'][0]					# fparams s. addDir
-PLog("func_pars: " + func_pars)
-name = stringextract("'name': ", ',', func_pars)	# für exceptions s.u.
-name = name.replace("'", "")
-
-try:
-	func_pars = func_pars.replace("'", "\"")		# json.loads-kompatible string-Rahmen
-	func_pars = func_pars.replace('\\', '\\\\')		# json.loads-kompatible Windows-Pfade
-	mydict = json.loads(func_pars)
-	PLog("merk_mydict: " + str(mydict))
-except Exception as exception:						# Bsp. Hinzufügen von Favoriten
-	err_msg = str(exception)
-	PLog("mydict_error: " + err_msg)
-	msg1 = u"Eintrag nicht verwendbar!"
-	msg2 = u"Fehler: %s.." % err_msg[:40]
-	heading='Fehler Merkliste'
-	# 26.03.2024 Dialog ersetzt durch notification 
-	icon = R(ICON_DIR_WATCH)
-	xbmcgui.Dialog().notification(msg1,msg2,icon,5000)
-	exit()
-	
-# ----------------------------------------------------------------------
-action = mydict['action']	# action + name immmer vorh., Rest fehlt bei action=del
-name = mydict['name']
-thumb=''; Plot=''; url=''
-if 'thumb' in mydict:		# thumb, Plot, url fehlen bei action del (s. addDir)
-	thumb = mydict['thumb']
-if 'Plot' in mydict:
-	Plot = mydict['Plot']
-if 'url' in mydict:
-	url = mydict['url']
-PLog(action); PLog(name); PLog(thumb); PLog(Plot); PLog(url); 
-
-if 'filter' in action:													# Filter-Aktionen:
-	if action == 'filter':												# Aufrufer ShowFavs (Settings: Ordner)
-		watch_filter()													# Filter setzen
-	if action == 'filter_delete':
-		watch_filter(delete=True)										# Filter (MERKFILTER) löschen
-	if action == 'filter_folder':										# Merklisten-Ordner bearbeiten (add/remove)
+	if 'do_folder' in action:
 		do_folder()
-else:																	# Merklisten-Aktionen:	
-	Plot = clean_Plot(Plot) 
-	msg1, err_msg, item_cnt = Watch_items(action,name,thumb,Plot,url)	# Einträge add / del / folder / rename
-	msg2 = err_msg
-	PLog("item_cnt: %s, action: %s, MERKACTIVE: %s" % (item_cnt, action, os.path.isfile(MERKACTIVE)))
-	if item_cnt:
-		msg2 = "%s\n%s" % (msg2, u"Einträge: %s" % item_cnt)
-		if action == 'del' or action == 'folder' or action == 'rename':	# Refresh Liste nach Löschen
+		exit()
+	#-------------------------
+		
+	if 'filter' in action:										# Filter-Aktionen:
+		if action == 'filter':									# Aufrufer ShowFavs (Settings: Ordner)
+			watch_filter()										# Filter setzen
+		if action == 'filter_delete':
+			watch_filter(delete=True)							# Filter (MERKFILTER) löschen
+		if action == 'filter_folder':							# Merklisten-Ordner bearbeiten (add/remove)
+			do_folder()
+	#-------------------------
+																# Einträge add / del / folder / rename
+	if action=='add' or action=='del' or action=='folder' or action=='rename':															
+		Plot = clean_Plot(Plot) 
+		msg1, err_msg, item_cnt = Watch_items(action,name,thumb,Plot,url)
+		msg2 = err_msg
+		PLog("item_cnt: %s, action: %s, MERKACTIVE: %s" % (item_cnt, action, os.path.isfile(MERKACTIVE)))
+		if item_cnt:
+			msg2 = "%s\n%s" % (msg2, u"Einträge: %s" % item_cnt)
 			# MERKACTIVE ersetzt hier Ermitteln von Window + Control
 			# bei Verzicht würde jede Liste refresht (stört bei großen Listen)
 			if os.path.isfile(MERKACTIVE) == True:						# Merkliste aktiv?
-				xbmc.executebuiltin('Container.Refresh')
+				xbmc.executebuiltin('Container.Refresh')			# Refresh Liste nach Löschen
 
-	xbmcgui.Dialog().notification(msg1,msg2,icon,5000)
-	# exit()		# thread.lock-Error in Kodi-Matrix
+		xbmcgui.Dialog().notification(msg1,msg2,icon,5000)
+		# exit()		# thread.lock-Error in Kodi-Matrix

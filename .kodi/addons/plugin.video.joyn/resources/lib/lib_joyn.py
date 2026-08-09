@@ -95,10 +95,11 @@ class lib_joyn(Singleton):
 		return epg_data
 
 
-	def get_landingpage(self, path='/'):
+	def get_landingpage(self, path='/neu-beliebt'):
 
 		if path not in self.landingpage:
-			self.landingpage.update({path: self.get_graphql_response('LANDINGPAGECLIENT', {'path': path})})
+			lp = self.get_graphql_response('LANDINGPAGECLIENT', {'path': path})
+			self.landingpage.update({path: lp})
 
 		return self.landingpage[path]
 
@@ -761,7 +762,11 @@ class lib_joyn(Singleton):
 			if end_time is not False and end_time > dt_now:
 				epg_metadata = lib_joyn.get_metadata(epg_entry, 'EPG')
 
-				epg_title = epg_entry.get('title') if epg_entry.get('title') is not None else epg_entry.get('program', {}).get('title')
+				epg_title = epg_entry.get('title') \
+					if epg_entry.get('title') is not None \
+					else epg_entry.get('program').get('title') \
+					if epg_entry.get('program') is not None \
+					else 'Keine Programminformation verfügbar'
 				epg_metadata['infoLabels'].update({
 				         'title':
 				         compat._format(xbmc_helper().translation('LIVETV_TITLE'), brand_title, epg_title),
@@ -773,7 +778,9 @@ class lib_joyn(Singleton):
 				if len(epg_data) > (idx + 1):
 					next_epg_title = epg_data[idx + 1].get('title') \
 						if epg_data[idx + 1].get('title') is not None \
-						else epg_data[idx + 1].get('program', {}).get('title')
+						else epg_data[idx + 1].get('program').get('title') \
+						if epg_data[idx + 1].get('program') is not None \
+						else 'Keine Programminformation verfügbar'
 					epg_metadata['infoLabels'].update({
 					        'plot':
 					        compat._format(xbmc_helper().translation('LIVETV_UNTIL_AND_NEXT'), end_time, next_epg_title)
@@ -783,22 +790,24 @@ class lib_joyn(Singleton):
 
 				epg_secondary_title = epg_entry.get('secondaryTitle') \
 					if epg_entry.get('secondaryTitle') is not None \
-					else epg_entry.get('program', {}).get('secondaryTitle')
+					else epg_entry.get('program').get('secondaryTitle') \
+					if epg_entry.get('program') is not None \
+					else 'Keine Programminformation verfügbar'
 				if epg_secondary_title is not None:
 					epg_metadata['infoLabels']['plot'] += epg_secondary_title
 
-				if 'images' in epg_entry.get('program', {}) and len(epg_entry['program'].get('images', [])) > 0:
+				if epg_entry.get('program', {}) is not None and 'images' in epg_entry.get('program') and len(epg_entry['program'].get('images', [])) > 0:
 					epg_metadata['art'].update({
 				        'thumb': compat._format('{}/profile:original', epg_entry['program'].get('images')[0].get('url')),
 					})
-				elif brand_livestream_epg['type'] == 'ON_DEMAND' and epg_entry.get('program', {}).get('posterImage') is not None:
+				elif brand_livestream_epg['type'] == 'ON_DEMAND' and epg_entry.get('program') is not None and epg_entry.get('program').get('posterImage') is not None:
 					epg_metadata['art'].update({
 					        'thumb': compat._format('{}/profile:original', epg_entry['program']['posterImage']['url'][:epg_entry['program']['posterImage']['url'].rfind('/')]),
 					})
 
 				break
 		else:
-			if brand_livestream_epg.get('livestream', {}).get('brand', {}).get('title'):
+			if brand_livestream_epg.get('livestream') and brand_livestream_epg.get('livestream', {}).get('brand', {}).get('title'):
 				brand_title = brand_livestream_epg.get('livestream', {}).get('brand', {}).get('title')
 			epg_title = brand_livestream_epg.get('title')
 			if epg_title:
@@ -821,7 +830,7 @@ class lib_joyn(Singleton):
 						'tvshow'
 			})
 
-			if 'logo' in brand_livestream_epg.get('livestream', {}).get('brand', {}).keys():
+			if brand_livestream_epg.get('livestream') and 'logo' in brand_livestream_epg.get('livestream', {}).get('brand', {}).keys():
 				brand_img_url = brand_livestream_epg['livestream']['brand']['logo']['url'][:brand_livestream_epg['livestream']['brand']['logo']['url'].rfind('/')]
 				epg_metadata['art'].update({
 					'icon': compat._format('{}/profile:nextgen-web-artlogo-183x75', brand_img_url),
@@ -875,6 +884,9 @@ class lib_joyn(Singleton):
 		if self.get_auth_token().get('has_account', False) is not False:
 			ids = []
 			for item in items:
+				if not item:
+					continue
+
 				if item['__typename'] in ['Movie', 'Episode']:
 					ids.append(item.get('id'))
 
@@ -902,6 +914,9 @@ class lib_joyn(Singleton):
 
 			if len(bookmarks_list) > 0:
 				for item in items:
+					if not item:
+						continue
+
 					if item['__typename'] in ['Movie', 'Series', 'Compilation']:
 						item.update({'isBookmarked': item['id'] in bookmarks_list})
 

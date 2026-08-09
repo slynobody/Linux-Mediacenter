@@ -26,8 +26,13 @@ msgid "Movies and Television Shows for Prime Members"
 msgstr "Filmek és Sorozatok a Prime előfizetőknek"
 
 msgctxt "Addon Disclaimer"
-msgid "Some parts of this addon may not be legal in your country of residence – please check with your local laws before installing."
-msgstr "Előfordulhat, hogy ennek a kiegészítőnek egyes részei nem legálisak az Ön lakóhelye szerinti országban – kérjük, ellenőrizze a helyi törvényeket a telepítés előtt"
+msgid ""
+"Some parts of this addon may not be legal in your country of residence – "
+"please check with your local laws before installing."
+msgstr ""
+"Előfordulhat, hogy ennek a kiegészítőnek egyes részei nem legálisak az Ön "
+"lakóhelye szerinti országban – kérjük, ellenőrizze a helyi törvényeket a "
+"telepítés előtt"
 
 msgctxt "#30001"
 msgid "Amazon Account"
@@ -51,7 +56,7 @@ msgstr "Hang kommentárok (5.1/7.1 letiltása)"
 
 msgctxt "#30006"
 msgid "Widevine L1 certified device"
-msgstr ""
+msgstr "Widevine L1 tanúsítvánnyal rendelkező eszköz"
 
 msgctxt "#30007"
 msgid "Remove Credentials and Cookie"
@@ -284,8 +289,11 @@ msgid "Mediasource TV Title"
 msgstr "Médiaforrás sorozatmcím"
 
 msgctxt "#30066"
-msgid "Send video progress to Amazon at least at percent played (0 to disable)"
-msgstr "Videó lejátszási helyzet elküldése az Amazonnak, minimum lejátszási százalékban (0 a letiltáshoz)"
+msgid ""
+"Send video progress to Amazon at least at percent played (0 to disable)"
+msgstr ""
+"Videó lejátszási helyzet elküldése az Amazonnak, minimum lejátszási "
+"százalékban (0 a letiltáshoz)"
 
 # empty strings from id 30067 to 30069
 msgctxt "#30070"
@@ -294,16 +302,15 @@ msgstr "Egyebek"
 
 msgctxt "#30071"
 msgid "Show season overview immediately after selection"
-msgstr ""
+msgstr "A szezon áttekintése a kiválasztás után azonnal megjelenik."
 
 msgctxt "#30072"
 msgid "Verbose Logging"
 msgstr "Bővített naplózás"
 
-#, fuzzy
 msgctxt "#30073"
 msgid "Color Paid/Prime Content"
-msgstr "Előfizetéses tartalom mutatása"
+msgstr "Színes fizetős/Prime-tartalom"
 
 msgctxt "#30074"
 msgid "Remote Control support"
@@ -387,31 +394,31 @@ msgstr "Mindkettő"
 
 msgctxt "#30093"
 msgid "Use Web API (requires restart)"
-msgstr ""
+msgstr "Használja a Web API-t (újraindítás szükséges)"
 
 msgctxt "#30094"
 msgid "Refer to PrimeVideo settings for more options"
-msgstr ""
+msgstr "További beállításokért lásd: Prime Videó beállítások"
 
 msgctxt "#30095"
 msgid "Reset addon home page to default"
-msgstr ""
+msgstr "Az addon kezdőlapjának visszaállítása alapértelmezett értékre"
 
 msgctxt "#30096"
 msgid "Load season/series infos in the background"
-msgstr ""
+msgstr "A szezon/sorozat információk betöltése a háttérben"
 
 msgctxt "#30097"
 msgid "Download the info for all seasons"
-msgstr ""
+msgstr "Töltse le az összes évad információit"
 
 msgctxt "#30098"
 msgid "Use new search with history"
-msgstr ""
+msgstr "Használja az új keresést a előzményekkel"
 
 msgctxt "#30099"
 msgid "Hide trailers and extras in episode list"
-msgstr ""
+msgstr "Elrejtse a trailerokat és az extrák listáját az epizódlistában"
 
 # empty strings from id 30093 to 30099
 msgctxt "#30100"
@@ -559,7 +566,7 @@ msgstr "Epizód"
 
 msgctxt "#30174"
 msgid "Event"
-msgstr ""
+msgstr "Esemény"
 
 # empty strings from id 30174 to 30179
 msgctxt "#30180"
@@ -595,8 +602,12 @@ msgid "Source folders added/changed"
 msgstr "Forrásmappák hozzáadva/módosítva"
 
 msgctxt "#30188"
-msgid "To complete the setup restart Kodi and set the content type of added folders."
-msgstr "A beállítás befejezéséhez indítsa újra a Kodit, és állítsa be a hozzáadott mappák tartalomtípusát."
+msgid ""
+"To complete the setup restart Kodi and set the content type of added "
+"folders."
+msgstr ""
+"A beállítás befejezéséhez indítsa újra a Kodit, és állítsa be a hozzáadott "
+"mappák tartalomtípusát."
 
 # empty strings from id 30189 to 30190
 msgctxt "#30191"
@@ -621,7 +632,7 @@ msgstr "Átugrott jelenet…"
 
 msgctxt "#30196"
 msgid "Dump JSON replies"
-msgstr ""
+msgstr "JSON válaszok kiírása"
 
 msgctxt "#30197"
 msgid "Dump collisions"
@@ -629,7 +640,9 @@ msgstr "Dump JSON válasz"
 
 msgctxt "#30198"
 msgid "Browser or Script not found. Please check settings."
-msgstr "A böngésző vagy a szkript nem található. Kérjük, ellenőrizze a beállításokat."
+msgstr ""
+"A böngésző vagy a szkript nem található. Kérjük, ellenőrizze a "
+"beállításokat."
 
 msgctxt "#30199"
 msgid "Raw"
@@ -677,7 +690,9 @@ msgstr "Ismeretlen"
 
 msgctxt "#30210"
 msgid "Please remove Credentials and Cookie in Settings"
-msgstr "Kérjük, távolítsa el a hitelesítési adatokat és a cookie-kat a Beállításokban"
+msgstr ""
+"Kérjük, távolítsa el a hitelesítési adatokat és a cookie-kat a "
+"Beállításokban"
 
 msgctxt "#30211"
 msgid "Credentials and Cookie(s) removed"
@@ -688,8 +703,13 @@ msgid "Captcha Request, please change IP or try again later"
 msgstr "Captcha kérés, módosítsa az IP-címet, vagy próbálja újra később"
 
 msgctxt "#30213"
-msgid "Unknown Error, please enable advanced debugging in settings, sign in again and check the login-*.log files from the {} folder."
+msgid ""
+"Unknown Error, please enable advanced debugging in settings, sign in again "
+"and check the login-*.log files from the {} folder."
 msgstr ""
+"Ismeretlen hiba, kérjük, engedélyezze a beállításokban a fejlett "
+"hibakeresést, jelentkezzen be újra, és ellenőrizze a {} mappában található "
+"login-*.log fájlokat."
 
 msgctxt "#30214"
 msgid "Wrong Code"
@@ -701,7 +721,9 @@ msgstr "Bejelentkezés sikeres"
 
 msgctxt "#30216"
 msgid "No credentials present, please go to Settings-Connection and sign in"
-msgstr "Nincsenek hitelesítési adatok, lépjen a Beállítások-Kapcsolat menüpontra, és jelentkezzen be"
+msgstr ""
+"Nincsenek hitelesítési adatok, lépjen a Beállítások-Kapcsolat menüpontra, és"
+" jelentkezzen be"
 
 msgctxt "#30217"
 msgid "No stream hoster reachable"
@@ -756,22 +778,26 @@ msgctxt "#30252"
 msgid "Loading page {0}…"
 msgstr "Oldal betöltése {0}"
 
-#, fuzzy
 msgctxt "#30253"
 msgid "{0} seasons available"
-msgstr "{0} évadok"
+msgstr "{0} szezonok elérhetők"
 
 msgctxt "#30254"
 msgid "userinput.exe not found"
 msgstr "userinput.exe nem található"
 
 msgctxt "#30255"
-msgid "Please download it from GitHub and manually install it in the addon directory"
-msgstr "Kérjük, töltse le a GitHubról, és telepítse manuálisan a kiegészítők közé"
+msgid ""
+"Please download it from GitHub and manually install it in the addon "
+"directory"
+msgstr ""
+"Kérjük, töltse le a GitHubról, és telepítse manuálisan a kiegészítők közé"
 
 msgctxt "#30256"
 msgid "Error: servers returned no content (check logs for more information)"
-msgstr "Hiba: a szerverek nem adtak vissza tartalmat (további információért ellenőrizze a naplókat)"
+msgstr ""
+"Hiba: a szerverek nem adtak vissza tartalmat (további információért "
+"ellenőrizze a naplókat)"
 
 msgctxt "#30257"
 msgid "Catalog cache expiration time"
@@ -815,57 +841,60 @@ msgstr "A bejelentkezési adatok érvénytelenek, kérjük, jelentkezzen be újr
 
 msgctxt "#30267"
 msgid "Next page…"
-msgstr ""
+msgstr "Következő oldal…"
 
 msgctxt "#30268"
 msgid "Refresh"
-msgstr ""
+msgstr "Frissítés"
 
 msgctxt "#30269"
 msgid "Not available, enable WebAPI to use this future"
 msgstr ""
+"Nem elérhető, engedélyezze a WebAPI-t, hogy használhassa ezt a funkciót."
 
 msgctxt "#30270"
 msgid "No additional languages available"
-msgstr ""
+msgstr "Nincs további nyelv elérhető"
 
 msgctxt "#30271"
 msgid "Set as default addon home page"
-msgstr ""
+msgstr "Alapértelmezett kiegészítő kezdőlapként beállítani"
 
 msgctxt "#30272"
 msgid ""
 "To use the Android data source and play 4K content on supported Android devices, this device must be registered with Amazon.\n"
 "To do this, the login with the Amazon credentials must be performed again in the addon."
 msgstr ""
+"Az Android adatforrás használatához és a 4K tartalmak lejátszásához a támogatott Android-eszközökön az eszközt regisztrálni kell a Amazon oldalon.\n"
+"Ehhez az addonban újra be kell jelentkezni a Amazon hitelesítő adatokkal."
 
 msgctxt "#30273"
 msgid "Data Source"
-msgstr ""
+msgstr "Adatforrás"
 
 msgctxt "#30274"
 msgid "Log HTTP response content"
-msgstr ""
+msgstr "Naplózza a HTTP-válasz tartalmát"
 
 msgctxt "#30275"
 msgid "Create Logfiles archive"
-msgstr ""
+msgstr "Naplófájlok archívumának létrehozása"
 
 msgctxt "#30276"
 msgid "Clear Logfiles"
-msgstr ""
+msgstr "Törölje a naplófájlokat"
 
 msgctxt "#30277"
 msgid "Register device for 4K playback"
-msgstr ""
+msgstr "Regisztrálja az eszközt 4K lejátszáshoz"
 
 msgctxt "#30278"
 msgid "PrimeVideo error"
-msgstr ""
+msgstr "Prime Videó hiba"
 
 msgctxt "#30279"
 msgid "Unable to find the navigation menu for {}.{}"
-msgstr ""
+msgstr "Nem található a navigációs menü a {} számára.{}"
 
 msgctxt "#30280"
 msgid ""
@@ -873,54 +902,101 @@ msgid ""
 "This error often occurs with primevideo users when the register device for 4K setting is enabled.\n"
 "Please disable this setting and log in again."
 msgstr ""
+"Ez a hiba gyakran fordul elő a Prime Video felhasználóknál, amikor a 4K beállításhoz szükséges eszköz regisztrációja engedélyezve van.\n"
+"Kérjük, tiltsa le ezt a beállítást, és jelentkezzen be újra."
 
 msgctxt "#30281"
 msgid "Archive created at {}"
-msgstr ""
+msgstr "Archívum létrehozva: {}"
 
 msgctxt "#30282"
 msgid "Search History"
-msgstr ""
+msgstr "Keresési előzmények"
 
 msgctxt "#30283"
 msgid "Remove Item"
-msgstr ""
+msgstr "Elem eltávolítása"
 
 msgctxt "#30284"
 msgid "Clear List"
-msgstr ""
+msgstr "Lista törlése"
 
-#, fuzzy
 msgctxt "#30285"
 msgid "Audio Languages"
-msgstr "Nyelv"
+msgstr "Audio nyelvek"
 
-#, fuzzy
 msgctxt "#30286"
 msgid "Subtitle Languages"
-msgstr "Elérhető nyelvek:"
+msgstr "Feliratnyelvek"
 
 msgctxt "#30287"
 msgid ""
 "Unable to log in because an unsupported captcha is displayed.\n"
 "Either log in again or activate multi-factor authentication in the Amazon account."
 msgstr ""
+"Nem lehet bejelentkezni, mert nem támogatott captcha jelenik meg.\n"
+"Jelentkezzen be újra, vagy aktiválja a többfaktoros hitelesítést az Amazon fiókjában."
 
 msgctxt "#30288"
 msgid "Export not aired episodes"
-msgstr ""
+msgstr "Exportálja a még nem sugárzott epizódokat"
 
-# msgctxt "#30285"
-# msgid "Audio Languages"
-# msgstr "Nyelv"
-# msgctxt "#30286"
-# msgid "Subtitle Languages"
-# msgstr "Elérhető nyelvek:"
-#, fuzzy
-#~ msgctxt "#30006"
-#~ msgid "Store Credentials instead of using the Cookie?"
-#~ msgstr "Hitelesítési adatokat tárol a Cookie használata helyett?"
+msgctxt "#30289"
+msgid "Filter"
+msgstr "Szűrő"
 
-#~ msgctxt "#30071"
-#~ msgid "Display TV-Show instead of Seasons in Watchlist"
-#~ msgstr "Sorozat mutatása évadok helyett, a lejátszási listában"
+msgctxt "#30290"
+msgid "Category"
+msgstr "Kategória"
+
+msgctxt "#30291"
+msgid "Display categories"
+msgstr "Kategóriák megjelenítése"
+
+msgctxt "#30292"
+msgid "Color for paid content"
+msgstr "Szín a fizetős tartalmakhoz"
+
+msgctxt "#30293"
+msgid "Color for Prime content"
+msgstr "Prime-tartalom színe"
+
+msgctxt "#30294"
+msgid "Browser"
+msgstr "Böngésző"
+
+msgctxt "#30295"
+msgid "UltraHD / 4K"
+msgstr "UltraHD / 4K"
+
+msgctxt "#30296"
+msgid "HDR10+"
+msgstr "HDR10+"
+
+msgctxt "#30297"
+msgid "Dolby Vision"
+msgstr "Dolby Vision"
+
+msgctxt "#30298"
+msgid "Dolby Atmos"
+msgstr "Dolby Atmos"
+
+msgctxt "#30299"
+msgid "View ID"
+msgstr "Nézetazonosító"
+
+msgctxt "#30300"
+msgid "Artwork"
+msgstr "Grafika"
+
+msgctxt "#30301"
+msgid "Parameter ({u} - URL / {f} - Framerate)"
+msgstr "Paraméter ({u} - URL / {f} - Képkockasebesség)"
+
+msgctxt "#30302"
+msgid "Region"
+msgstr "Régió"
+
+msgctxt "#30303"
+msgid "Log"
+msgstr "Log"

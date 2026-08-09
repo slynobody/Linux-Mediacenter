@@ -192,7 +192,12 @@ class MySession(__MySession__):
 
     def __setup__(self):
         super(MySession, self).__setup__()
-        self.__ytdlp__.__setup__()
+        lang_header = "*;q=0.5"
+        if (hl := self.__params__["hl"]) != "en":
+            lang_header = f"{hl},en;q=0.75,{lang_header}"
+        else:
+            lang_header = f"en,{lang_header}"
+        self.__ytdlp__.__setup__(headers={"Accept-Language": lang_header})
         self.__cache__.clear()
 
     def __stop__(self):
@@ -229,12 +234,14 @@ class MySession(__MySession__):
     # cached -------------------------------------------------------------------
 
     @cached("videos")
-    def video(self, videoId):
-        return MyVideo(
-            self.__ytdlp__.video(
-                buildUrl(self.__url__, "watch", v=videoId, **self.__params__)
+    def video(self, videoId, **kwargs):
+        if (
+            video := self.__ytdlp__.video(
+                buildUrl(self.__url__, "watch", v=videoId, **self.__params__),
+                **kwargs
             )
-        )
+        ):
+            return MyVideo(video)
 
     @cached("channels")
     def channel(self, channelId, **kwargs):

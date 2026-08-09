@@ -1,13 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-import pyxbmct
-from __future__ import unicode_literals
 
 import datetime
 import os.path
 import re
 
-from kodi_six import xbmc, xbmcvfs
-from kodi_six.utils import py2_decode
+import xbmc, xbmcvfs
 
 from .common import Globals, Settings
 from .logging import Log
@@ -20,7 +18,7 @@ _g = Globals()
 def Export(infoLabels, url):
     isEpisode = infoLabels['contentType'] != 'movie'
     isEvent = 'tvshowtitle' not in infoLabels and isEpisode
-    isAired = datetime.date.today() >= datetime.date.fromisoformat(infoLabels.get('premiered', '1970-01-01'))
+    isAired = datetime.date.today() >= datetime.date.fromisoformat(infoLabels.get('premiered') or '1970-01-01')
     language = xbmc.convertLanguage(_s.Language, xbmc.ISO_639_2)
     ExportPath = _s.MOVIE_PATH
     nfoType = 'movie'
@@ -44,9 +42,7 @@ def Export(infoLabels, url):
         infoLabels['tvshowtitle'] = filename
         nfoType = 'episodedetails'
         if not isEvent:
-            filename = '%s - S%02dE%02d - %s' % (infoLabels['tvshowtitle'], infoLabels['season'],
-                                                 infoLabels['episode'], infoLabels['title'])
-
+            filename = f"{infoLabels['tvshowtitle']} - S{infoLabels['season']:02}E{infoLabels['episode']:02} - {infoLabels['title']}"
     if _s.cr_nfo == 'true':
         CreateInfoFile(filename, ExportPath, nfoType, infoLabels, language)
 
@@ -74,7 +70,7 @@ def SaveFile(filename, data, isdir=None, mode='w'):
             xbmcvfs.mkdirs(_cleanName(isdir.strip(), isfile=False))
     filename = _cleanName(filename, isfile=False)
     with closing(xbmcvfs.File(filename, mode)) as outfile:
-        outfile.write(bytearray(py2_decode(data).encode('utf-8')))
+        outfile.write(bytearray(data.encode('utf-8')))
 
 
 def CreateDirectory(dir_path):
@@ -94,44 +90,44 @@ def CreateInfoFile(nfofile, path, content, Info, language, hasSubtitles=False):
     skip_keys = ('ishd', 'isadult', 'audiochannels', 'genre', 'cast', 'duration', 'asins', 'contentType', 'seriesasin', 'contenttype', 'mediatype',
                  'poster', 'isprime', 'seasonasin')
     fileinfo = '<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>\n'
-    fileinfo += '<%s>\n' % content
+    fileinfo += f'<{content}>\n'
     if 'Duration' in Info.keys():
-        fileinfo += '<runtime>%s</runtime>\n' % Info['Duration']
+        fileinfo += f"<runtime>{Info['Duration']}</runtime>\n"
     if 'Genre' in Info.keys():
         for genre in Info['genre'].split('/'):
-            fileinfo += '<genre>%s</genre>\n' % genre.strip()
+            fileinfo += f'<genre>{genre.strip()}</genre>\n'
     if 'Cast' in Info.keys():
         for actor in Info['Cast']:
             fileinfo += '<actor>\n'
-            fileinfo += '    <name>%s</name>\n' % actor.strip()
+            fileinfo += f'    <name>{actor.strip()}</name>\n'
             fileinfo += '</actor>\n'
     for key, value in Info.items():
         lkey = key.lower()
         if value:
             if lkey == 'tvshowtitle':
-                fileinfo += '<showtitle>%s</showtitle>\n' % value
+                fileinfo += f'<showtitle>{value}</showtitle>\n'
             elif lkey == 'premiered' and 'tvshowtitle' in Info:
-                fileinfo += '<aired>%s</aired>\n' % value
+                fileinfo += f'<aired>{value}</aired>\n'
             elif lkey == 'thumb':
                 aspect = '' if 'episode' in content else ' aspect="poster"'
-                fileinfo += '<%s%s>%s</%s>\n' % (lkey, aspect, value, lkey)
+                fileinfo += f'<{lkey}{aspect}>{value}</{lkey}>\n'
             elif lkey == 'fanart' and not 'episode' in content:
-                fileinfo += '<%s>\n    <thumb>%s</thumb>\n</%s>\n' % (lkey, value, lkey)
+                fileinfo += f'<{lkey}>\n    <thumb>{value}</thumb>\n</{lkey}>\n'
             elif lkey not in skip_keys:
-                fileinfo += '<%s>%s</%s>\n' % (lkey, value, lkey)
+                fileinfo += f'<{lkey}>{value}</{lkey}>\n'
 
     if content != 'tvshow':
         fileinfo += '<fileinfo>\n'
         fileinfo += '   <streamdetails>\n'
         if 'audiochannels' in Info:
             fileinfo += '       <audio>\n'
-            fileinfo += '           <channels>%s</channels>\n' % Info['audiochannels']
+            fileinfo += f"           <channels>{Info['audiochannels']}</channels>\n"
             fileinfo += '           <codec>aac</codec>\n'
             fileinfo += '       </audio>\n'
         fileinfo += '       <video>\n'
         fileinfo += '           <codec>h264</codec>\n'
         if 'duration' in Info:
-            fileinfo += '           <durationinseconds>%s</durationinseconds>\n' % Info['duration']
+            fileinfo += f"           <durationinseconds>{Info['duration']}</durationinseconds>\n"
         if 'isHD' in Info:
             if Info['isHD']:
                 fileinfo += '           <height>1080</height>\n'
@@ -140,12 +136,12 @@ def CreateInfoFile(nfofile, path, content, Info, language, hasSubtitles=False):
                 fileinfo += '           <height>480</height>\n'
                 fileinfo += '           <width>720</width>\n'
         if language:
-            fileinfo += '           <language>%s</language>\n' % language
+            fileinfo += f'           <language>{language}</language>\n'
         fileinfo += '           <scantype>Progressive</scantype>\n'
         fileinfo += '       </video>\n'
         fileinfo += '   </streamdetails>\n'
         fileinfo += '</fileinfo>\n'
-    fileinfo += '</%s>\n' % content
+    fileinfo += f'</{content}>\n'
 
     SaveFile(nfofile + '.nfo', fileinfo, path)
     return
@@ -155,7 +151,7 @@ def SetupAmazonLibrary():
     import xml.etree.ElementTree as et
     from contextlib import closing
     from .common import translatePath
-    source_path = py2_decode(translatePath('special://profile/sources.xml'))
+    source_path = translatePath('special://profile/sources.xml')
     source_added = False
     source_dict = {_s.ms_mov: _s.MOVIE_PATH, _s.ms_tv: _s.TV_SHOWS_PATH}
 

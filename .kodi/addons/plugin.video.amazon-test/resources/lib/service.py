@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
 import threading
 
-from kodi_six import xbmc, xbmcgui
+import xbmc, xbmcgui
 
 from .logging import Log
 from .configs import getConfig, writeConfig
@@ -22,8 +21,8 @@ class BackgroundService(xbmc.Monitor):
         self.wl_export = self._s.wl_export
         self.proxy = ProxyTCPD(self._s)
         writeConfig('loginlock', '')
-        writeConfig('proxyaddress', '127.0.0.1:{}'.format(self.proxy.port))
-        Log('Service: Proxy bound to {}'.format(self._s.proxyaddress))
+        writeConfig('proxyaddress', f'127.0.0.1:{self.proxy.port}')
+        Log(f'Service: Proxy bound to {self._s.proxyaddress}')
         self.proxy_thread = threading.Thread(target=self.proxy.serve_forever)
 
     def onSettingsChanged(self):

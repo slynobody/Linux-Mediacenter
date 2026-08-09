@@ -3,7 +3,7 @@ import time
 from base64 import b64decode
 
 import arrow
-from slyguy import plugin, gui, userdata, signals, inputstream
+from slyguy import plugin, gui, userdata, signals, inputstream, monitor
 from slyguy.exceptions import PluginError
 from slyguy.constants import KODI_VERSION, NO_RESUME_TAG, ROUTE_RESUME_TAG
 from slyguy.drm import is_wv_secure
@@ -77,8 +77,6 @@ def originals(**kwargs):
 
 
 def _deeplink_page(ref_id):
-    if not api.is_subscribed():
-        gui.ok(_.NOT_SUBSCRIBER)
     data = api.deeplink(ref_id=ref_id)
     page_id = _get_actions(data)[BROWSE]['pageId']
     data = api.page(page_id, limit=1, enhanced_limit=99)
@@ -190,9 +188,13 @@ def _get_actions(data):
         MODIFYSAVES: {},
         REMOVECONTINUEWATCHING: {},
         MODAL: {},
+        UPSELL: False,
     }
     for row in data.get('actions', []):
-        if row['type'] == 'browse':
+        if row['type'] == 'upsell':
+            actions = _get_actions(row)
+            actions[UPSELL] = True
+        elif row['type'] == 'browse':
             actions[BROWSE] = row
         elif row['type'] == 'playback':
             actions[PLAYBACK] = row
@@ -223,7 +225,6 @@ def _get_play_path(**kwargs):
 
 def _get_info(data):
     actions = _get_actions(data)
-
     containers = {
         EPISODES: {'seasons': []},
         SUGGESTED: {},
@@ -243,6 +244,8 @@ def _get_info(data):
     description = containers[DETAILS]['visuals'].get('description') or data['visuals'].get('description', {})
     plot = description.get('medium') or description.get('brief') or description.get('full')
     title = containers[DETAILS]['visuals'].get('title') or data['visuals'].get('title')
+    if actions[UPSELL]:
+        title = u'{} {}'.format(title, _(_.LOCKED, _bold=True, _color="red"))
 
     # only works for episodes as movies in list views dont give us the legacy id
     legacy_id = actions[PLAYBACK].get('legacyPartnerFeed', {}).get('dmcContentId') or actions[PLAYBACK].get('partnerFeed',{}).get('dmcContentId')
@@ -568,10 +571,11 @@ def play_trailer(deeplink_id, **kwargs):
                 manifest_type = 'hls',
                 mimetype = 'application/vnd.apple.mpegurl',
                 wv_secure = is_wv_secure(),
+                license_headers = _license_headers(),
             )
             playback_data = api.playback(info[ACTIONS][TRAILER]['resourceId'], item.inputstream.wv_secure)
             item.path = playback_data['stream']['sources'][0]['complete']['url']
-            item.headers = api.session.headers
+            item.headers = _manifest_headers()
 
         return item
 
@@ -718,6 +722,14 @@ def play(**kwargs):
     return _play(**kwargs)
 
 
+def _license_headers():
+    return api.session.headers
+
+
+def _manifest_headers():
+    return {'User-Agent': api.session.headers['User-Agent']}
+
+
 def _play(family_id=None, content_id=None, deeplink_id=None, channel_id=None, **kwargs):
     if KODI_VERSION > 18:
         ver_required = '2.6.0'
@@ -728,6 +740,7 @@ def _play(family_id=None, content_id=None, deeplink_id=None, channel_id=None, **
         manifest_type = 'hls',
         mimetype = 'application/vnd.apple.mpegurl',
         wv_secure = is_wv_secure(),
+        license_headers = _license_headers(),
     )
     if not ia.check() or not inputstream.require_version(ver_required):
         gui.ok(_(_.IA_VER_ERROR, kodi_ver=KODI_VERSION, ver_required=ver_required))
@@ -811,9 +824,13 @@ def _play(family_id=None, content_id=None, deeplink_id=None, channel_id=None, **
         playable = True,
         path = url,
         inputstream = ia,
-        headers = api.session.headers,
-        proxy_data = {'original_language': player_experience.get('originalLanguage') or ''},
+        headers = _manifest_headers(),
+        proxy_data = {
+            'original_language': player_experience.get('originalLanguage') or '',
+        },
     )
+    # On disney+ , when subs are disabled - it uses FORCED subs for whatever audio language you are in
+    # eg. En Audio -> en--forced. Es audio -> es-forced.
 
     item.play_skips = []
     milestones = playback_data['stream'].get('editorial', [])
@@ -870,8 +887,10 @@ def _play(family_id=None, content_id=None, deeplink_id=None, channel_id=None, **
 @plugin.route()
 def login(**kwargs):
     options = [
-        [_.EMAIL_PASSWORD, _email_password],
+       [_.EMAIL_PASSWORD, _email_password],
     ]
+    if KODI_VERSION >= 19: # Python3 only due to aes lib
+        options.insert(0, [_.DEVICE_CODE, _device_code])
 
     index = 0 if len(options) == 1 else gui.context_menu([x[0] for x in options])
     if index == -1 or not options[index][1]():
@@ -881,6 +900,20 @@ def login(**kwargs):
     gui.refresh()
 
 
+def _device_code():
+    timeout = 600
+    with api.device_login() as (code, ws):
+        with gui.progress_qr(DEVICE_CODE_URL, _(_.DEVICE_LINK_STEPS, code=code, url=DEVICE_CODE_URL), heading=_.DEVICE_CODE) as progress:
+            for i in range(timeout):
+                if progress.iscanceled() or not ws.is_alive() or monitor.waitForAbort(1):
+                    break
+
+                progress.update(int((i / float(timeout)) * 100))
+
+            ws.stop()
+            return ws.result
+
+
 def _email_password():
     email = gui.input(_.ASK_EMAIL, default=userdata.get('username', '')).strip()
     if not email:
@@ -888,7 +921,7 @@ def _email_password():
 
     userdata.set('username', email)
 
-    token = api.register_device()
+    token = api.register_device()[0]['token']['accessToken']
     next_step = api.check_email(email, token)
 
     if next_step.lower() == 'register':

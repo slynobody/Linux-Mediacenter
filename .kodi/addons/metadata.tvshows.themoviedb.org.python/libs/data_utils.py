@@ -87,16 +87,18 @@ def _set_cast(cast_info, vtag):
     """Save cast info to list item"""
     imagerooturl, previewrooturl = settings.loadBaseUrls()
     cast = []
-    for item in cast_info:
-        actor = {
-            'name': item['name'],
-            'role': item.get('character', item.get('character_name', '')),
-            'order': item['order'],
-        }
+    for order, item in enumerate(cast_info[:200], start=1):
+        roles = item.get('roles', [])
+        if roles:
+            role = roles[0].get('character', '')
+            actual_order = order
+        else:
+            role = item.get('character', '')
+            actual_order = item.get('order', order)
         thumb = None
         if safe_get(item, 'profile_path') is not None:
             thumb = imagerooturl + item['profile_path']
-        cast.append(Actor(actor['name'], actor['role'], actor['order'], thumb))
+        cast.append(Actor(item['name'], role, actual_order, thumb))
     vtag.setCast(cast)
 
 
@@ -213,10 +215,7 @@ def set_show_artwork(show_info, list_item):
             fanart_list = []
             for image in image_list:
                 theurl, previewurl = get_image_urls(image)
-                if image.get('iso_639_1') != None and SOURCE_SETTINGS["CATLANDSCAPE"] and theurl:
-                    vtag.addAvailableArtwork(
-                        theurl, arttype="landscape", preview=previewurl)
-                elif theurl:
+                if theurl:
                     fanart_list.append({'image': theurl})
             if fanart_list:
                 list_item.setAvailableFanart(fanart_list)
@@ -301,7 +300,12 @@ def add_main_show_info(list_item, show_info, full_info=True):
                 vtag.setTrailer(trailer)
         list_item = set_show_artwork(show_info, list_item)
         _add_season_info(show_info, vtag)
-        _set_cast(show_info['credits']['cast'], vtag)
+        cast = show_info.get('credits', {}).get('cast', [])
+        if cast:
+            _set_cast(cast, vtag)
+        else:
+            _set_cast(show_info.get(
+                'aggregate_credits', {}).get('cast', []), vtag)
         _set_rating(show_info, vtag)
     else:
         image = show_info.get('poster_path', '')

@@ -19,15 +19,19 @@ msgstr ""
 
 msgctxt "Addon Summary"
 msgid "Amazon Prime Video Streaming"
-msgstr ""
+msgstr "Amazon Prime Vídeo"
 
 msgctxt "Addon Description"
 msgid "Movies and Television Shows for Prime Members"
 msgstr "Filmes e Séries de TV para Membros Prime"
 
 msgctxt "Addon Disclaimer"
-msgid "Some parts of this addon may not be legal in your country of residence – please check with your local laws before installing."
-msgstr "Parte deste addon pode não ser legal no seu país de residencia. Por favor verifique as leis locais antes da instalação."
+msgid ""
+"Some parts of this addon may not be legal in your country of residence – "
+"please check with your local laws before installing."
+msgstr ""
+"Parte deste addon pode não ser legal no seu país de residencia. Por favor "
+"verifique as leis locais antes da instalação."
 
 msgctxt "#30001"
 msgid "Amazon Account"
@@ -51,7 +55,7 @@ msgstr "Audio descrição (desativa 5.1/7.1)"
 
 msgctxt "#30006"
 msgid "Widevine L1 certified device"
-msgstr ""
+msgstr "Dispositivo certificado Widevine L1"
 
 msgctxt "#30007"
 msgid "Remove Credentials and Cookie"
@@ -107,7 +111,7 @@ msgstr "Host preferido"
 
 msgctxt "#30020"
 msgid "Use H.265 Videocodec"
-msgstr ""
+msgstr "Use o codec de vídeo H.265."
 
 msgctxt "#30021"
 msgid "Language"
@@ -169,10 +173,9 @@ msgctxt "#30035"
 msgid "Enable Views"
 msgstr "Ativar Vistas"
 
-#, fuzzy
 msgctxt "#30036"
 msgid "Show Recently watched menu entry"
-msgstr "Vistos Recentemente"
+msgstr "Mostrar entrada do menu «Vistos recentemente»"
 
 # empty string with id 30036
 msgctxt "#30037"
@@ -226,23 +229,23 @@ msgstr "Detetar taxa de frames"
 
 msgctxt "#30050"
 msgid "Amazon"
-msgstr ""
+msgstr "Amazon"
 
 msgctxt "#30051"
 msgid "Load missing from TMDb"
-msgstr ""
+msgstr "Carregar dados em falta do TMDb"
 
 msgctxt "#30052"
 msgid "TMDb"
-msgstr ""
+msgstr "TMDb"
 
 msgctxt "#30053"
 msgid "Load missing from TVDb"
-msgstr ""
+msgstr "Carregar faltando do TVDb"
 
 msgctxt "#30054"
 msgid "TVDb"
-msgstr ""
+msgstr "TVDb"
 
 msgctxt "#30055"
 msgid "Show TV Show Fanart in Season and Episode Lists"
@@ -250,7 +253,7 @@ msgstr "Mostrar Fanart de Série na lista de Temporadas e Episódios"
 
 msgctxt "#30056"
 msgid "TVDb incl. Poster"
-msgstr ""
+msgstr "TVDb incl. Poster"
 
 msgctxt "#30057"
 msgid "Wait till PIN Input"
@@ -279,15 +282,18 @@ msgstr "Criar ficheiro de informação do vídeo"
 
 msgctxt "#30064"
 msgid "Mediasource Movie Title"
-msgstr ""
+msgstr "Fonte de mídia Título do filme"
 
 msgctxt "#30065"
 msgid "Mediasource TV Title"
-msgstr ""
+msgstr "Título da Mediasource TV"
 
 msgctxt "#30066"
-msgid "Send video progress to Amazon at least at percent played (0 to disable)"
+msgid ""
+"Send video progress to Amazon at least at percent played (0 to disable)"
 msgstr ""
+"Envie o progresso do vídeo para Amazon pelo menos na percentagem reproduzida"
+" (0 para desativar)"
 
 # empty strings from id 30066 to 30069
 msgctxt "#30070"
@@ -296,16 +302,15 @@ msgstr "Diversos"
 
 msgctxt "#30071"
 msgid "Show season overview immediately after selection"
-msgstr ""
+msgstr "Mostre a visão geral da temporada logo após a seleção."
 
 msgctxt "#30072"
 msgid "Verbose Logging"
-msgstr ""
+msgstr "Registo detalhado"
 
-#, fuzzy
 msgctxt "#30073"
 msgid "Color Paid/Prime Content"
-msgstr "Mostrar Conteúdo Pago"
+msgstr "Cor Conteúdo pago/Prime"
 
 msgctxt "#30074"
 msgid "Remote Control support"
@@ -389,31 +394,31 @@ msgstr "Ambos"
 
 msgctxt "#30093"
 msgid "Use Web API (requires restart)"
-msgstr ""
+msgstr "Use a API da Web (requer reinicialização)"
 
 msgctxt "#30094"
 msgid "Refer to PrimeVideo settings for more options"
-msgstr ""
+msgstr "Consulte Prime Configurações de vídeo para mais opções."
 
 msgctxt "#30095"
 msgid "Reset addon home page to default"
-msgstr ""
+msgstr "Redefinir a página inicial do complemento para o padrão"
 
 msgctxt "#30096"
 msgid "Load season/series infos in the background"
-msgstr ""
+msgstr "Carregue as informações da temporada/série em segundo plano."
 
 msgctxt "#30097"
 msgid "Download the info for all seasons"
-msgstr ""
+msgstr "Baixe as informações de todas as temporadas"
 
 msgctxt "#30098"
 msgid "Use new search with history"
-msgstr ""
+msgstr "Use a nova pesquisa com histórico"
 
 msgctxt "#30099"
 msgid "Hide trailers and extras in episode list"
-msgstr ""
+msgstr "Oculte trailers e extras na lista de episódios"
 
 # empty strings from id 30093 to 30099
 msgctxt "#30100"
@@ -422,7 +427,7 @@ msgstr "Biblioteca"
 
 msgctxt "#30101"
 msgid "Toggle Watched State"
-msgstr ""
+msgstr "Alternar estado de visualização"
 
 msgctxt "#30102"
 msgid "Force Fallback"
@@ -561,7 +566,7 @@ msgstr "Episódio"
 
 msgctxt "#30174"
 msgid "Event"
-msgstr ""
+msgstr "Evento"
 
 # empty strings from id 30174 to 30179
 msgctxt "#30180"
@@ -597,8 +602,12 @@ msgid "Source folders added/changed"
 msgstr "Pastas adicionadas/alteradas"
 
 msgctxt "#30188"
-msgid "To complete the setup restart Kodi and set the content type of added folders."
-msgstr "Para completar a instalação reinicie o Kodi e defina o tipo de conteúdo das pastas adicionadas."
+msgid ""
+"To complete the setup restart Kodi and set the content type of added "
+"folders."
+msgstr ""
+"Para completar a instalação reinicie o Kodi e defina o tipo de conteúdo das "
+"pastas adicionadas."
 
 # empty strings from id 30189 to 30190
 msgctxt "#30191"
@@ -623,11 +632,11 @@ msgstr "Saltar Cena…"
 
 msgctxt "#30196"
 msgid "Dump JSON replies"
-msgstr ""
+msgstr "Descarregar respostas JSON"
 
 msgctxt "#30197"
 msgid "Dump collisions"
-msgstr ""
+msgstr "Despejar colisões"
 
 msgctxt "#30198"
 msgid "Browser or Script not found. Please check settings."
@@ -635,7 +644,7 @@ msgstr "Navegador ou Script não encontrado. Verifique as definições."
 
 msgctxt "#30199"
 msgid "Raw"
-msgstr ""
+msgstr "Raw"
 
 msgctxt "#30200"
 msgid "Login Error"
@@ -690,8 +699,12 @@ msgid "Captcha Request, please change IP or try again later"
 msgstr "Pedido de Captcha. Altere o seu IP ou tente mais tarde"
 
 msgctxt "#30213"
-msgid "Unknown Error, please enable advanced debugging in settings, sign in again and check the login-*.log files from the {} folder."
+msgid ""
+"Unknown Error, please enable advanced debugging in settings, sign in again "
+"and check the login-*.log files from the {} folder."
 msgstr ""
+"Erro desconhecido, por favor, ative a depuração avançada nas configurações, "
+"inicie sessão novamente e verifique os ficheiros login-*.log na pasta {}."
 
 msgctxt "#30214"
 msgid "Wrong Code"
@@ -767,12 +780,16 @@ msgid "userinput.exe not found"
 msgstr "userinput.exe não encontrado"
 
 msgctxt "#30255"
-msgid "Please download it from GitHub and manually install it in the addon directory"
+msgid ""
+"Please download it from GitHub and manually install it in the addon "
+"directory"
 msgstr "Descarregue-o do GitHub e instale manualmente na pasta addon"
 
 msgctxt "#30256"
 msgid "Error: servers returned no content (check logs for more information)"
-msgstr "Erro: os servidores não devolveram conteúdo (verifique logs para mais informações)"
+msgstr ""
+"Erro: os servidores não devolveram conteúdo (verifique logs para mais "
+"informações)"
 
 msgctxt "#30257"
 msgid "Catalog cache expiration time"
@@ -816,57 +833,59 @@ msgstr "Credenciais inválidas. Inicie sessão novamente."
 
 msgctxt "#30267"
 msgid "Next page…"
-msgstr ""
+msgstr "Próxima página..."
 
 msgctxt "#30268"
 msgid "Refresh"
-msgstr ""
+msgstr "Atualizar"
 
 msgctxt "#30269"
 msgid "Not available, enable WebAPI to use this future"
-msgstr ""
+msgstr "Não disponível, habilite a WebAPI para usar esse recurso no futuro."
 
 msgctxt "#30270"
 msgid "No additional languages available"
-msgstr ""
+msgstr "Não há idiomas adicionais disponíveis."
 
 msgctxt "#30271"
 msgid "Set as default addon home page"
-msgstr ""
+msgstr "Definir como página inicial padrão do complemento"
 
 msgctxt "#30272"
 msgid ""
 "To use the Android data source and play 4K content on supported Android devices, this device must be registered with Amazon.\n"
 "To do this, the login with the Amazon credentials must be performed again in the addon."
 msgstr ""
+"Para usar a fonte de dados Android e reproduzir conteúdo 4K em dispositivos Android compatíveis, este dispositivo deve estar registado em Amazon.\n"
+"Para isso, o login com as credenciais Amazon deve ser feito novamente no addon."
 
 msgctxt "#30273"
 msgid "Data Source"
-msgstr ""
+msgstr "Fonte de dados"
 
 msgctxt "#30274"
 msgid "Log HTTP response content"
-msgstr ""
+msgstr "Registar o conteúdo da resposta HTTP"
 
 msgctxt "#30275"
 msgid "Create Logfiles archive"
-msgstr ""
+msgstr "Criar arquivo de logfiles"
 
 msgctxt "#30276"
 msgid "Clear Logfiles"
-msgstr ""
+msgstr "Limpar ficheiros de registo"
 
 msgctxt "#30277"
 msgid "Register device for 4K playback"
-msgstr ""
+msgstr "Regista o dispositivo para reprodução 4K"
 
 msgctxt "#30278"
 msgid "PrimeVideo error"
-msgstr ""
+msgstr "PrimeVideo Erro"
 
 msgctxt "#30279"
 msgid "Unable to find the navigation menu for {}.{}"
-msgstr ""
+msgstr "Não foi possível encontrar o menu de navegação para {}.{}"
 
 msgctxt "#30280"
 msgid ""
@@ -874,54 +893,101 @@ msgid ""
 "This error often occurs with primevideo users when the register device for 4K setting is enabled.\n"
 "Please disable this setting and log in again."
 msgstr ""
+"Este erro ocorre frequentemente com utilizadores do Prime Video quando a configuração de registo do dispositivo para 4K está ativada.\n"
+"Desative esta configuração e inicie sessão novamente."
 
 msgctxt "#30281"
 msgid "Archive created at {}"
-msgstr ""
+msgstr "Arquivo criado em {}"
 
 msgctxt "#30282"
 msgid "Search History"
-msgstr ""
+msgstr "Histórico de pesquisa"
 
 msgctxt "#30283"
 msgid "Remove Item"
-msgstr ""
+msgstr "Remover Item"
 
 msgctxt "#30284"
 msgid "Clear List"
-msgstr ""
+msgstr "Limpar lista"
 
-#, fuzzy
 msgctxt "#30285"
 msgid "Audio Languages"
-msgstr "Idioma"
+msgstr "Idiomas de áudio"
 
-#, fuzzy
 msgctxt "#30286"
 msgid "Subtitle Languages"
-msgstr "Idiomas Disponíveis:"
+msgstr "Idiomas das legendas"
 
 msgctxt "#30287"
 msgid ""
 "Unable to log in because an unsupported captcha is displayed.\n"
 "Either log in again or activate multi-factor authentication in the Amazon account."
 msgstr ""
+"Não é possível iniciar sessão porque é apresentado um captcha não suportado.\n"
+"Inicie sessão novamente ou ative a autenticação multifator na conta Amazon."
 
 msgctxt "#30288"
 msgid "Export not aired episodes"
-msgstr ""
+msgstr "Exportar episódios não transmitidos"
 
-# msgctxt "#30285"
-# msgid "Audio Languages"
-# msgstr "Idioma"
-# msgctxt "#30286"
-# msgid "Subtitle Languages"
-# msgstr "Idiomas Disponíveis:"
-#, fuzzy
-#~ msgctxt "#30006"
-#~ msgid "Store Credentials instead of using the Cookie?"
-#~ msgstr "Armazenar credenciais em vez de usar Cookie?"
+msgctxt "#30289"
+msgid "Filter"
+msgstr "Filtro"
 
-#~ msgctxt "#30071"
-#~ msgid "Display TV-Show instead of Seasons in Watchlist"
-#~ msgstr "Mostrar Série em vez de Temporada na Lista de Reprodução"
+msgctxt "#30290"
+msgid "Category"
+msgstr "Categoria"
+
+msgctxt "#30291"
+msgid "Display categories"
+msgstr "Exibir categorias"
+
+msgctxt "#30292"
+msgid "Color for paid content"
+msgstr "Cor para conteúdo pago"
+
+msgctxt "#30293"
+msgid "Color for Prime content"
+msgstr "Cor para o conteúdo Prime"
+
+msgctxt "#30294"
+msgid "Browser"
+msgstr "Navegador"
+
+msgctxt "#30295"
+msgid "UltraHD / 4K"
+msgstr "UltraHD / 4K"
+
+msgctxt "#30296"
+msgid "HDR10+"
+msgstr "HDR10+"
+
+msgctxt "#30297"
+msgid "Dolby Vision"
+msgstr "Dolby Vision"
+
+msgctxt "#30298"
+msgid "Dolby Atmos"
+msgstr "Dolby Atmos"
+
+msgctxt "#30299"
+msgid "View ID"
+msgstr "ID da visualização"
+
+msgctxt "#30300"
+msgid "Artwork"
+msgstr "Imagem"
+
+msgctxt "#30301"
+msgid "Parameter ({u} - URL / {f} - Framerate)"
+msgstr "Parameter ({u} - URL / {f} - Framerate)"
+
+msgctxt "#30302"
+msgid "Region"
+msgstr "Região"
+
+msgctxt "#30303"
+msgid "Log"
+msgstr "Log"

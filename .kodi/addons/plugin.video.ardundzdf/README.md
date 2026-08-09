@@ -4,22 +4,22 @@ Kodi-Addon-ARDundZDF
 Addon für Kodi / XBMC (Kodi-Version von Plex-Plugin ARDundZDF).<br>
 Ab Version 2.2.5 für Kodi-Krypton, -Leia, -Matrix und -Nexus  geeignet (Python2- / Python3-kompatibel).<br>
 Mit Inhalten der Mediatheken von ARD und ZDF, 3Sat, funk, phoenix, KIKA und ZDFtivi, tageschau.de, Arte-Kategorien,
-einschließlich Live-TV mit Aufnahmefunktion (ffmpeg erforderlich), Live-Radio, Podcasts.<br>
+einschließlich Live-TV mit Aufnahmefunktion (ffmpeg erforderlich), Live-Radio, ARD Sounds.<br>
 
 Download aktuelle Version: https://github.com/rols1/Kodi-Addon-ARDundZDF/releases/latest
-![Downloads](https://img.shields.io/github/downloads/rols1/Kodi-Addon-ARDundZDF/total.svg "Downloads")
-<b>(Kodi Matrix)</b> oder [kodinerds-Repo](https://repo.kodinerds.net) <b>(Kodi-Krypton, -Leia, -Matrix und -Nexus)</b> - siehe INSTALLATION.
-
+<b>(Kodi Matrix)</b> oder [kodinerds-Repo](https://repo.kodinerds.net) <b>(Kodi-Krypton, -Leia, -Matrix und -Nexus)</b> - siehe INSTALLATION.<br>
+![Downloads](https://img.shields.io/github/downloads/rols1/Kodi-Addon-ARDundZDF/Kodi-Addon-ARDundZDF.zip
+ "Downloads")<br>
 Plex hat die Unterstützung für Plugins in seinen Client-Softwarepaketen eingestellt. Die Repos für die Plex-Versionen [Plex-Plugin-ARDMediathek2016](https://github.com/rols1/Plex-Plugin-ARDMediathek2016) und [ARDundZDF](https://github.com/rols1/ARDundZDF) habe ich im März 2022 gelöscht (dto. FlickrExplorer, TuneIn2017, Shoutcast2017).<br>
 
 <b>Classic-Version der ARD Mediathek</b>: seit Juni 2021 sind die Classic-Links nicht mehr erreichbar. Der Code im Addon wurde entfernt; im Addon ist das Menü <b>ARD Mediathek Neu</b> voreingestellt (Details siehe Funktionen).<br>
-Die Radio-Podcasts der Classic-Version wurden durch die neue Audiothek abgelöst.<br>
+Die Radio-Podcasts der Classic-Version wurden durch die neue Audiothek, jetzt ARD Sounds, abgelöst.<br>
 
 #### Rückmeldungen willkommen:
 Im Forum: https://www.kodinerds.net/index.php/Thread/64244-RELEASE-Kodi-Addon-ARDundZDF/  
 direkt: rols1@gmx.de 
 
-#### statt Handbuch: [Einstellungen des Addons - Wicki](https://github.com/rols1/Kodi-Addon-ARDundZDF/wiki)
+#### statt Handbuch: [Einstellungen des Addons - Wiki](https://github.com/rols1/Kodi-Addon-ARDundZDF/wiki)
   
 Funktionen: 
 ===================
@@ -30,27 +30,28 @@ Funktionen:
 - Suche nach Sendungen
 - Startseite (wie Webseite)
 - ARD Mediathek RETRO
-- ARD Mediathek Entdecken
-- Livestreams
+- Unsere Region
+- ARD Livestreams
 - Sendung Verpasst
 - Sendungen A-Z
+- Rubriken
 - ARD Sport
 - ARD sportschau.de (WDR)
 - Barrierearm
-- Bildgalerien Das Erste
+- Teletext
 - Senderwahl
 
 #### ZDF Mediathek: 
-- Suche nach Sendungen
+- Suche in ZDF-Mediathek
 - Startseite (wie Webseite)
-- ZDF-funk (https://www.zdf.de/funk)
-- Sendung Verpasst (Sendungen der letzten 7 Tage)
+- [ZDF-funk](https://www.zdf.de/funk)
+- Sendung Verpasst
 - Sendungen A-Z
+- <b>Kategorien neu</b> seit ZDF-Relaunch am 17.03.2025
 - Rubriken
 - ZDF-sportstudio
 - Barrierearm (Hörfassungen, Untertitel, Gebärdensprache)
-- ZDFinternational
-- Bilderserien
+- Teletext
 
 #### 3Sat Mediathek:
 - Suche nach Sendungen
@@ -62,15 +63,14 @@ Funktionen:
 - Rubriken
 - Bildgalerien 3sat
 
-#### ARD-Audiothek:
+#### ARD Sounds (ehemalige ARD-Audiothek):
 - Suche
 - Livestreams, einschl. ARD Audio Event Streams, Audio- und Netcastaudio-Streams der sportschau.de
 - Entdecken (wie Webseite)
 - Rubriken
-- Sport
+- Sportschau
 - Sender (Sendungen einzelner Radiosender)
 - funk: Das Content-Netzwerk von ARD und ZDF
-- Podcasts der Platform www.podcast.de
 
 
 #### TV-Live-Streams mit Aufnahmefunktion: 
@@ -78,13 +78,13 @@ Funktionen:
 - für die Aufnahmefunktion (mit oder ohne EPG) ist eine [ffmpeg-Installation](https://ffmpeg.org/download.html) erforderlich 
 
 #### Radio-Live-Streams der ARD:
-- alle Radiosender von Bayern, HR, mdr, NDR, Radio Bremen, RBB, SR, SWR, WDR, Deutschlandfunk. Insgesamt 10 Stationen, 65 Sender plus regionale Sender (z.B. hr1-Rhein-Main, -Südhessen, -Osthessen, -Nordhessen, -Mittelhessen) 
+- alle Radiosender von Bayern, HR, mdr, NDR, Radio Bremen, RBB, SR, SWR, WDR, Deutschlandfunk. Insgesamt 10 Stationen, 65 Sender plus regionale Sender (z.B. hr1-Rhein-Main, -Südhessen, -Osthessen, -Nordhessen, -Mittelhessen). Aktuelles Radio-Programm via Kontextmenü.
  
 #### Videobehandlung (Setting: Sofortstart AUS):
 - Livestreams: Auflistung der verfügbaren Angebote an Bandbreiten + Auflösungen (falls verfügbar: Audio ohne Video)
-- Videoclips: Auflistung der verfügbaren Angebote an Qualitätstufen sowie zusätzlich verfügbarer Videoformate (Bsp. UHD) 
+- Videos: Auflistung der verfügbaren Angebote an Qualitätstufen sowie zusätzlich verfügbarer Videoformate (Bsp. UHD) 
 
-#### [Downloadoption (ab Version 2.6.8 ohne cURL/wget)](https://github.com/rols1/Kodi-Addon-ARDundZDF/wiki/03.-Settings-Download)
+#### [Downloadoption](https://github.com/rols1/Kodi-Addon-ARDundZDF/wiki/03.-Settings-Download)
 - Download von Videos im ARD-Bereich
 - Download von Videos im ZDF-Bereich
 - Download von Videos in den Modulen arte, 3Sat, TagesschauXL, phoenix, Kinderprogramme
@@ -93,12 +93,12 @@ Funktionen:
 #### [Addon-Tools](https://github.com/rols1/Kodi-Addon-ARDundZDF/wiki/11.-Tools-Modul) - gekürzte Liste
 - [Änderungsliste: Addon-Infos mit Angaben zum System, Cache, zu Dateipfaden und Modulen](https://github.com/rols1/Kodi-Addon-ARDundZDF/wiki/11.-Tools-Modul#1-%C3%A4nderungsliste)
 - ["Zuletzt gesehen"-Liste](https://github.com/rols1/Kodi-Addon-ARDundZDF/wiki/11.-Tools-Modul#3-zuletzt-gesehen)
-- [Tools zum Bearbeiten von Ausschluss-Filtern (ARD, ZDF)](https://github.com/rols1/Kodi-Addon-ARDundZDF/wiki/11.-Tools-Modul#4-filter-bearbeiten)
+- [Tool zum Bearbeiten von Ausschluss-Filtern (ARD, ZDF)](https://github.com/rols1/Kodi-Addon-ARDundZDF/wiki/11.-Tools-Modul#4-filter-bearbeiten)
 - [Bereinigung der Merkliste](https://github.com/rols1/Kodi-Addon-ARDundZDF/wiki/11.-Tools-Modul#5-merkliste-bereinigen)
-- [Tools zum Bearbeiten von Suchwörtern (ARD, ZDF)](https://github.com/rols1/Kodi-Addon-ARDundZDF/wiki/11.-Tools-Modul#6-suchw%C3%B6rter-bearbeiten)
-- [Tools zum Bearbeiten des Download-Verzeichnisses (Verzeichnisse festlegen, Verschieben, Löschen)](https://github.com/rols1/Kodi-Addon-ARDundZDF/wiki/11.-Tools-Modul#7-download--und-aufnahme-tools)
-- [Tools zum Bearbeiten von strm-Listen für Serien (ARD, ZDF), einschl. autom. Überwachung im Hintergrund](https://github.com/rols1/Kodi-Addon-ARDundZDF/wiki/11.-Tools-Modul#8-strm-tools)
-- [Tools zum Bearbeiten der addon-internen Playlist](https://github.com/rols1/Kodi-Addon-ARDundZDF/wiki/11.-Tools-Modul#9-playlist-tools)
+- [Tool zum Bearbeiten von Suchwörtern (ARD, ZDF)](https://github.com/rols1/Kodi-Addon-ARDundZDF/wiki/11.-Tools-Modul#6-suchw%C3%B6rter-bearbeiten)
+- [Tool zum Bearbeiten des Download-Verzeichnisses (Verzeichnisse festlegen, Verschieben, Löschen)](https://github.com/rols1/Kodi-Addon-ARDundZDF/wiki/11.-Tools-Modul#7-download--und-aufnahme-tools)
+- [Tool zum Bearbeiten von strm-Listen für Serien (ARD, ZDF), einschl. autom. Überwachung im Hintergrund](https://github.com/rols1/Kodi-Addon-ARDundZDF/wiki/11.-Tools-Modul#8-strm-tools)
+- [Tool zum Bearbeiten der addon-internen Playlist](https://github.com/rols1/Kodi-Addon-ARDundZDF/wiki/11.-Tools-Modul#9-playlist-tools)
 - [Kodis Thumbnails-Ordner bereinigen](https://github.com/rols1/Kodi-Addon-ARDundZDF/wiki/11.-Tools-Modul#10-kodis-thumbnails-ordner-bereinigen)
 - [Settings inputstream.adaptive-Addon öffnen (Bandbreite, Auflösung und weitere Einstellungen)](https://github.com/rols1/Kodi-Addon-ARDundZDF/wiki/11.-Tools-Modul#11-settings-inputstreamadaptive-addon)
 - [Einzelupdate für einzelne Dateien und Module im Addon - siehe auch Updates](https://github.com/rols1/Kodi-Addon-ARDundZDF/wiki/11.-Tools-Modul#12-einzelupdate-einzelne-dateien-und-module)
@@ -110,12 +110,10 @@ Funktionen:
 
 #### Updates
 - entweder mit dem integrierten <b>Updatemodul (autom. Anpassung an Kodi-Version)</b> oder via <b>kodinerds-Repo</b>
-- Updates einzelner Bestandteile des  Addons (Einzelupdate) zwischen den regulären  Updates - Näheres siehe [Startpost im kodinerds-Forum](https://www.kodinerds.net/index.php/Thread/64244-RELEASE-Kodi-Addon-ARDundZDF/?postID=502022#post502022) 
+- <b>Einzelupdates</b>: Updates einzelner Bestandteile des  Addons zwischen den regulären  Updates - Näheres siehe [Startpost im kodinerds-Forum](https://www.kodinerds.net/index.php/Thread/64244-RELEASE-Kodi-Addon-ARDundZDF/?postID=502022#post502022) 
 
 #### weitere Module (optional)
-- ~~ZDFmobile~~ - entfernt ab Juni 2023 (obsolet)
 - 3Sat
-- ~~funk~~ - entfernt ab Mai 2023 (Videos in ZDF-funk, Podcasts in der ARD-Audiothek verfügbar)
 - Kinderprogramme (KIKA, ZDFtivi, MausLive u.a.)
 - TagesschauXL (https://www.tagesschau.de/ und https://www.ardmediathek.de/tagesschau24)
 - phoenix (https://www.phoenix.de/ und https://www.ardmediathek.de/phoenix)
@@ -123,25 +121,27 @@ Funktionen:
 - [Zuletzt gesehen-Funktion](https://github.com/rols1/Kodi-Addon-ARDundZDF/wiki/11.-Tools-Modul#3-zuletzt-gesehen) (im Tools-Menü)
 - [Video-Playlist](https://github.com/rols1/Kodi-Addon-ARDundZDF/wiki/10.-PLAYLIST-Modul) einschl. Archiv-Funktion (im Tools-Menü)
 - [strm-Modul](https://github.com/rols1/Kodi-Addon-ARDundZDF/wiki/09.-strm-Modul), einschließlich Serien-Überwachung
-- [Suche im Datenbestand von MediathekView](https://github.com/rols1/Kodi-Addon-ARDundZDF/wiki/01.-Settings---Allgemein#10-mediathekviewweb-suche-verwenden) (s. Credits)
+- [Suche in der Filmliste von MediathekView via mediathekviewweb.de](https://github.com/rols1/Kodi-Addon-ARDundZDF/wiki/01.-Settings---Allgemein#10-mediathekviewweb-suche-verwenden) (s. Credits)
 
 
 INSTALLATION:
 ===================  
-### Hinweis für ältere Kodi-Versionen (Leia, Krypton): für die Erstinstallation muss die [Krypton-Version](https://repo.kodinerds.net/index.php?action=list&scope=all&version=krypton/) auf kodinerds.net verwendet werden. Dies gilt auch für ein Downgrade einer Kodi-Matrix-Version zu Leia, Krypton.
+### Hinweis für ältere Kodi-Versionen (Leia, Krypton): für die Erstinstallation muss die [Krypton-Version](https://repo.kodinerds.net/index.php?action=list&scope=all&version=krypton/) auf kodinerds.net verwendet werden. Dies gilt auch für ein Downgrade einer Kodi-Matrix-Version zu Leia, Krypton.<br>
+### Achtung: der Support für Leia und Krypton läuft in 2026 aus!
+
 
 - <b>Nexus-Version:</b> Download der aktuellen zip-Datei ARDundZDF im [kodinerds-Repo, im Tab Kodi-Version Kodi 20 (Nexus) auswählen](https://repo.kodinerds.net/index.php?action=list&scope=all&version=nexus/) 
 - <b>Matrix-Version:</b>Download der zip-Datei [aktuelles Release](https://github.com/rols1/Kodi-Addon-ARDundZDF/releases/latest) oder Download der aktuellen zip-Datei ARDundZDF im [kodinerds-Repo, im Tab Kodi-Version Kodi 19 (Matrix) auswählen](https://repo.kodinerds.net/index.php?action=list&scope=all&version=matrix/)
 - <b>Leia-Version:</b> Download der aktuellen zip-Datei ARDundZDF im [kodinerds-Repo, im Tab Kodi-Version Kodi 17 (Krypton) auswählen](https://repo.kodinerds.net/index.php?action=list&scope=all&version=krypton/) 
 - zip-Datei mittels Kodi-Menü Addons/Addon-Browser installieren
 - nur falls die Abhängigkeit zum Modul kodi-six bemängelt wird: Download und Installation des Moduls [script.module.kodi-six.zip](https://github.com/romanvm/kodi.six/releases)
-- Addon öffen und Addon-Einstellungen anpassen
+- Addon öffen und Addon-Einstellungen nach eigenem Bedarf anpassen
 - [Empfehlenswert: Kodi Anleitung & Beschreibung von Rene8001](https://www.kodinerds.net/index.php/Thread/47479-Hilfe-f%C3%BCr-Neulinge-Kodi-Anleitung-Einstellungen-GooglePlay-FireTV/?pageNo=1)
 
 SUPPORT:
 =================== 
-Um die Community des <b>[kodinerds-Forums](https://www.kodinerds.net/)</b> zu beteiligen, bitte vorrangig den <b>[Support-Thread des Addons](https://www.kodinerds.net/thread/64244-release-kodi-addon-ardundzdf/)</b> verwenden.<br>
-Der <b>[Startpost](https://www.kodinerds.net/thread/64244-release-kodi-addon-ardundzdf/?pageNo=1#post502022)</b> enthält Hinweise zum nächsten Update und zu geänderten Dateien des Addons, die als Einzelupdate mit dem Addon-Tool <b>Infos+Tools -> Einzelupdate..</b> bereits vor dem regulären Update installiert werden können.
+Um die Community des <b>[kodinerds-Forums](https://www.kodinerds.net/)</b> an Problemlösungen zu beteiligen, bitte vorrangig den <b>[Support-Thread des Addons](https://www.kodinerds.net/thread/64244-release-kodi-addon-ardundzdf/)</b> verwenden.<br>
+Der <b>[Startpost](https://www.kodinerds.net/thread/64244-release-kodi-addon-ardundzdf/?pageNo=1#post502022)</b> enthält Hinweise zum nächsten Update und zu geänderten Dateien des Addons. Letztere können als Einzelupdate mit dem Addon-Tool <b>Infos+Tools -> Einzelupdate..</b> bereits vor dem nächsten regulären Update installiert werden.
 
 
 Credits:

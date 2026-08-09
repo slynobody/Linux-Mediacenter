@@ -10,6 +10,768 @@ CHANGE HISTORY
 			max_col 97	
 --------------
 
+19.07.2026	5.5.2
+			KiKA_AZ (childs): Verzicht auf nicht benötigten key coreAssetType (Error
+			bei Buchstaben w,u,t,s,o,f,e,d,c).
+			Modul childs: Videos mit Hörfassung und Gebärdensprache ergänzt für
+			KiKA und Kikaninchen, Menüanpassungen, neue Funktionen KiKA_Barrierearm,
+			KiKA_get_ackley_json, Kika_SingleBeitrag, Kika_VideoMP4get. 
+			KikaninchenLieder (childs): Cache (1 Std.) ergänzt, obsolete Funktionen
+			Kikaninchen_VideoSingle und Kika_VideoMP4getXML entfernt, dafür Nutzung
+			Kika_SingleBeitrag.
+
+			ARD_KatSeriePre: Abzweig zu ZDF_KatSeriePre ergänzt, falls Serien-Link zu
+			ARD-Serie/-Trailer fehlt, einschl. try-except-Block.
+			ARD SendungenAZ: Blockmuster "urlId" gegen "self" getauscht (ARD-Änderung).
+			get_json_content (ARDnew): externe Web-Retro-Verweise ausgefiltert, z.B.
+			www.ardsounds.de/rubrik/ard-retro-110, Satzzähler vor skippings verlagert.
+			AudioStart, AudioStartHome (ARD Sounds): Rubrik "ARD Retro" im Menü ergänzt
+			(wie Sportschau).
+			ARDStart: Retro-Liste mit Button für Retro-Rubrik in ARD Sounds ergänzt.
+			ARDSportWDR: Event-Menü "Tour de France 2026" ergänzt, Aktualisierung
+			Event-Buttons (neu: Die Finals 2026).
+
+			ZDF_Start: in Cluster-Listen die Kennzeichnung "1. Beitrag:" im Titel 
+			ergänzt, falls Cluster-Titel selbst fehlt.
+			ZDF_RubrikSingle: Param homeID="" ergänzt (für alte  Merklisteneinträge).
+			ArteCluster (arte): Umsetzung auf HBBTV-Links für Weblinks ermöglicht (für
+			Folgebeiträge bei Suchergebnissen erforderlich). 
+			SearchWordWork (tools): Schreibweise max_len korrigiert (richtig: MAX_LEN),
+			Option "alle Suchwörter löschen" hinzugefügt.
+			AudioWebMP3 (ARD Sounds): zusätzl. Button für Sendung, falls für den Audiobeitrag ein
+			Podcast (programSet) gefunden wird.
+			XL_Live (TagesschauXL): Anpassung an geänderte Webseite (mediaplayer-
+			Kennung geändert), Nutzung von get_content_json.
+	
+28.06.2026	5.5.1		
+			ARD_KatSeriePre (ARDnew): Fix mediatype (kein String) bei Trailern.
+			Context (tools): Url-Korrektur bei ZDF-Serien-Videos (Bsp. Trailer).
+			AudioGraphql: Funktion neu für Livestreams (MP3, master.m3u8), pubDate
+			in Audio_get_cluster_items ergänzt.
+			AudioWebMP3: direkter Playerstart für vorliegende MP3-Url, indirekter Start
+			für Beiträge mit Web-Url (hier fehlte der Download via Kontext-Menü).
+			ZDF_Graphql: überflüssigen try-/except-Block entfernt.
+			EPG_Today (arte): Ausgabeformat Datum/Uhrzeit an Api-Änderung angepasst,
+			now_check mit Startdatum nächster Satz (Dauer unzureichend), Sicherung
+			gegen duration=null.
+			time_translate (util): Rückgabeformat variabel für arte (Param ret_format).
+			time_calc_now (util): jetzt time_calc_now, gibt nur noch die mit duration
+			addierte Startzeit zurück, früherer now_check für arte ->  time_calc_diff.
+			SendungenDatum (my3Sat): unescape tag (&), im Internet nicht verfügbare 
+			Sendungen mit dummy-Funktion gelistet.
+			ZDF_VerpasstWoche: Call tivi_Verpasst entfernt (weggefallen am 29.01.2026).
+			ZDF_Verpasst_Datum: Funktion entfernt - manuelle Eingabe paste nicht zu
+			Graphql-Nutzung mit Start-/End-Datum.
+			Modul childs: KiKA-KiKANINCHEN-Bereiche nach Abschaltung kika-Api erneuert,
+			Nutzung ARD-HBBTV und ARD-Api, Watchdog_ZDF_Childs.py aktualisiert.
+
+14.06.2026	5.5.0			
+			ZDF_get_content: router-inkompatible Zeichen aus tag entfernt.
+			ZDF_getApiStreams: HLS-Stream detektiert für ".m3u8"-Kennung innerhalb der
+			Url (statt am Url-Ende).
+			ZDF_getHBBTV_content: Setting pref_load_summary für Videos ("Videos" und 
+			"MovieSmartCollection") berücksichtigt für Inhaltstext und "Verfügbar bis",
+			Zielfunktion ZDF_KatSub für "MetaCollection" ergänzt.
+			get_summary_pre (util): Auswertung "Verfügbar bis" ergänzt.
+			ZDF_Search: Switch von futura-Api zu HBBTV, Nutzung ZDF_getHBBTV_content,
+			Anpassung ZDF-Code in SearchARDundZDFnew.
+			ZDF_search_button: entfernt, obsolet durch Kategorien mit Empfehlungen,
+			Anpassung ZDF_RubrikSingle.
+			Main_ZDFfunk: für Startseite Switch von futura-Api zu Graphql (ZDF_KatSub).
+			ZDF_AZ, ZDF_AZList, ZDF_Graphql_WebDetails: Anpassungen für ZDFfunk zur 
+			Graphql-Nutzung.
+			ZDF_AZList_funk: entfernt, nicht mehr benötigt durch Graphql-Nutzung.
+			ZDF_KatSerieExtras: Trailer-Auswertung erweitert (ohne eigenes Image).
+			ZDF_getHBBTV_content: homeID (ZDF) für ZDF_Start-Call ergänzt (Router-
+			Error), Fallback-Image ergänzt.
+			ZDF_RubrikSingle: Code für ZDF-A-Z entfernt (umgestellt auf Graphql).
+			Main_ZDF: Menü ZDF-Sportstudio umgestellt auf HBBTV.
+			ZDF_Kat: Umleitungen HBBTV (ZDF-Sportstudio, Barrierefreie Inhalte,
+			Nachrichten), Umleitung ZDF_AZ -> ZDF_AZList (Graphql).
+			ZDF_getLivestreams: neu für Menü Livestreams in Main_ZDF, Nutzung
+			Cache get_ZDFstreamlinks (angepasst für lokale Icons, phoenix, arte).
+			ZDF_Barrierearm: umgestellt auf HBBTV wie Barrierefreie in ZDF_Kat.
+			Tivi_Search (Modul childs): Tivi_Search entfernt (wie ZDF-Web und HBBTV).
+			Tivi_AZ_Sendungen (Modul childs): Umstellung auf Graphql, Anpassung 
+			ZDF_AZList.
+			tivi_ZDFchen (Modul childs): Umstellung auf HBBTV -> ZDF_Start.
+			ZDF_KatNachrichten: gelöscht (obsolet).
+			ZDF_get_navi: gelöscht (obsolet).
+			ZDF_PageMenu: gelöscht (obsolet).
+			ZDF_Rubriken: gelöscht (obsolet).
+			ZDF_Live: gelöscht (obsolet).
+			strm_sync (strm): "cdn" als Kennung für futura-api-Url aktualisiert durch
+			"prod-futura".
+			arte-Modul: Api-Änderung im EPG-Link und Datenformat(www.arte.tv/api -> 
+			api.arte.tv/api, json-key value entfallen), Anpassungen in EPG_Today, 
+			Arte_Search, Beitrag_Liste, GetContent, 
+			seconds_translate (util): Kennzeichnung Rückgabe "Std." bzw. "Sek.".
+			thread_getfile: Bestätigungsdialog beim MP3-Download abgeschaltet bei nur
+			1 Datei.
+			Context (tools): Url-Anpassung für ARD-Serienerkennung (item -> grouping).			
+
+01.06.2026	5.4.9
+			ZDF_Graphql_WebDetails: getpage-Absatz versetzt, um die Ablage der Header-
+			Params im Dict bei jeden Webabruf zu ermöglichen.
+			ZDF_Episodes_Graphql: entfernt, nicht mehr benötigt. Sie diente dem Abgleich
+			der Episodenlisten futura-api vs. Graphql-api.
+			ZDF_Recommendation: Nutzung zentrale Graphql-Funktion ZDF_Graphql, Tests mit
+			Änderungen in abGroup und userSegment erfolglos für andere Cluster.
+			ZDF_Verpasst_Datum: Nutzung zentrale Graphql-Funktion ZDF_Graphql.
+			ZDF-Startseite: neu, Nutzung HBBTV-Api, neue Funktion ZDF_getHBBTV_content,
+			Wegfall ZDF_StartWebCluster, Anpassung ZDF_PageMenu (-> ZDF_Start2 statt
+			ZDF_StartWebCluster), Button "Terra X plus Schule" -> "ZDF goes Schule".
+			Main_ZDFfunk, Main_TIVI: für Startseite Direktaufruf ZDF_PageMenu (früher 
+			ZDF_Start).
+			ZDF_KatSeriePre: description + visibleTo ergänzt falls Video statt Serie.
+			ZDF_getApiStreams: Endung index.m3u8 für HLS-Streams ergänzt (zu master.m3u8).
+			Context (tools): Berücksichtigung www.zdf.de aus ZDF_getHBBTV_content zusätzl. 
+			zu futura-api für Suche nach Serie.
+			Parseplaylist: NameOld entfernt (ersetzt durch BandwithOld).
+
+25.05.2026	5.4.8
+			get_VideoAudio (TagesschauXL): mediatype=music ergänzt für MP3-Downloads
+			via Kontext-Menü.
+			get_json_content (ARDnew): überzähligen Doppelpunkt nach TOP entfernt.
+			home (util): Hinweis auf Auslaufen des Supports in 2026 für Leia, Krypton.
+			ARD_KatSeriePre: für Empfehlungs-Suche Fallback-img ergänzt und Titel-Müll
+			(z.B. " | Alle Folgen") gelöscht. Anpassung für abweichende widgets-/teasers-
+			Liste für HR3-Serie.
+			ARDStartRubrik: Serienerkennung neben heroImage zusätzlich abhängig gemacht
+			von '"coreAssetType":"SEASON_SERIES"'.
+			ARDStartRubrik: Notification für im Addon geblockten "ARD Plus"-Link.
+			ARDRubriken: Kennzeichnung "ard_plus_banner" in typ für ARDStartRubrik.
+			InfoAndFilter: in Button Einzelupdate router-inkompatible Zeichen aus Info-
+			Text entfernt.
+			Main_ZDF: Rubriken entfernt, durch Kategorien obsolet.
+			ZDF_Graphql: apollo-Version aktualisiert von  4.0.11 auf 4.1.6.
+			ZDF_AZList: Nutzung zentrale Graphql-Funktion ZDF_Graphql, Code gestrafft,
+			Folgeaufrufe via Param endCursor. Für Funk neue Funktion ZDF_AZList_funk.
+			ZDF_KatSub, ZDF_KatSerie: Nutzung zentrale Graphql-Funktion ZDF_Graphql wie 
+			ZDF_AZList.
+			ZDF_Graphql_Video: entfernt, seit Dez. 2025 nicht mehr genutzt.
+			ZDF_Graphql_WebDetails: Anzahl 1 für ptmdTemplate berücksichtigt.
+			addDir (util): "Serie zum Video zeigen" -> "Serie zum Video suchen".
+			monitor_resume (util): Ausschluss Videolänge < 120 sec (relevant für 
+			Zuletzt-gesehen-Liste. Kurze Trailer mit Laderad, Stop nicht möglich.
+
+16.05.2026	5.4.7
+			Audio_get_cluster: router-kompatible Behandlung für Titel (repl_json_chars).
+			ARDSportMediaPlayer: fehlenden Image-Url-Bestandteil (AAABnSSvrFg) in Player-
+			Daten ergänzt, Bildauswahl geändert.
+			ARDSportNetcastAudios: Notification ergänzt bei fehlenden Daten für Buttons
+			"..Alle Spiele im DFB Pokal" und "..Audiostreams aus der Champions League".
+			ARDStartRubrik: Serienerkennung an fehlendes heroImage angepasst.
+			Context (tools): Anpassung an ARD-Änderungen (path "&seasoned=true" direkt
+			geladen, Ersatz base64_id durch show_id).
+			addDir (util): Param-Reihenfolge in fparams_ShowSeason an Context angepasst.
+			EPG_Today (arte): Startzeit und JETZT-Marke an arte-Änderung angepasst (json-
+			key jetzt "upcomingDate"). Neue Funktion time_calc_now in util.
+			Einzelupdates: Pfad zu resources/lib erst in update_single ermitteln, für die 
+			Nutzung aus externer Merkliste auf verschiedenen Systemen (Linux, Android,
+			Windows). Anpassung Button Einzelupdate, Funktion EPG.update_single.
+			Kontextmenü ARD Sounds: MP3-Downloads ermöglicht. Änderungen in util.addDir 
+			(fparams_GetMP3), tools.Context (Generierung Params), Podcontent (neue 
+			Funktion DownloadStart).
+			Main_childs: Anpassung Button "Hörspaß für Kinder" an akt. ARD Sounds.
+			Modul childs: obsolete Funktionen entfernt (Kiraka, Kiraka_pods, 
+			Kiraka_klick, Kiraka_shows, Kiraka_get_mp3) - Inhalte in anderen Menüs 
+			mit Anbindung an ARD Sounds enthalten.
+
+10.05.2026	5.4.6
+			Main_ZDF: neuer Button Livestreams im ZDF-Hauptmenü.
+			N24LastServer: Funktion entfernt (obsolet).
+			Haupt-PRG: Notification für Router-Error ergänzt.
+			ZDF_Teletext, ARD_Teletext: Seitenübersichten aktualisiert.
+			get_streams_api_v2 (arte): fehlende Vorbelegung Param uhd ergänzt.
+			ARDStartVideoHLSget,ARDStartVideoMP4get (ARDnew): merged Pull-Request
+			#59 Bugfix Audiodeskription.
+			ARDSportLiga3: Ausgabe stream_source korrigiert (Error bool + string).
+			get_content_json (TagesschauXL): Call seconds_translate korrigiert.
+			get_json_content_details (ARDnew): für FSK "NONE" ersetzt durch "--".
+			ARDSportLive: zweite Listeitem für "music" (Trennung von "video" in 
+			addDir).
+			addDir (util): Entpacken der fparams-Variablen für Kontext-Menüs 
+			vereinheitlicht.
+			PlayVideo (util): leere seekTime vpr float mit 0 vorbelegt.
+			Quoting für tagline und summary in fparams_strm entfernt.
+			do_create (strm): in Plot "\n\n" durch  " | " ersetzt.
+			date_human (epgRecord): Logausgaben ergänzt.
+			livesenderTV.xml: Infotext für "Livestreams 3. Bundesliga" mit Webquelle
+			ergänzt.			
+			g: aus Web ergänzt: duration, FSK, pubDate.
+			ZDF_StartWebCluster: Web-Rubrik "Derzeit beliebt" ergänzt, Umsetzung mit
+			spez. Graphql-Call.
+			ZDF_StartWebCluster: Anpassungen für Webänderungen bei Livestreams.
+			Graphql-Call GetClusterList (neue Funktion ZDF_StartWebBeliebt, Ńutzung 
+			ZDF_Graphql_get_seasons)
+			EPG_ShowSumm (EPG): getRedirect und Anpassung für ZDF-Web-Urls ergänzt
+			(relevant für Videos aus ZDF_StartWebCluster). 
+			AudioSearch_cluster (ARD Sounds): Seitensteuerung für Episoden (items) via
+			Graphql-Call ergänzt, Auswertung Rubriken + Sammlungen ergänzt.
+
+26.04.2026	5.4.5
+			get_json_content (ARDnew): fehlende Defintion duration ergänzt für Aufruf
+			get_summary_pre bei Setting “Inhaltstexte im Voraus laden".
+			ZDF_Kat: Anpassung an geänderte Bildformate (1280w entfallen), Fallback 
+			ICON_DIR_FOLDER ergänzt.
+			ZDF_Kat_Plus: Anpassung wie ZDF_Kat.
+			Main_ZDF: Zusatz neu entfernt, dto. Hinweis auf Relaunch im Info-Text.
+			get_ARDstreamlinks: Anpassung nach ARD-Änderung der json-Struktur, linkid
+			als komplette epg_url für ShowSeekPos eingefügt. 		
+			list_WDRstreamlinks: Anpassung an geänderte Webseite des WDR.
+			PlayVideo (util): Ausnahme für wdr-live von monitor_resume (Hänger bei
+			seeking Kodi-Player).
+			ZDF_Verpasst, ZDF_StartWebCluster: Abfrage Key page_external_id entfernt 
+			(nicht mehr vorhanden, Key canonical ausreichend).			
+			Main_KIKA: Kinderhörspiele der ARD-Audiothek an neue ARD Audiothek angepasst,
+			dto. Watchdog_ZDF_Childs.
+			Main_NEW (ARDnew): Menü "ARD Mediathek Entdecken" entfernt (HTTP ERROR 404),
+			Menü "Rubriken" neu angelegt (Doppel aus Startmenü).
+			ARDStartVideoHLSget (ARDnew): Ausschluss audio="standard/deu", falls der Titel
+			"<Audiodeskription>" enthält.
+
+12.04.2026	5.4.4
+			AudioWebMP3 (ARD Sounds): ".MP3" in Url berücksichtigt, Abgenzung zu HTML-
+			Dateien an geänderte ARD-Syntax angepasst (Url ohne .html-Endung).
+			Audio_get_items_single: Ermittlung der Web-Url an zusätzliche ARD-Variante 
+			angepasst.
+			Audio_get_nexturl: Korrektur Vergleich Offset mit Elementenzahl (>= statt >).
+			Audio_get_sendung: erneuter Aufruf bei "/sendung/" in mp3_url (Folgeseiten
+			statt Audiobeitrag).
+			get_streams_api_v2 (arte): bei Vorliegen einer UHD-Stream-Url wird auf die 
+			frühere Zerlegung verzichtet und HLS_List nur mit diesem Stream gefüllt
+			(nach Abgleich mit der Auflösung 3840x im nachgeladenen Manifest.
+			get_foruminfo (tools): PYTHON2-Anpassung (py2_decode(page)).
+			ZDF_KatSeriePre: Auswertung der season-ID's nach ZDF-Änderung angepasst
+			(ohne props:data/script-Segment, direkte Blockbildung mit 'Season","id').
+			ShowSeekPos (util): Abfrage KeyListener auf Key-Code 61575 (Entf-Taste)
+			und selbst gewählten Tastencode geändert - Wiki aktualisiert (08. Settings
+			Module, Zif. 3.1 und 3.2).
+			settings.xml: Settings für Stream-Uhrzeit und Sendungsnavigation angepasst.
+			KeyListener (util): Austausch Pointer.xml -> Variables.xml (ohne sichtbar
+			blinkendes Element), Verzicht auf Maus-Events.
+
+04.04.2026	5.4.3
+			Bereinigung ARD Sounds: fehlende Anpassungen (auch PY2) ergänzt, Kopfdokus
+			aktualisiert, Funktionsketten zusammengefasst, obsolete Funktionen 
+			entfernt: Audio_get_sendung_api entfernt, dto. AudioSearch_cluster_single,
+			Audio_get_cluster_rubrik.
+			get_query: channel angepasst 'ARD Audiothek' -> 'ARD Sounds'.
+			repl_json_chars (util): Ersetzung © -> cr (ARD Sounds relevant).			
+
+29.03.2026	5.4.2
+			update_single (EPG.py): Error-Liste bei Fehlern, angehängt an Ergebnisliste
+			plus Notification.
+			ZDF_KatSeriePre: Abbruch bei getRedirect-Error (newpath leer).
+			ZDF_KatSerieExtras: Param ptmdTemplate ergänzt, skip heroVideo ohne Titel.
+			ZDF_Graphql_WebDetails: getRedirect vor canonID verlegt.
+			README.md: Github-Downloads-Badge an neues Format angepasst.
+			get_streams_from_link (util.py): Param summary in Call ARDStartSingle
+			entfernt (fehlt dort seit V5.4.0).
+			ARDStartVideoHLSget, ARDStartVideoMP4get, ARDStartVideoHBBTVget (ARDnew):
+			für Originalversion die Kennung <Originalversion> im Titel berücksichtigt
+			(bisher nur <OV>).
+			ZDF_getApiStreams: Param summ entfernt (wie ARDStartSingle), zusätzl. tag,
+			thumb und scms_id entfernt. Graphql-Call und ZDF_getKat_content_details
+			für Metadaten genutzt (neue Funktion ZDF_Graphql), Nutzung get_summary_pre
+			wie bisher für Größenabgleich Inhalt (descr).
+			do_sync (Modul strm): ZDF_getApiStreams-Call an reduzierte Params angepasst.
+			get_streams_from_link (util.py): ZDF_getApiStreams-Call an reduzierte Params 
+			angepasst.
+			get_page (util.py): Auswertung Status-Code in letzter Stufe (get_page3) -
+			raise Exception falls Status-Code ungleich 200, py2_decode(page) für PY2
+			abgeschaltet (decode-Error bei neuen ZDF-Webseiten).
+			ARD_KatSeriePre: neue Funktion, Staffel-Liste ähnlich ZDF_KatSeriePre,
+			Anpassung ARD_FlatListEpisodes, Button für Empfehlungen (via Suche),
+			Titel-Anpassung in get_json_content (Pre-Marke S01E01) + "Folge xx" ent-
+			fernt.
+			ARDSearchnew: Dialog durch Notification bei Fehlschlag ersetzt.
+			ARD-Seitensteuerung: Mehr-Button abhängig gemacht von Rückgabe cnt aus
+			get_json_content - Anpassung in ARDStartRegion, ARDStartRubrik und
+			ARDPagination.
+			addDir (util.py): fparams_error korrigiert (durch urllib2.unquote erzeugtes
+			Pluszeichen entfernt)
+			ARD-Audiothek: nach ARD-Änderungen (ardsounds.de) komplett überarbeitet,
+			ARDAudioEventStreams angepasst.			
+
+07.03.2026	5.4.1
+			ARDVerpasst_get_json (ARDnew): Api-Änderung (programm-api.ard.de) -
+			Anpassung tbase (?devicetype=pc&embedded=true -> ?embedded=false&mcV6=true).
+			get_json_content (ARDnew): nach Api-Änderung (api.ardmediathek.de) Link-
+			Anpassung ähnlich ARDVerpasst_get_json (links|target|href statt urlId)
+			ARDStartVideoHBBTVget (ARDnew): Anpassung an ARD-Änderung (Link-Zusätze 
+			entfernt).
+			ARDStartSingle (ARDnew): Ersatz einer leeren  MP4_List (SWR-Videos) durch 
+			HBBTV_List.
+			ARD_FlatListRec: Url-Anpassung wie get_json_content.
+			ARDSportWDR: Aktualisierung Event-Buttons (neu: Paralympics) 
+			ZDF_getApiStreams: abweichendes Formate bei ARD-Video-Quellen ("formitaeten")
+			berücksichtigt, Variable cdn_api entfernt (obsolet).
+			update_single (EPG.py): Austausch GIT_BASE wg. HTTP Error 429: Too Many 
+			Requests.			
+
+22.02.2026	5.4.0
+			Kikaninchen_Menu  (Modul childs): Austausch Men + Funktion Tonschnipsel
+			gegen Schnipselwelt, Nutzung ARDStartRubrik, einschl. get_pagination.
+			get_pagination (Modul ARDnew): Suche akt. Pfad ab json-Ende (Verwechslung
+			mit Pfad zu Einzelbeitrag möglich), Änderung pageNumber direkt im Pfad.
+			Kika_get_img: Anpassung an ARD-Änderungen (urlScheme -> scheme, **format**).
+			ARDSportWDR: Event Olympia 2026 hinzugefügt.
+			PlayVideo_Direct (util): Fallback-Url für PY2 (utf-Problem in Sortierung).
+			EPG_Search, EPG_Search2: Anpassungen an geänderte Zeitformate bei tv.today
+			(wie EPG-Modul).
+			get_api_data (Modul EPG): inkompatible Zeichen aus Inhaltstext entfernt.
+			clear_merkliste (Modul merkliste): Lösch-Ausnahmen erweitert für Modul-
+			Funktionen, ulrkey (ZDF_PageMenu), einige Tool-Funktionen. Ausgabetabelle
+			linksbündig.
+			Merkliste / Kontextmenü: Parameterübergabe via router (Haupt-PRG) und neuer
+			Funktion do_context in Modul merkliste. Anpassungen in addDir, Löschen des
+			Flags MERKACTIVE verhindert bei aktiver Merkliste (merkliste.do_context in 
+			sys.argv[2].
+			Watch_items (Modul merkliste): Markierungen (fett, Farbe) in Eintrag entfernt
+			vor Umbenennung, um Fehlschlage bei replace zu vermeiden.
+			check_Resume: Konvertierung der Fließkommawerte (seek, pos) zu integer-Werten
+			angepasst.
+			AddonStartlist: Doppeleinträge für gestartet verhindert. 
+			PlayVideo (Modul util): seekTime (Startliste) auch bei unbekannter Videodauer 
+			setzen.
+			monitor_resume (Modul util): seekTime auf 0 gesetzt, falls größer als Dauer
+			des Videos, erneutes player.seekTime falls Fehlschlag in PlayVideo.
+			ARDStartSingle (Modul ARDnew): wegen Resume-Problemen bei Änderungen im 
+			Inhaltstext Param summary entfernt. Anpassungen in get_summary_pre (util),
+			ARD_FlatListEpisodes, get_json_content, ARDVerpasst_get_json.
+			addDir (Modul util): fanart und thumb aus add_url entfernt (schon in li.setArt
+			gesetzt), Auswertung fparams-Variablen für Video-K-Menüs erweitert (add_url-
+			Verwendung verringern)
+			Audio_get_homescreen: nach ARD-Änderung neue Funktion Audio_Navigation für
+			Button NAVIGATION im Menü Entdecken, skip Newsletter-Seite und LIVE-Ttitel
+			(event not found).
+			Audio_get_sendung_api: Blockbildung mit publicationId statt duration (mehr
+			Daten, Titel ohne Tracking-Infos).
+
+01.02.2026	5.3.9
+			Main_NEW(ARDnew): Menü "Bildgalerien Das Erste" entfernt (keine Daten mehr).
+			ARD_FlatListRec: unerlaubte Zeichen aus Titel entfernt (repl_json_chars).
+			Kika_Live (Modul childs): LF's aus Info-Text bei Sendeschluss entfernt.
+			time_translate (util): Tabelle summer_time mit Daten für 2027 ergänzt. 
+			ZDF_getApiStreams: bei prod-futura-Url scms_id immer aus der Url ermittelt,
+			Muster-Ergänzung bei HD-Auswertung: 'quality":"hd' (zu 'hd":true'), Ersatz
+			kleinerer MP4_List durch größere HBBTV_List.
+			ZDF_getApiStreams, ZDFSourcesHBBTV: Filterung Videoquellen gemäß DGS-Setting
+			und Verfügbarkeit (pref_DGS_ON, DGS_use) in HLS- HBBTV- und MP4-Liste.
+			ARDStartVideoHLSget, ARDStartVideoHBBTVget, ARDStartVideoMP4get: Filterung
+			Videoquellen gemäß DGS-Setting und Verfügbarkeit (pref_DGS_ON, DGS_use) in
+			HLS- HBBTV- und MP4-Liste (ähnlich ZDF).
+			GetContent (Modul arte): Leer-Verweis beim api hbbtv-mw in Kat Geschichte 
+			festgestellt (Geschichte nach Themen: /api/1/details/HIS/3) - ohne Fix.
+			ARDStartVideoMP4get, ARDStartVideoHBBTVget (Modul ARDnew): Ausfilterung
+			unpassender Streams (<OV>, Hörfassung) bei standard/deu.			
+			PlayVideo_Direct (util): Ersatz leere Stream_List durch HBBTV_List (die
+			frühere Verkettung beider Listen kann zur falschen Auswahl bei mehrsprachigen
+			Streams führen).
+			ARDSportWDRArchiv: alle fanarts und thumbs auf Logo der Sportschau gesetzt.				
+
+12.01.2026	5.3.8
+			getRedirect (util): in Rückgabe HTTP-Status-Code ergänzt, bei Code != 200 
+			immer mit leerer Url, Formatliste für Streams ergänzt.
+			thread_getfile: url_check (getRedirect) wg. Problem mit Streamerkennung 
+			ausgesetzt (bei Single- und Sammeldownloads).  
+			ZDF_Graphql_WebDetails: url_check durch getRedirect ersetzt.
+			Ersetzung url_check durch getRedirect: ZDF_Graphql_WebDetails, ZDF_Teletext,
+			get_streams_api_v2 und EPG_Today (beide arte), ARDSportgetEventlist,
+			Parseplaylist, get_summary_pre, get_streams_from_link.
+			set_lang (Modul arte): Call Main_arte nach Änderung der Sprache.
+			Kontextmenü Radio-EPG (EPG-Modul): leeres Ergebnis abgefangen (Exception,
+			da Param ID fehlt).
+			ZDF_getApiStreams: Trennung get_ptmdTemplate from_futura/from_Web (um 
+			futura-Ergebnis zu erhalten), Notification für fehlende Livestreams 
+			angepasst.
+			ZDF_StartWebCluster: DGS-Kennung aus ptmdTemplate entfernt (erstes
+			ptmdTemplate immer mit "_dgs").
+			thread_getepg (Modul EPG): Aktiv-Signal EPGACTIVE vorverlegt, um Doppelstart
+			zu vermeiden. Puffer (- 12 Std) ergänzt für rechtz. Nachladen (- 1 Std. bei 
+			12-Std.Setting).
+			MediathekViewWeb-Suche (Modul yt): ergänzt: description (zusätzlich zu title,
+			topic), future=true (vorher false), s. issue #49. Aus yt-Modul entfernt:
+			yt_get, get_stream_details und get_duration.
+			transl_json: Anpassungen für franz. Akzents.
+
+01.01.2026	5.3.7
+			ZDF_WebMoreSingle, ZDF_WebMoreVideo entfernt: mit ZDF_StartWebCluster und
+			Folge-Calls obsolet).
+			ZDF_StartWebCluster: Buttons "Terra X plus Schule" und "Videos in UHD-
+			Qualität" von ZDF_PageMenu hierher verlagert.
+			ZDF_RubrikSingle: Verteilung externer Videos (Marke GraphqlWithExternalId,
+			z.B. von ARD) differenziert nach json-key "type". "video" > ZDF_getApiStreams,
+			Rest nach ZDF_KatSeriePre (Serie oder Empfehlungen).
+			ZDF_getApiStreams: Fallback für futura-api-Call ohne ptmdTemplate - Switch zu
+			ptmdTemplate-Suche im Web. Sonderfall: streamApiUrlAndroid als ptmdTemplate,
+			Sicherung enthaltene formitaeten für ev. Fehlschlage Graphql-Call in
+			videodat_page.
+			ZDF_KatSerie: LF in descr durch "|" ersetzt (router-kompatibel).
+			ZDF_KatSeriePre, ZDF_StartWebCluster: router-inkompatible Zeichen in title
+			ersetzt. 
+			ZDF_KatSeriePre: beim Fehlen der Serie Button für ev. einzelnes enthaltenes
+			Video ergänzt (ptmdTemplate).
+			ZDF_FlatListEpisodes: Button "Neueste Serie anzeigen" mit Code für Abgleich
+			mit neuer Serie entfernt (obsolet mit neuer Streaming-Plattform). Ergänzt:
+			notification, falls Staffel-Folgen-Muster fehlen (wie ARD_FlatListEpisodes),
+			Sortierung ergänzt analog ShowFavs und ARD_FlatListEpisodes.
+			ZDF_getKat_content: Ersetzung '{playerId}' durch akt. ZDF-Player, da die 
+			Klammern in der Merkliste (ShowFavs) als Begrenzer interpretiert werden.
+			ZDF_Graphql_WebDetails: url_check vorverlagert, um neue Url auch beim Nach-
+			laden (Dict "load") zu nutzen.
+			ARD_FlatListEpisodes (Modul ARDnew): Sortierung analog ShowFavs und
+			ZDF_FlatListEpisodes (Haupt-PRG) ergänzt, hier nach Titel, absteigend).
+			Zusätzlich Notification, falls Staffel-Folgen-Muster fehlen (wie 
+			ZDF_FlatListEpisodes.
+			PlayAudio (util): url_check abgeschaltet wg. Problemen mit requests-Modul.
+
+21.12.2025	5.3.6
+			ZDF_PageMenu: Button "ergänzende Rubriken der Webseite" entfernt, Cluster-
+			Liste der Startseite via neuer Funktion ZDF_StartWebCluster einschl. für
+			Live-Streams ZDF_Graphql_Livestream.
+			ZDF_RubrikSingle: Linefeed in Param tag entfernt (error in router).
+			python2.7-Anpassungen: ZDF_get_img, ZDF_get_naviKat, ZDF_KatSerie,
+			ZDF_AZList, ZDF_StartWebCluster.
+			ZDF_KatSeriePre: Unterdrückung doppelter Staffel-Listen via skip_list.
+			thread_getepg: Stempel EPGACTIVE anhängig von erfolgreichem EPG-Lauf.
+			ZDF_Kat: neue Kat "Sendung verpasst" in skip_list (eigenes Menü). 
+			PlayMonitor: try-/except-Block für get_streamurl mit Notification
+			(für fehlende Videos).
+			ZDF_getApiStreams: Notification statt Dialog bei fehlendem Stream, um 
+			Playlist nicht zu blockieren.
+			EPG_Today (Modul arte): None-Ergebnis für shortDescription abgefangen.
+
+30.11.2025	5.3.5
+			EPG_Today (Modul arte): Anpassungen für python 2.7 (py2_encode), Leer-
+			Param mediatype ergänzt.
+			PlayMonitor (Modul playlist): für get_streamurl-Call fehlenden Param title 
+			ergänzt, FLAG_OnlyUrl entfernt vor PlayVideo-Call (sonst Irrläufer-Abbruch 
+			in PlayVideo möglich).
+			PlayVideo (util): Param-Rückgabe play_time,video_dur (0,0) bei Irrläufer-
+			Abbruch ergänzt.
+			EPG (Modul EPG): "None" in summary ersetzt durch "?".			
+			ZDF_RubrikSingle: Redirect-Call für Url's aus ZDF_WebMoreSingle (Beispiel:
+			www.zdf.de/kurzfassungen/fifa-weltmeisterschaft-live-livestream-highlights-100).
+			ZDF_get_img: erweitert für img in Webseite, z.B. für ZDF_Graphql_WebDetails
+			(dort angepasst für Rückgabe-> ZDF_KatSeriePre).
+			ZDF_KatSeriePre: Blockbegrenzer "node" für Season-Auswertung ergänzt, um
+			unerwünschten newContentStatus aus Datenmüll zu vermeiden.
+			ZDF_getKat_json: Abgleich "editorialDate" (Graphql-json) für Kennzeichnung
+			"NEUER INHALT" von 2 auf 3 Tage geändert, Anpassung label in 
+			ZDF_KatSerie (fett, NEU angehängt), ZDF_Episodes_Graphql, ZDF_AZList
+			ZDF_AZList: nach ZDF-Änderung Austausch extensions (persistedQuery ->
+			clientLibrary).						
+			ZDF_getKat_json umbenannt -> ZDF_getKat_content_details.
+			ZDF_Graphql_get_json umbenannt -> ZDF_Graphql_get_seasons.
+			ZDF_WebMoreSingle: Nutzung ZDF_Graphql_WebDetails, Nutzung img + tag aus
+			ZDF_WebMore.
+			ZDF_get_content: Abgleich "editorialDate" (futura-json) für Kennzeichnung
+			NEU auf Startseite, Anpassung title und label in ZDF_PageMenu, ZDF_Rubriken,
+			ZDF_RubrikSingle. Anpassung python 2.7 in ZDF_PageMenu.
+			Radio-Livestreams: in ARDAudioEventStreams fehlende Icons in Buttons der 
+			Audiostreams ergänzt.
+			ARDVerpasst_get_json (Modul ARDnew): Param link leer vorbelegt (network_error
+			möglich) und Abgleich Livesender mit pubServ statt sid, Anpassung python 2.7.
+			ARDSportMediaPlayer: vom WDR geänderte Bild-Auswertung angepasst, Anpassung
+			python 2.7.
+
+16.11.2025	5.3.4
+			ZDF_Verpasst: Extraktion Titel einschl. Episodentitel aus Bildtext (img_alt,
+			Problem: verschiedene Hochkommata), Fix fehlendes Bild bei Partnersendern.
+			ArteStart (Modul arte): Mehr-Button ergänzt nach arte-Begrenzung auf 10 
+			Beiträge.
+			Arte-EPG: überarbeitet - ausgelagert von GetContent, Code bereinigt, JETZT-
+			Kennzeichnung, Rückgabe akt. Sendung (OnlyNow) umgestellt von sticker-
+			Auswertung auf Zeitabgleich (time_translate, time_calc_diff), Anpassung
+			get_live_data, pageProps-Values (alte Web-json-Inhalte) entfernt.
+			ZDF_KatSeriePre: Kennzeichung neuer Staffeln via Schlüssel newContentStatus
+			im Web mit fett: ("NEU").
+			ZDF_getKat_json: Kennzeichung Infotext in Liste einer Kategorie  mit fett: 
+			"NEUER INHALT" via Schlüssel "editorialDate", falls jünger als 2 Tage.
+			addDir (Modul util): Kontext-Menü für Seriensuche zum Video ergänzt mit
+			fparams_ShowSeason, neue Funktion Context in Modul tools (direkter Call von
+			ZDF_KatSeriePre via RunAddon) - Github-issue #45.
+			Serie via Kontextmenü zeigen (ARD, ZDF): Änderung setting.xml Kategorie
+			"Modul-Einstellungen" (pref_more -> pref_show_season).
+			ARDStartSingle: Code Serien_Mehr_Test nach Wegfall pref_more und Einführung
+			Kontextmenü für Seriensuche entfernt.		
+
+02.11.2025	5.3.3
+			MVWSearch (Modul yt): Auswertung totalResults an geändertes Format im Web
+			angepasst.
+			GetContent (Modul arte): EPG-Daten in ["zones"][0] gefunden statt wie vorher
+			in ["zones"][1].
+			Kategorien (Modul arte): Anpassung an arte-Umstellung "Entdeckung der Welt"
+			(DIS -> DEC). 
+			phoenix_Search (Modul phoenix): sender auf ard gestellt, da phoenix ohne 
+			Ergebnisse.
+			get_live_data (Modul phoenix): Anpassung an geänderte EPG-Daten.
+			ZDF_KatSerie (Beta-Zielfunktion für ZDF_AZList): Ziel-Url zdf.de angepasst
+			mit "/serien/" + canon_id, ZDF_getKat_content und ZDF_getKat_json erweitert
+			für EPISODE (mode="movie").
+			ZDF_Graphql_WebDetails: Url-Check ergänzt (z.B. für zdf.de/serien/frontal ->
+			zdf.de/magazine/frontal.
+			ZDF_WebMoreSingle: Anpassung nicht funktionierender doc_id's im futura-api
+			(bisher filme-104 in doc_id_list).
+			LiveRecord (util): vergessenen Call url_correction entfernt (issue #44).
+			get_summary_pre (util): Für "ZDF" "u003cstrong" und "u003c/strong" entfernt,
+			in summ3 2xLF durch "|" ersetzt.
+			time_translate (util): Sommerzeit-Daten für 2022 entfernt.
+			ZDF_KatSub: Fix Anzeige der aktuellen Kategorieim Infotext des Buttons
+			Subnavigation).
+
+13.10.2025	5.3.2
+			url_correction (util): entfernt (war früher für priv. TV-Sender nötig, z.
+			B. münchen.tv, Leipzig Fernsehen).
+			textviewer (util): neue zentrale Funktion für xbmcgui.Dialog().textviewer
+			mit Berücksichtigung PYTHON2 (ohne usemono).
+			ARDStartVideoHLSget: Auswahl Streamvarianten geändert (nur 1 Stream pro  
+			Variante, Filterung nach OV, Hörfassung oder DGS in Titel).
+			ZDF: Aufruf A-Z-Seiten umgelegt auf Kategorien (Graphql) - Anpassungen in
+			ZDF_Kat (Switch -> ZDF_AZ), ZDF_Graphql_WebDetails (Rückgabe der TabIndices
+			in coll_id, mode=CatalogTabsConnection), ZDF_getKat_content (Infotext),
+			ZDF_AZ (erneuert), ZDF_get_contentAZ entfernt, Nutzung ZDF_getKat_content,
+			Auswertung via Graphql (Ziel-Funktionen noch futura-api, Ausnahme: 
+			metaType=PLATFORM_BRAND), Cache entfällt (Datenabfrage nur pro Buchstabe).
+			settings.xml: Text pref_use_epg geändert ("dauert länger" -> "(EPG)").
+			ZDF_RubrikSingle: fehlerhaft AZ-Beiträge -> leerer json-Satz in ZDF_AZList 
+			-> ZDF_KatSub.
+			Haupt-PRG: textviewer-Aufrufe angepasst für zentrale Funktion in util.
+			Haupt-PRG, Modul tools: neuer Button für EPG-Refresh, neue Funktion
+			refresh_epg, neues Icon icon-epg-tools.png.
+			EPG-Modul: nur noch 3 Tage EPG (tvtoday liefert nur noch 1 Tag pro Zugriff),
+			Setting Aktualisierungs-Intervall auf 3 Tage begrenzt, Auswertung auf json
+			umgestellt, Infotext erweitert, get_api_data (vorher get_data_web) erneuert.
+			PlayVideo (util): UT-Abschaltung (showSubtitles(False)) auch ohne Vorliegen
+			einer UT-Datei (soll auch bei eingebetteten UT-Streams wirken).
+
+03.10.2025	5.3.1
+			get_content_json (TagesschauXL): Auswertung Sendedatum ergänzt, relevant für 
+			ARDSportLive.
+			repl_json_chars (util): Entfernung Steuerzeichen \t hinzugefügt (relevant für
+			ARD-Serien).
+			get_summary_pre (util): weitere html-Markierungen im Info-Text entfernt (im
+			Abschnitt ZDF).
+			SendungenAZ_ARDnew: Pagination angepasst (next_path fehlt in json), Verzicht 
+			auf Call get_pagination.
+			ARDStartVideoHLSget: Austausch Streams an ARD-Änderung angepasst ("audio-
+			description/deu" / "standard/deu").
+			PlayVideo_Direct (util): Berücksichtigung zweier auto-Streams ohne Auflösungen,
+			Verwendung des 1. Streams (i.d.R. standard/deu).
+			ARDStart: Startseite nach ARD-Änderung erneuert, ID "TOP_title" für
+			get_json_content (Markierung Stage-Titel), Anpassung in img_load.
+			get_json_content (ARDnew): bei leeren Inhalten Hinweis auf Produzent.
+			ZDF_Episodes_Graphql: nach ZDF-Änderung Suche noch '"Season\",\"id"'-Blöcken 
+			auf die gesamte Webseite ausgedehnt.
+			ZDF_Kat: A-Z- Ziel verlegt von ZDF_RubrikSingle zu ZDF_AZ (einheitl. Buchsta-
+			benliste).
+			time_state (util): Funktion entfernt (obsolet, Problem datetime.strptime).
+			EPG-Modul: Anpassung an geänderte Webseite von tvtoday (EPG, get_data_web).			
+
+15.09.2025	5.3.0
+			MVWSearch: keine Anzeige der Ergebnisse, falls der Key filmlisteTimestamp
+			leer bleibt.
+			Verpasst (my3Sat): Datumformat an ZDF_Verpasst angepasst.
+			ARDVerpasst (ARDnew): Datumformat + JETZT-Markierung/Live-Streamstart an 
+			ZDF_Verpasst angepasst.
+			ARDVerpasst_get_json: Sender KIKA mit upper-Funktion erfasst ("id": "kika").
+			MakeJpegNfo (util): urlretrieve lokaler Bilder beim Download verhindert 
+			(error in thread_getfile_error), sonst Error bei Setting "nfo- und jpeg-Datei
+			erzeugen".
+			ArteStart (Modul arte): Button "Programme in UHD-Qualität" wegen fehlender
+			UHD-Angebote deaktiviert.
+			ZDF_PageMenu: Button "Videos in UHD-Qualität" hinzugefügt (-> ZDF_KatSub).
+			Haupt-PRRG kleine Aufräumaktion: veraltete Kopfdokus mit Hinweis auf Archiv 
+			entfernt (z. Bsp. Parseplaylist).
+			ZDF_Recommendation: Param nogui ergänzt, Anpassung ZDF_WebMoreSingle (für
+			Folgebeiträge mit nur 1 Beitrag), Sound in Notification deaktiviert (stört
+			bei Einzelbeiträgen).			
+			test_downloads: nicht mehr genutzten Param high entfernt, dto. aus Calls.			
+			ARDSportWDR: neuer Event-Button für Leichtathletik-WM 2025 in Tokio.
+			get_foruminfo (Modul tools): Sonderzeichen enfernt (unescape).
+
+02.09.2025	5.2.9
+			ZDF_getApiStreams: Ausgabe HLS_List_end verschoben (if dgs_url:), sonst
+			network error bei leerer HLS_List möglich.
+			ZDF_Graphql_Video: Graphql-Code überarbeitet, Nutzung ZDF_Graphql_WebDetails
+			für Params Webseite, ZDF_getKat_json für Params ZDF_getApiStreams.
+			list_WDRstreamlinks: Anpassung an Webänderungen für WDR Lokalzeit Live-
+			streams.
+			ZDF_RubrikSingle: Cluster ohne Teaser aus der Liste entfernt, reference-Url
+			(Bsp. Weiterschauen) funktioniert nicht mehr.
+			Main_ZDF: für Menü Barrierearm Ziel auf ZDF_Barrierearm geändert (Angleichung
+			an Aufruf aus Kategeorien).
+			ZDF_Episodes_Graphql: Anpassung an unterschiedliche  Webparameter für Staf-
+			feln.
+			ZDF_Verpasst: erneuert für Graphql (ähnlich ZDF-Web Live&TV), Anpassungen in
+			ZDF_VerpasstWoche (Datumformate, Auswahl "Morgen"), ZDF_Verpasst_Filter
+			(Stationsliste, Default-Station).
+			ARDVerpasst: um Auswahl für "Morgen" ergänzt.
+			update_single (Modul EPG): nach Änderung des Webformat bei Github Verzicht
+			auf Download neuer Module, RepoList entfällt, nur noch direkter Abgleich
+			Datei lokal / Datei Repo.
+
+24.08.2025 	5.2.8
+			ZDF_RubrikSingle: Austausch Serien-ID docObject["id"] gegen docObject
+			["brandId"]. "id" nicht sicher (Bsp. "Die Bergretter).
+			ZDF_RubrikSingle: Entscheidung bei leerem Cluster und externalId in 
+			futura-api - bei  "ard_video_ard" -> ZDF_Graphql_Video, sonst ->
+			ZDF_Episodes_Graphql (Step1, Step2).
+			ZDF-Serien: zusätzlicher Graphql-Check und Zusatzbutton "Neueste Serie 
+			anzeigen", falls neue Serie zusätzlich zum futura-api gefunden wird,
+			neue Funktionen ZDF_Episodes_Graphql und ZDF_getKat_json, Anpassungen
+			in ZDF_getKat_content, ZDF_FlatListEpisodes.
+			get_content_json (TagesschauXL): Anpassung an geänderte Bilddaten.
+			ARDSportWDR: Aktualisierung Event-Archiv, neuer Event-Button für DFB-
+			Pokal 2025, Aktualisierung der Bilddaten autom. durch get_content_json.
+			ZDF-Kategorien: Graphql-Calls + Auswertung Web-Params verbessert (un-
+			quoted statt quoted/replace).
+			ZDF-Barrierefrei erneuert: Videos der 3 Gruppen Audiodeskription, 
+			Untertitel, Gebärdensprache fehlten im futura-api. Neue Funktion 
+			ZDF_Barrierearm, Auswertung der 3 Gruppen als Subkategorien (Graphql-
+			Calls).
+			ZDF_getApiStreams: erweitert für DGS-Streams über streamApiUrlDgsAndroid,
+			Einfügen eines vorhandenen DGS-Streams in die HLS-Liste (HBBTV-Liste
+			enthält nur bei einigen DGS-Sendungen DGS-Streams).
+			url_check: Streamformate für DGS-Streams erweitert (aktuell: ".mp4",
+			".webm", ".vp9", ".mp3").
+
+09.08.2025 	5.2.7
+			ZDF_Kat: utf-8-Behandlung für pos2-Marker (verhindert Ausfall ZDF-
+			Kategorien bei PY2).
+			ZDF_RubrikSingle: Erweiterung für einzelne externe Beiträge (ARD) ohne 
+			direkten Quellenbezug (key cluster leer) - Nutzung Graphql-Call mittels 
+			sharingUrl (Web), neue Funktion ZDF_Graphql_Video.
+			ZDF_WebMore: nach Webänderung Austausch Blockmarker "noopener noreferrer"  
+			gegen 'data-testid="teaser-tile' (wie schon ZDF_Kat, ZDF_Kat_Plus).
+			ZDF_get_content: nicht numerische seasonNumber abgefangen (try/except).
+			ZDF_Search: Fett-/Color-Markierungen aus Titeln der Mehr-Suche entfernt.
+			ARDStartSingle: Info "keine Videoquellen gefunden" erweitert mit "Video 
+			noch nicht oder nicht mehr verfügbar:", z.B. bei FSK16-Inhalten.
+			ZDF_getApiStreams: router-inkompatible Zeichen aus Infotext (html, Escape-
+			Zeichen) entfernt (repl_json_chars, unescape).
+			Redirects-Behandlung: Verwendung python-requests statt httplib2 - Anpassung
+			addon.xml (import addon="script.module.requests"), Modulkopf util (import 
+			requests in try/except-Block wegen mögl. exception: "future feature 
+			annotations is not defined" bei python 3.0 - 3.6), Funktion getRedirect 
+			(httplib2-Code -> requests-Code, damit Verzicht auf einzelne HTTP-Error-
+			Behandlung).
+			url_check (util):: Param stream für mp4- und mp3-Url's auf True gesetzt, sonst 
+			Klemmer durch requests in getRedirect).
+			get_img_pre (Modul arte): HTTP-Error 404 für urlretrieve abgefangen.
+			get_page (util):: fehlerhafte Url abfangen (Url ohne http).
+			MausLive (Modul childs): Auswertung an geändertes json-Format angepasst.
+			
+			
+07.07.2025 	5.2.6
+			Main_ZDF: Menü ZDFinternational entfernt (zu wenig Videos).
+			ZDF-Kategorien: nach ZDF-Änderung (3-Teilung) Anpassung in ZDF_Kat (2
+			Zusatzbuttons), neue Funktion ZDF_Kat_Plus.
+			Ergänzende Rubriken der Webseite: Fallback-img bei fehlenden 1280w-img's
+			ergänzt - ZDF_WebMore und ZDF_WebMoreSingle angepasst.
+			Modul EPG (Radio-EPG): im Titel '", "' ersetzt mit "," für NDR 90,3.
+			get_content_json (TagesschauXL): geänderte img-Format angepasst (ohne
+			Bilder in ARDSportLive, ARDSportMedia und TagesschauXL.get_VideoAudio).
+			get_summary_pre (util): CR, LF aus ZDF-summ-Text entfernt.
+			ZDF_get_content: fehlende Bilder im futura-Api ersetzt durch dummy
+			(icon-bild-fehlt.png), bei Serien Headline im Titel ergänzt (nicht im 
+			Menü "komplette Liste").
+			valid_title_chars (util): Sonderbehandlung no-break-Space (vor join 
+			erforderlich) - relevant für arte-Beiträge.
+			ARDSportWDR: Events "Tour de France 2025", "UEFA Frauen-EM 2025" auf 
+			der Startseite ergänzt.
+			ARDSportWDRArchiv: veraltete Beiträge entfernt.
+			ZDF_Kat, ZDF_Kat_Plus: nach Webänderung Austausch Blockmarker "noopener 
+			noreferrer" gegen 'data-testid="teaser-tile', Austausch 'A - Z' ->
+			'A-Z' in der Liste der Rubriken ohne Genre-ID.
+
+15.06.2025 	5.2.5
+			ZDF_KatSub: Mehr-Seiten (Pagination) für ZDF-Kategorien ergänzt, Seiten-
+			zahl an Web angeglichen (24).
+			ZDF_WebMoreSingle: Zielsteuerung an Web angeglichen (3 Alternativen), 
+			Details s. Kopfdoku.
+			ZDF_WebMoreVideo: Button für enthaltenes Video, Streamlisten, Details 
+			s. Kopfdoku.
+			Main_ZDF: Hinweis auf Wegfall des Menüs ZDFinternational ergänzt.
+			ZDF_search_button: Suchbegriff bereinigen (Titelvorspann, Ersetzungen).
+			ARDSportMedia: Linefeeds aus Plot entfernt (router-inkompatibel bei Call
+			AudioPlayMP3 und PlayVideo).
+			get_streams_api_v2 (arte): kompl. Url im RESOLUTION-Abschnitt der m3u8-
+			Datei berücksichtigt (sonst falsch zusammengesetzte Url möglich).
+			ARDSportMedia (sportschau.de): Param mediatype für Audiobeiträge entfernt
+			(Sofortstart schlug fehl), Info "Download nicht möglich" für Videobeiträgen
+			ergänzt.
+			ARDSportVideo: falsche Zielfunktion PlayVideo nach PlayAudio korrigiert.
+			ARDSportLive: Extrakt Playerdaten (data-v=), Auswertung umgestellt von Web
+			auf TagesschauXL.get_content_json (wie ARDSportMedia).
+			Audiothek: Radio-EPG ergänzt (Gesamt-Button, Einzel-Kontextmenü) - neue
+			Funktion AudioSenderEPG, Audio_get_stream, Anpassungen in addDir (util),
+			AudioStartLive und Modul EPG.
+			get_content_json (TagesschauXL): Kennzeichnung "Audiostream" in Titel ent-
+			fernt (in Info-Text bereits enthalten).
+
+14.05.2025 	5.2.4
+			AudioStart: versehentlich gelöschtes xbmcplugin.endOfDirectory wieder
+			hergestellt.
+			KikaninchenFilme (childs): bessere Form für Videodauer (79:48 -> 1:19:48).
+			ZDF-Kategorien: Ersetzung Nachrichtenbuttons mit 1 Folgeseiten-Button,
+			zusätzl. Funktion ZDF_KatNachrichten für die Folgeseiten mit zusätzl.
+			Nachrichtenformaten (moma, mima, länderspiegel, ..)
+			MVWSingleVideo (yt, MediathekViewWeb-Suche): Auswertung der Auflösungen
+			für unterschiedliche Url-Markierungen erweitert (Näherungswerte).
+			ZDF_getApiStreams: path-Prüfung auf "ngplayer" (obsolet) ersetzt durch 
+			"api.zdf.de".
+			ZDFSourcesHBBTV: fehlenden json-key "streams" abgefangen (für Nutzung
+			durch ZDF_Graphql_get_json bei Mehrfach-Beiträgen erforderlich).
+			ZDF-Anpassungen: zusätzl. Button "ergänzende Rubriken der Webseite" in
+			ZDF_PageMenu für die Startseite, neue Funktionen  ZDF_WebMore, 
+			ZDF_WebMoreSingle, ZDF_WebMoreVideo, ZDF_Graphql, ZDF_Graphql_get_json
+			(Nutzung ZDF_getKat_content), Änderungen in ZDF_KatSub		
+
+27.04.2025 	5.2.3
+			get_streamurl (Modul strm): Absicherung gegen veraltete HLS-/MP4-Listen
+			(Titel-Abggleich), FLAG_OnlyUrl zusätzlich vor RunScript eingefügt.
+			PlayVideo (Modul util): Abbruchbedingung FLAG_OnlyUrl_detect eingefügt für
+			Thread-Irrläufer aus strm-Modul.
+			ZDF-Kategorien: Verwendung von video["canonical"] statt "canonical" bei
+			Einzelbeiträgen (typ "MOVIE"). Das vorherige Löschen von "-movie-" in 
+			"canonical" führt bei ARD-Beiträgen zu ungültiger Url. Anpassungen in
+			ZDF_getKat_content und ZDF_KatSub. 
+			ZDF_KatSub: Anpassung für PY2 - py2_encode(img).
+			Video-Downloads: zusätzliche nfo- und jpeg-Datei im Downloadverzeichnis 
+			(Nutzung durch Kodi-Bibliothek) - neue Funktion MakeJpegNfo (util),
+			Anpassungen in DownloadsList (GetDetailText), thread_getfile (MakeJpegNfo),
+			settings.xml ("nfo- und jpeg-Datei .. erzeugen"), DownloadTools (für PY2
+			leeeres Setting('pref_VideoDest_path') mit userdata belegt + shares mit
+			"video" vorbelegt, DirectoryNavigator (Modul util, PLog shares).
+			ZDF_KatSub, ZDF_getKat_content: Abfangen von null in obj["video"] -> 
+			getKat_error -> continue.
+			AudioSearch_cluster: leere nodes überspringen (index-out-of-range-error).
+			Audiothek: Menü, Funktionen und Icon für podcast.de entfernt (Auswertung 
+			nach Umstellung der Webseite auf Java-Funktionen zu aufwändig).
+			get_summary_pre (util): False-Rückgabe durch url_check berücksichtigt (falls
+			die Web-Url für Inhaltstexte nicht existierte, startete das Video nicht).
+			get_playlist_img (util): get_{}streamlinks vor die Playlist-Schleife verlagert
+			(Performance).
+			TV-Livestreams Regional: Senderbez. in livesenderTV.xml angepasst (hr-fernsehen 
+			-> HR).			
+
+12.04.2025 	5.2.2
+			get_VideoAudio (TagesschauXL): Bildbeschreibung ergänzt, Video-/Audio-
+			Dauer nicht in json-Daten enthalten.
+			VideoTools: Plot für Aufruf PlayAudio ergänzt (tagline + summary kombiniert).
+			get_Source_Funcs_ID (Modul strm): Austausch ZDF_getVideoSources (obsolet)
+			gegen ZDF_getApiStreams.
+			ZDF-Kategorien: Umsetzung neues ZDF-Menü nach Relaunch - neue Funktionen
+			ZDF_Kat, ZDF_KatSub, ZDF_get_naviKat, ZDF_getKat_content.
+			thread_getfile: nfo-Datei für Video-Downloads ergänzt - neue Funktion
+			MakeJpegNfo (util), Anpassung in thread_getfile, nfo-Template-Kopie aus
+			strm-Modul.
+			 
+
 30.03.2025 	5.2.1
 			Main_ZDF: Menüpunkt und Funktionen ZDF_Bildgalerien, ZDF_BildgalerieSingle, 
 			ZDF_BilderCollect nach Einstellung durch ZDF entfernt. 
@@ -69,7 +831,7 @@ CHANGE HISTORY
 			(neu in Pagination-Abschnitt der Videoquellen).
 			Addon-Icons: in tv-privat.png Austausch Logo ntv gegen münchen.tv (Sender ntv
 			hier schon lange nicht mehr verfügbar).
-			SearchARDundZDFnew (Modul ARDnew): try-except-Block für ReadFavourites (Laden
+			SearchARDundZDFnew (Modul ARDnew): try/except-Block für ReadFavourites (Laden
 			der Merkliste) - Absicherung OSError.
 			Main_KIKA: Aufruf "Kinderhörspiele der ARD-Audiothek" geändert (von AudioSearch
 			zu Audio_get_cluster_rubrik mit Rubrik-Url).
@@ -1161,6 +1923,9 @@ CHANGE HISTORY
 			Modul ARDnew: HBBTV-Quellen ergänzt, Umstellung MP4- + HLS-Quellen -> json, 
 			Anpassungen ARDStartSingle, ARDStartVideoHLSget, ARDStartVideoHBBTVget,
 			einschl. UHD-Erkennung.
+			get_summary_pre (util): ZDF-Bereich erneuert, Doppel entfernt, Darsteller
+			und Stab erfasst, Zusatztext aus html-Bereich erfasst (Bsp.: Herr der Ringe).
+			
 			
 
 12.02.2023 4.6.1

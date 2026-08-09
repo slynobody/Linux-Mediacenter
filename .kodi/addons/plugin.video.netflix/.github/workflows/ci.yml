@@ -1,0 +1,41 @@
+name: CI
+on: [push, pull_request]
+jobs:
+  tests:
+    name: Add-on testing
+    runs-on: ubuntu-latest
+    env:
+      PYTHONIOENCODING: utf-8
+      PYTHONPATH: ${{ github.workspace }}/resources/lib:${{ github.workspace }}/tests
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.10', '3.11', '3.12', '3.13']
+    steps:
+    - name: Check out ${{ github.sha }} from repository ${{ github.repository }}
+      uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v1
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    - name: Run tox
+      run: python -m tox -q -e flake8,py
+      if: always()
+    - name: Run pylint
+      run: python -m pylint resources/lib/ tests/
+      if: always()
+    - name: Analyze with SonarCloud
+      uses: SonarSource/sonarcloud-github-action@v1.4
+      with:
+        args: >
+          -Dsonar.organization=add-ons
+          -Dsonar.projectKey=add-ons_plugin.video.netflix
+          -Dsonar.python.version=3.10,3.11,3.12,3.13
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      continue-on-error: true

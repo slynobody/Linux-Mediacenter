@@ -7,6 +7,7 @@
     SPDX-License-Identifier: MIT
     See LICENSES/MIT.md for more information.
 """
+import xbmcgui
 import xbmcplugin
 
 import resources.lib.common as common
@@ -156,10 +157,12 @@ class Directory:
         menu_data = G.MAIN_MENU_ITEMS.get(pathitems[1])
         if not menu_data:  # Dynamic menus
             menu_data = G.LOCAL_DB.get_value(pathitems[1], table=TABLE_MENU_DATA, data_type=dict)
+        list_id = pathitems[2] if len(pathitems) > 2 else pathitems[1]
+        is_dynamic_id = len(pathitems) > 2 and not G.is_known_menu_context(list_id)
         call_args = {
-            'list_id': pathitems[2],
+            'list_id': list_id,
             'menu_data': menu_data,
-            'is_dynamic_id': not G.is_known_menu_context(pathitems[2])
+            'is_dynamic_id': is_dynamic_id
         }
         dir_items, extra_data = common.make_call('get_video_list', call_args)
 
@@ -180,7 +183,7 @@ class Directory:
             'menu_data': menu_data,
             'sub_genre_id': self.params.get('sub_genre_id'),  # Used to show the sub-genre folder when sub-genres exists
             'perpetual_range_start': self.perpetual_range_start,
-            'is_dynamic_id': not G.is_known_menu_context(pathitems[2])
+            'is_dynamic_id': len(pathitems) > 2 and not G.is_known_menu_context(pathitems[2])
         }
         dir_items, extra_data = common.make_call('get_video_list_sorted', call_args)
         sort_type = 'sort_nothing'
@@ -239,6 +242,19 @@ class Directory:
             'supplemental_type': self.params['supplemental_type']
         }
         dir_items, extra_data = common.make_call('get_video_list_supplemental', call_args)
+        if not dir_items:
+            videoid = common.VideoId.from_dict(call_args['video_id_dict'])
+            infos, art = common.make_call('get_videoid_info', videoid)
+            if infos.get('Trailer', '').startswith('http'):
+                title = infos.get('Title') or common.get_local_string(30179)
+                list_item = xbmcgui.ListItem(title, offscreen=True)
+                infos['Title'] = title
+                list_item.setInfo('video', infos)
+                list_item.setArt(art)
+                list_item.setProperty('isPlayable', 'true')
+                list_item.setContentLookup(False)
+                play_url = common.build_url(['play_direct_trailer'], videoid=videoid, mode=G.MODE_ACTION)
+                dir_items = [(play_url, list_item, False)]
 
         finalize_directory(dir_items, menu_data.get('content_type', G.CONTENT_SHOW),
                            title=get_title(menu_data, extra_data))

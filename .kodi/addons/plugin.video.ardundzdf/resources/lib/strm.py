@@ -3,8 +3,8 @@
 #				strm.py - Teil von Kodi-Addon-ARDundZDF
 #			 Erzeugung von strm-Dateien für Kodi's Medienverwaltung
 ################################################################################
-# 	<nr>14</nr>										# Numerierung für Einzelupdate
-#	Stand: 06.01.2024
+# 	<nr>16</nr>										# Numerierung für Einzelupdate
+#	Stand: 03.06.2026
 #
 
 from __future__ import absolute_import
@@ -67,7 +67,7 @@ PLog('Script strm.py geladen')
 STRM_TYPES		= ["Film|movie", "TV-Show|tvshow", "Episode|episodedetails",  
 					"Musik-Video|musicvideo" 
 				] 
-NFO1 = '<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>\n'		# nfo-Template, 
+NFO1 = '<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>\n'		# nfo-Template, Doppel in util
 NFO2 = '<movie>\n<title>%s</title>\n<uniqueid type="tmdb" default="true"></uniqueid>\n'
 NFO3 = '<thumb spoof="" cache="" aspect="poster">%s</thumb>\n'
 NFO4 = '<plot>%s</plot>\n<weburl>%s</weburl>\n</movie>'					# Tag weburl (inoff.) für Abgleich
@@ -78,7 +78,6 @@ NFO = NFO1+NFO2+NFO3+NFO4												#	 vorh. / nicht mehr vorh.
 # todo Tools : Lock entfernen (Monitor-Reset), synclist teilw. od. ganz löschen,
 #			sync_hour  festlegen
 #			Option: Monitor neu starten (nach Änd. sync_hour obligatorisch)
-#			Log für Sync-Läufe
 #			Bereinigen (nicht mehr verfügb. löschen)
 # 
 def strm_tools():
@@ -236,7 +235,7 @@ def strm_tools():
 					item = synclist[ret5]
 					PLog("strm_run_sync: " + item)
 					list_title, strmpath, list_path, strm_type= item.split("##")
-					if "//zdf-cdn" in list_path or "mediathekV2" in list_path:		# ZDF-Sync
+					if "prod-futura" in list_path or "mediathekV2" in list_path:		# ZDF-Sync
 						do_sync(list_title, strmpath, list_path, strm_type)
 					else:
 						do_sync_ARD(list_title, strmpath, list_path, strm_type)		# ARD-Sync
@@ -359,8 +358,10 @@ def unpack(add_url):
 # ----------------------------------------------------------------------
 # Aufruf Kontextmenü, abhängig von SETTINGS.getSetting('pref_strm')
 # 	Param. siehe addDir, mediatype == "video"
-def do_create(label, add_url):
-	PLog("do_create: " + label)
+# Ermittlung Streamquellen -> get_streamurl (Plugin-Call)
+#
+def do_create(label, add_url, tagline, summary):
+	PLog("do_create: %s | %s | %s" % (label, tagline[:80], summary[:80]))
 	PLog(SETTINGS.getSetting('pref_strm_uz'))
 	PLog(SETTINGS.getSetting('pref_strm_path'))
 	icon = R(ICON_DIR_STRM)
@@ -383,8 +384,9 @@ def do_create(label, add_url):
 	url	= stringextract("url': '", "'", fparams) 
 	if url == '':
 		url	= stringextract("path': '", "'", fparams)				# Livestream  SenderLiveResolution
-	thumb	= stringextract("thumb': '", "'", fparams) 
-	Plot	= get_Plot(fparams)
+	thumb	= stringextract("thumb': '", "'", fparams)
+	 
+	Plot = "%s\n\n%s" % (tagline, summary)
 		
 	if title == '' or "| auto" in title or u"| Auflösung" in title:	# Anwahl Streaming-/MP4-Formate
 		if Plot.startswith("Title: "):
@@ -392,7 +394,8 @@ def do_create(label, add_url):
 		else:
 			title = label
 	if thumb == '':
-		thumb = thumb_org	
+		thumb = thumb_org
+	Plot = Plot.replace("\n\n", " | ")
 	PLog("title: %s\n thumb: %s\n url: %s\n Plot:%s" % (title, thumb, url, Plot))
 	
 	formats = [".m3u8", ".mp4", ".mp3", ".webm"]					# Url-Test
@@ -407,7 +410,7 @@ def do_create(label, add_url):
 		msg2 = title
 		xbmcgui.Dialog().notification(msg1,msg2,icon,1000,sound=False)
 					
-		url = get_streamurl(add_url)								# Streamurl ermitteln
+		url = get_streamurl(add_url, title)							# Stream-Listen via Plugin-Call, url aus PlayVideo_Direct
 		if url == '':												# Url fehlt/falsch: Abbruch	
 			msg1 = u"die erforderliche Stream-Url fehlt für"
 			msg2 = title									
@@ -498,30 +501,6 @@ def get_strm_genre():
 	return strm_type
 
 # ----------------------------------------------------------------------
-def get_Plot(fparams):
-	PLog("get_Plot:")
-	Plot=''
-	fparams = transl_doubleUTF8(fparams)
-	PLog(fparams)	# Debug
-
-	Plot	= stringextract("Plot': '", "'", fparams)
-	if Plot == '':										# Plot + Altern.
-		 Plot = stringextract("summary': '", "'", fparams)
-	if Plot == '':
-		 Plot = stringextract("summ': '", "'", fparams)
-	if "'tag'" in fparams:
-		tag = stringextract("tag': '", "'", fparams)
-		Plot = "%s\n\n%s" % (tag, Plot)
-
-	 
-	if "'dauer'" in fparams:
-		dauer = stringextract("dauer': '", "'", fparams)
-		Plot = "%s\n\n%s" % (dauer, Plot)
-
-	Plot = Plot.replace("||", "\n")						# Rückübersetzung			
-
-	return Plot
-# ----------------------------------------------------------------------
 #
 # strm-, nfo-, jpeg-Dateien anlegen
 # 	strmpath=strm-Verzeichnis, fname=Dateiname ohne ext.
@@ -587,10 +566,11 @@ def xbmcvfs_store(strmpath, url, thumb, fname, title, Plot, weburl, strm_type, g
 # ----------------------------------------------------------------------
 # Ermittlung Streamquelle (falls noch nicht gefunden, s. url_found).
 # plugin-Script add_url ausführen -> HLS_List, MP4_List bauen,
-# HLS_List, MP4_List durch PlayVideo_Direct auwerten lassen, Flag +
-# 	Param-Austausch via Dict
-#
-def get_streamurl(add_url):
+# HLS_List, MP4_List durch PlayVideo_Direct auswerten lassen, vor 
+# PlayVideo-Call mit Flag FLAG_OnlyUrl abbrechen, Param-Austausch 
+# via Dict
+# 
+def get_streamurl(add_url, title):						# add_url = fparams
 	PLog("get_streamurl:")
 	streamurl=''; ID=''
 	PLog(add_url[:100])
@@ -605,18 +585,31 @@ def get_streamurl(add_url):
 	
 	# Ermittlung Streamquelle + Start PlayVideo bis 'PlayVideo_Start: listitem'.
 	# Bei Bedarf den Flag FLAG_OnlyUrl hierher verlegen und in PlayVideo beachten.
-	# Hinw.: True für blocking call zur Erzeugung der HLS_List + MP4_List durch 
-	#	MY_SCRIPT
+	# Hinw.: beim Sofortstart wird PlayVideo_Direct bereits bei Ermittlung der
+	#	Streamquellen ausgeführt - dort Abbruch durch FLAG_OnlyUrl.
+	#	Thread-Problem: in PlayVideo_Direct können die Listen nach MY_SCRIPT noch
+	#	leer sein und werden erst durch streamurl=PlayVideo_Direct gefüllt.
+	hls_list = os.path.join(DICTSTORE, "%s_HLS_List" % ID)
+	mp4_list = os.path.join(DICTSTORE, "%s_MP4_List" % ID)	
+	
+	PLog("remove_old_lists: %s | %s" % (hls_list, mp4_list))
+	try:
+		os.remove(hls_list)
+		os.remove(mp4_list)
+	except Exception as exception:
+		PLog("remove_error" + str(exception))
+		
+	PLog("set_FLAG_OnlyUrl")
+	PLog("runScript_for_streamsources:")				# Ermittlung der Streamquellen
+	open(FLAG_OnlyUrl, 'w').close()						# Abbruch PlayVideo_Direct (Sofortstart)
 	MY_SCRIPT=xbmc.translatePath('special://home/addons/%s/ardundzdf.py' % ADDON_ID) 
 	xbmc.executebuiltin('RunScript(%s, %s, %s)'  % (MY_SCRIPT, HANDLE, MY_SCRIPT_fparams), True)
 	
-	hls_list = os.path.join(DICTSTORE, "%s_HLS_List" % ID)
-	mp4_list = os.path.join(DICTSTORE, "%s_MP4_List" % ID)
 	max_cnt=0
 	while(1):											# file_event: für die schwachbrüstigen Clients
 		sleep(1)
 		max_cnt = max_cnt + 1
-		PLog("waiting: %d" % max_cnt)
+		PLog("waiting_for_lists: %d" % max_cnt)
 		if os.path.exists(mp4_list) or os.path.exists(hls_list) or max_cnt > 3:
 			break
 			
@@ -626,18 +619,36 @@ def get_streamurl(add_url):
 	MP4_List =  Dict("load", "%s_MP4_List" % ID)
 	PLog("strm_MP4_List: " + str(MP4_List))
 	
-	# todo: Dateiflag urlonly setzen/löschen - Übergabe via script unsicher
-	#	ev. auch Rückgabe via Datei
-	
-														# Url entspr. Settings holen:
 	title_org=''; img=''; Plot='';						# hier nicht benötigt 
-	
 	# s. Beachte im Log: es überschneiden sich MY_SCRIPT und PlayVideo_Direct: 
-	open(FLAG_OnlyUrl, 'w').close()						# Flag PlayVideo_Direct	-> strm-Modul		
-	streamurl = PlayVideo_Direct(HLS_List, MP4_List, title_org, img, Plot)
-	PLog("streamurl: " + streamurl)	
-	return streamurl
+	PLog("remove_STRM_URL")
+	try:
+		os.remove(STRM_URL)
+	except:
+		pass	
+	open(FLAG_OnlyUrl, 'w').close()						# Flag PlayVideo_Direct	-> strm-Modul
 	
+	max_cnt=0; streamurl=""
+	while(1):											# file_event: für schwachbrüstige Clients
+		if title not in str(HLS_List):					# falsche Listen?
+			PLog("wrong_list_new_load | title: %s" % title)
+			HLS_List =  Dict("load", "%s_HLS_List" % ID)
+			MP4_List =  Dict("load", "%s_MP4_List" % ID)
+		
+		PLog("set_FLAG_OnlyUrl")
+		open(FLAG_OnlyUrl, 'w').close()						# Flag PlayVideo_Direct	aktualisieren
+		streamurl = PlayVideo_Direct(HLS_List, MP4_List, title_org, img, Plot)
+		xbmc.sleep(1000)
+		max_cnt = max_cnt + 1
+		PLog("waiting_for_streamurl: %d" % max_cnt)
+		if streamurl:
+			PLog("streamurl: " + streamurl)
+			return streamurl
+		if max_cnt > 3:
+			break
+	
+	return streamurl
+
 # ----------------------------------------------------------------------
 # Test auf unterstützte Zielfunktion 
 #
@@ -652,16 +663,16 @@ def get_Source_Funcs_ID(add_url):
 	Source_Funcs = [u"ARDnew.ARDStartSingle|ARDNEU",					# Funktionen + ID's
 					u"my3Sat.SingleBeitrag|3sat", u'.XLGetSourcesPlayer|TXL',
 					u"dirID=PlayVideo|PlayVideo",u"dirID=SenderLiveResolution|ARD",
-					u"arte.SingleVideo|arte", u"ZDF_getVideoSources|ZDF"
+					u"arte.SingleVideo|arte", u"ZDF_getApiStreams|ZDF"
 					]
-	ID=''																# derzeit nicht ermittelbar
+	ID=''																# Default: unbekannt
 	for item in Source_Funcs:
 		dest_func, sid = item.split("|")
-		PLog(dest_func); PLog(sid)
+		PLog("%s | %s" % (dest_func, sid))
 		if 	dest_func in add_url:
 			ID = sid
 			break
-	PLog("ID: " + ID)	
+	PLog("Source_Funcs_ID: " + ID)	
 	return ID	
 	
 # ----------------------------------------------------------------------
@@ -802,7 +813,7 @@ def do_sync(list_title, strmpath, list_path, strm_type):
 				PLog('strm_Bündel_neu:')
 				
 			open(FLAG_OnlyUrl, 'w').close()							# Flag PlayVideo_Direct: kein Videostart
-			ZDF_getApiStreams(url, title, img, tag,  summ, gui=False) # Streamlisten bauen, Ablage Url
+			ZDF_getApiStreams(url, title) 							# Streamlisten bauen, Ablage Url
 			url = RLoad(STRM_URL, abs_path=True)					# abgelegt von PlayVideo_Direct
 			PLog("strm_Url: " + str(url))
 			
@@ -1037,7 +1048,9 @@ def show_strm_element(strmpath):
 # Setting sync_hour: STRM_TOOLS_SET (strmtoolset)
 # Aufruf beim Start Haupt-PRG (nach EPG + DL_CHECK), Lockdatei 
 #	STRM_CHECK (strm_check_alive) - kann nach Kodi-Ende stehenbleiben,
-#	Leichen-Behandl. durch Haupt-PRG.	
+#	Leichen-Behandl. durch Haupt-PRG.
+# Falls futura-Api nicht mehr funktioniert, Umstellung auf Graphql
+#	(s. ZDF_KatSerie ff.)
 #
 def strm_sync():
 	PLog('strm_sync:')
@@ -1088,7 +1101,7 @@ def strm_sync():
 					PLog("sync_item: " + item)
 					# Format: Listen-Titel ## lokale strm-Ablage ##  ext.Url ## strm_type
 					list_title, strmpath, list_path, strm_type= item.split("##")
-					if "//zdf-cdn" in list_path or "mediathekV2" in list_path:		# ZDF-Sync
+					if "prod-futura" in list_path or "mediathekV2" in list_path:		# ZDF-Sync
 						do_sync(list_title, strmpath, list_path, strm_type)
 					else:
 						do_sync_ARD(list_title, strmpath, list_path, strm_type)		# ARD-Sync
@@ -1213,6 +1226,7 @@ def exist_in_library(title):
 # ----------------------------------------------------------------------
 # entfernt Markierungen (fett, Color, Zeit, Serienmark.)
 def clear_titel(title):
+	PLog("clear_titel:")
 	title = cleanmark(title)				# Markierungen entf.
 	pos = title.find("|")
 	#PLog("pos: %d" % pos)
@@ -1224,6 +1238,7 @@ def clear_titel(title):
 	pos = title.find(" : ")					# Serienmark. ZDF-Beiträge (Web)
 	if pos:									# Bsp.: Friesland : Krabbenkrieg
 		title = title[pos+3:]
+	title = title.replace("(NEU)", "")		# NEU-Kennzeichnung ZDF-Bereich via editorialDate
 	#PLog(title)
 	return title
 	
@@ -1231,7 +1246,6 @@ def clear_titel(title):
 
 
 	
-
 
 
 

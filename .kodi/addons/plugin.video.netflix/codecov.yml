@@ -1,0 +1,12 @@
+coverage:
+  status:
+    project: true
+#      default:
+#        target: 75%
+#        threshold: 6%
+#        base: auto
+#        branches: null
+    patch: false
+comment: false
+ignore:
+- tests/

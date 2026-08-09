@@ -5,7 +5,9 @@ __all__ = [
     "executeBuiltin", "executeJSONRPC", "getCondition", "getInfoLabel",
     "containerRefresh", "containerUpdate", "playMedia", "runScript",
     "addFavourite", "getAddons", "addonInstalled", "addonEnabled",
-    "hasAddon", "addonIsEnabled", "activateWindow"
+    "hasAddon", "addonIsEnabled", "activateWindow", "getApplicationProperty",
+    "getKodiVersion", "getKodiName", "getKodiVolume", "setKodiVolume",
+    "getKodiMuted", "getKodiLanguage", "getKodiSetting", "setKodiSetting"
 ]
 
 
@@ -62,6 +64,12 @@ def getInfoLabel(infotag):
     return xbmc.getInfoLabel(infotag)
 
 
+# __getApplicationProperties__ -------------------------------------------------
+
+def __getApplicationProperties__(*args):
+    return executeJSONRPC("Application.GetProperties", properties=list(args))
+
+
 # misc execute utils -----------------------------------------------------------
 
 # containerRefresh
@@ -107,3 +115,41 @@ def addonIsEnabled(addonid):
 # activateWindow
 def activateWindow(*args, **kwargs):
     executeBuiltin("ActivateWindow", *args, **kwargs)
+
+# getApplicationProperty
+def getApplicationProperty(name):
+    return __getApplicationProperties__(name)[name]
+
+# getKodiVersion
+def getKodiVersion():
+    return getApplicationProperty("version")
+
+# getKodiName
+def getKodiName():
+    return getApplicationProperty("name")
+
+# getKodiVolume
+def getKodiVolume():
+    return getApplicationProperty("volume")
+
+# setKodiVolume
+def setKodiVolume(*args, **kwargs):
+    executeBuiltin("SetVolume", *args, **kwargs)
+
+# getKodiMuted
+def getKodiMuted():
+    return getApplicationProperty("muted")
+
+# getKodiLanguage
+def getKodiLanguage():
+    return getApplicationProperty("language")
+
+# getKodiSetting
+def getKodiSetting(setting):
+    return executeJSONRPC("Settings.GetSettingValue", setting=setting)["value"]
+
+# setKodiSetting
+def setKodiSetting(setting, value):
+    return executeJSONRPC(
+        "Settings.SetSettingValue", setting=setting, value=value
+    )

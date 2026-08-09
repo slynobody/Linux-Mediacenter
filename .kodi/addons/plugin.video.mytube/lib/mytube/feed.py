@@ -33,23 +33,27 @@ class MyFeed(object):
 
     # --------------------------------------------------------------------------
 
-    def __invalid__(self, keys):
+    def __stale__(self, keys):
         return (self.__keys__ != keys)
 
     def __expired__(self):
         return ((time() - self.__last__) > self.__timeout__)
 
-    def invalid(self):
-        if (invalid := self.__invalid__(keys := set(self.__channels__.keys()))):
+    def __invalid__(self):
+        if (stale := self.__stale__(keys := set(self.__channels__.keys()))):
             self.__keys__ = keys
-        if (invalid or self.__expired__()):
+        if (stale or self.__expired__()):
             return self.__keys__
 
-    def update(self, videos):
+    def __update__(self, videos):
         self.__videos__ = sorted(
             videos, key=lambda x: x["published"], reverse=True
         )
         self.__last__ = time()
+
+    def update(self):
+        if ((keys := self.__invalid__()) is not None):
+            self.__update__(self.__session__.__feeds__(keys))
 
     def page(self, limit, page):
         videos, next = (
@@ -65,11 +69,8 @@ class MyFeed(object):
 
     @public
     def feed(self, limit, page=1):
-        if (
-            ((page := int(page)) == 1) and
-            ((keys := self.invalid()) is not None)
-        ):
-            self.update(self.__session__.__feeds__(keys))
+        if ((page := int(page)) == 1):
+            self.update()
         return self.page(limit, page)
 
     # channels -----------------------------------------------------------------
@@ -93,3 +94,9 @@ class MyFeed(object):
         if confirm():
             self.__channels__.clear()
             containerRefresh()
+
+    @public
+    def refresh(self):
+        self.__keys__ = None
+        self.update()
+        containerRefresh()

@@ -2,7 +2,7 @@
 """
 
     Copyright (C) 2014-2016 bromix (plugin.video.youtube)
-    Copyright (C) 2016-2018 plugin.video.youtube
+    Copyright (C) 2016-2025 plugin.video.youtube
 
     SPDX-License-Identifier: GPL-2.0-only
     See LICENSES/GPL-2.0-only for more information.
@@ -13,22 +13,31 @@ from __future__ import absolute_import, division, unicode_literals
 import json
 
 from ..abstract_playlist_player import AbstractPlaylistPlayer
+from ... import logging
 from ...compatibility import xbmc
 from ...items import VideoItem, media_listitem
 from ...utils.methods import jsonrpc, wait
+from ...utils.system_version import current_system_version
 
 
 class XbmcPlaylistPlayer(AbstractPlaylistPlayer):
+    log = logging.getLogger(__name__)
+
     _CACHE = {
         'player_id': None,
         'playlist_id': None
     }
 
+    # xbmc.PlayList only supports music and video playlist IDs
     PLAYLIST_MAP = {
+        # -1: 'none',
         0: 'music',
         1: 'video',
-        'video': xbmc.PLAYLIST_VIDEO,  # 1
+        # 2: 'picture',
+        # 'none': -1,
         'audio': xbmc.PLAYLIST_MUSIC,  # 0
+        'video': xbmc.PLAYLIST_VIDEO,  # 1
+        # 'picture': 2,
     }
 
     def __init__(self, context, playlist_type=None, retry=None):
@@ -43,10 +52,9 @@ class XbmcPlaylistPlayer(AbstractPlaylistPlayer):
         if playlist_type is None:
             playlist_id = self.get_playlist_id(retry=retry)
         else:
-            playlist_id = (
-                    self.PLAYLIST_MAP.get(playlist_type)
-                    or self.PLAYLIST_MAP['video']
-            )
+            playlist_id = self.PLAYLIST_MAP.get(playlist_type)
+            if playlist_id is None:
+                playlist_id = self.PLAYLIST_MAP['video']
         self.set_playlist_id(playlist_id)
 
         self._playlist = xbmc.PlayList(playlist_id)
@@ -154,27 +162,38 @@ class XbmcPlaylistPlayer(AbstractPlaylistPlayer):
         cls.set_playlist_id(playlist_id)
         return playlist_id
 
-    def get_items(self, properties=None, dumps=False):
+    if current_system_version.compatible(19):
+        @staticmethod
+        def get_item_path(position, _label=xbmc.getInfoLabel):
+            return _label('Player.position(%d).FilenameAndPath' % position)
+    else:
+        def get_item_path(self, position):
+            item = self.get_items(start=position, end=position + 1)
+            return item[0]['file'] if item else ''
+
+    def get_items(self, properties=None, start=0, end=-1, dumps=False):
         if properties is None:
             properties = ('title', 'file')
+        limits = {'start': start}
+        if end != -1:
+            limits['end'] = end
         response = jsonrpc(method='Playlist.GetItems',
                            params={
                                'properties': properties,
                                'playlistid': self._playlist.getPlayListId(),
+                               'limits': limits,
                            })
 
         try:
             result = response['result']['items']
             return json.dumps(result, ensure_ascii=False) if dumps else result
-        except (KeyError, TypeError, ValueError) as exc:
+        except (KeyError, TypeError, ValueError):
             error = response.get('error', {})
-            self._context.log_error('XbmcPlaylist.get_items - Error'
-                                    '\n\tException: {exc!r}'
-                                    '\n\tCode:      {code}'
-                                    '\n\tMessage:   {msg}'
-                                    .format(exc=exc,
-                                            code=error.get('code', 'Unknown'),
-                                            msg=error.get('message', 'Unknown')))
+            self.log.exception(('Error',
+                                'Code:    {code}',
+                                'Message: {message}'),
+                               code=error.get('code', 'Unknown'),
+                               message=error.get('message', 'Unknown'))
         return '' if dumps else []
 
     def add_items(self, items, loads=False):
@@ -197,44 +216,51 @@ class XbmcPlaylistPlayer(AbstractPlaylistPlayer):
 
         return len(items)
 
-    def play_playlist_item(self, position, resume=False):
+    def play_playlist_item(self, position, resume=False, defer=False):
         """
         Function to play item in playlist from a specified position, where the
         first item in the playlist is position 1
         """
 
+        playlist_id = self._playlist.getPlayListId()
+
         if position == 'next':
             position, _ = self.get_position(offset=1)
-        context = self._context
         if not position:
-            context.log_warning('Unable to play from playlist position: {0}'
-                                .format(position))
-            return
-        context.log_debug('Playing from playlist position: {0}'
-                          .format(position))
+            self.log.warning('Unable to play from playlist position: %s',
+                             position)
+            return None
+        self.log.debug('Playing from playlist: %d, position: %d',
+                       playlist_id,
+                       position)
 
         if not resume:
-            self._player.play(self._playlist, startpos=position - 1)
-            return
-        # JSON Player.Open can be too slow but is needed if resuming is enabled
-        jsonrpc(method='Player.Open',
-                params={'item': {'playlistid': self._playlist.getPlayListId(),
-                                 # Convert 1 indexed to 0 indexed position
-                                 'position': position - 1}},
-                options={'resume': True},
-                no_response=True)
+            command = 'Playlist.PlayOffset({type},{position})'.format(
+                type=self.PLAYLIST_MAP.get(playlist_id) or 'video',
+                position=position - 1,
+            )
+            if defer:
+                return ''.join(('command://', command))
+            return self._context.execute(command)
 
-    def play(self, playlist_index=-1):
-        """
-        We call the player in this way, because 'Player.play(...)' will call the addon again while the instance is
-        running.  This is somehow shitty, because we couldn't release any resources and in our case we couldn't release
-        the cache. So this is the solution to prevent a locked database (sqlite).
-        """
-        playlist_type = self.PLAYLIST_MAP.get(self._playlist.getPlayListId())
-        self._context.execute(
-            'Playlist.PlayOffset({type},{position})'
-            .format(type=playlist_type or 'video', position=playlist_index)
+        # JSON Player.Open can be too slow but is needed if resuming is enabled
+        return jsonrpc(
+            method='Player.Open',
+            params={'item': {'playlistid': playlist_id,
+                             # Convert 1 indexed to 0 indexed position
+                             'position': position - 1}},
+            options={'resume': True},
+            no_response=True,
         )
+
+    def play(self, playlist_index=-1, defer=False):
+        """
+        We call the player in this way, because 'Player.play(...)' will call the
+        addon again while the instance is running. This is somehow shitty,
+        because we couldn't release any resources and in our case we couldn't
+        release the cache. So this is the solution to prevent a locked database
+        (sqlite) and Kodi crashing.
+        """
 
         """
         playlist = None
@@ -248,6 +274,15 @@ class XbmcPlaylistPlayer(AbstractPlaylistPlayer):
         else:
             xbmc.Player().play(item=playlist)
         """
+
+        playlist_type = self.PLAYLIST_MAP.get(self._playlist.getPlayListId())
+        command = 'Playlist.PlayOffset({type},{position})'.format(
+            type=playlist_type or 'video',
+            position=playlist_index,
+        )
+        if defer:
+            return ''.join(('command://', command))
+        return self._context.execute(command)
 
     def get_position(self, offset=0):
         """
@@ -265,9 +300,9 @@ class XbmcPlaylistPlayer(AbstractPlaylistPlayer):
 
         # A playlist with only one element has no next item
         if playlist_size >= 1 and position <= playlist_size:
-            self._context.log_debug('playlist_id: {0}, position - {1}/{2}'
-                                    .format(self.get_playlist_id(),
-                                            position,
-                                            playlist_size))
+            self.log.debug('playlist_id: %d, position - %d/%d',
+                           self.get_playlist_id(),
+                           position,
+                           playlist_size)
             return position, (playlist_size - position)
         return None, None

@@ -1,18 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
 
 import json
+from urllib.parse import quote_plus
 
 from .common import Globals, Settings, get_user_lang
 from .logging import Log
 from .network import getURL
 from .configs import getConfig, writeConfig
-
-try:
-    from urllib.parse import quote_plus
-except ImportError:
-    from urllib import quote_plus
 
 
 class Artwork:
@@ -37,7 +32,7 @@ class Artwork:
             Log('TVDB Token update failed')
             return {}
 
-        Log('searching fanart for %s at thetvdb.com' % title.upper())
+        Log(f'searching fanart for {title.upper()} at thetvdb.com')
         splitter = [' - ', ': ', ', ']
 
         token = json.loads(getConfig('tvdb_token', '{}'))
@@ -50,7 +45,7 @@ class Artwork:
         while not tvdb_id and title:
             str_year = '&year=' + str(year) if year else ''
             tv = quote_plus(title.encode('utf-8'))
-            data = getURL('https://api4.thetvdb.com/v4/search?query={}{}&type=series'.format(tv, str_year), silent=True, headers=headers)['data']
+            data = getURL(f'https://api4.thetvdb.com/v4/search?query={tv}{str_year}&type=series', silent=True, headers=headers)['data']
             if len(data) == 0:
                 if year:
                     year = 0
@@ -69,7 +64,7 @@ class Artwork:
         if not tvdb_id:
             return artwork
 
-        result = getURL('https://api4.thetvdb.com/v4/series/{}/extended'.format(tvdb_id), silent=True, headers=headers)['data']
+        result = getURL(f'https://api4.thetvdb.com/v4/series/{tvdb_id}/extended', silent=True, headers=headers)['data']
         if not result:
             return artwork
 
@@ -103,7 +98,7 @@ class Artwork:
         return artwork
 
     def getTMDBImages(self, title, content='movie', year=None, season=0):
-        Log('searching fanart for %s at tmdb.com' % title.upper())
+        Log(f'searching fanart for {title.upper()} at tmdb.com')
         tmdb_id = None
         splitter = [' - ', ': ', ', ']
         TMDB_URL = 'http://image.tmdb.org/t/p/original'
@@ -113,10 +108,9 @@ class Artwork:
         artwork = {season: {}, -1: {}}
 
         while not tmdb_id and title:
-            str_year = '&primary_release_year=' + str(year) if year else ''
+            str_year = f'&primary_release_year={year}' if year else ''
             movie = quote_plus(title.encode('utf-8'))
-            data = getURL('http://api.themoviedb.org/3/search/%s?api_key=%s&language=%s&query=%s%s' % (
-                content, self._g.tmdb, lang, movie, str_year), silent=True, headers=headers)
+            data = getURL(f'http://api.themoviedb.org/3/search/{content}?api_key={self._g.tmdb}&language={lang}&query={movie}{str_year}', silent=True, headers=headers)
             if not data:
                 continue
 
@@ -127,8 +121,8 @@ class Artwork:
                 if result.get('backdrop_path'):
                     artwork[dic]['fanart'] = TMDB_URL + result['backdrop_path']
                 if season > 0:
-                    data = getURL('https://api.themoviedb.org/3/tv/{}/season/{}/images?api_key={}&include_image_language={}%2Cen'.format(
-                        tmdb_id, season, self._g.tmdb, lang.split('-')[0]), silent=True, headers=headers)
+                    data = getURL(f'https://api.themoviedb.org/3/tv/{tmdb_id}/season/{season}/images?'
+                                  f'api_key={self._g.tmdb}&include_image_language={lang.split("-")[0]}%2Cen', silent=True, headers=headers)
                     pos = data.get('posters', [])
                     if len(pos) > 0:
                         f_lang = pos[0]['iso_639_1']

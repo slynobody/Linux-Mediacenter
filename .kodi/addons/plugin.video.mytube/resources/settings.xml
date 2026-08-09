@@ -212,6 +212,8 @@
                     <default />
                     <constraints>
                         <options>
+                            <option label="48311">avc1</option>
+                            <option label="48312">mp4a</option>
                             <option label="48313">vp09</option>
                             <option label="48314">opus</option>
                             <option label="48315">av01</option>
@@ -223,6 +225,62 @@
                         <multiselect>true</multiselect>
                         <heading>48310</heading>
                     </control>
+                </setting>
+
+            </group>
+
+            <group id="prefs" label="48400">
+
+                <setting id="prefs.height" type="integer" label="48410">
+                    <level>0</level>
+                    <default>0</default>
+                    <constraints>
+                        <options>
+                            <option label="90011">0</option>
+                            <option label="48411">2160</option>
+                            <option label="48412">1440</option>
+                            <option label="48413">1080</option>
+                            <option label="48414">720</option>
+                            <option label="48415">480</option>
+                            <option label="48416">360</option>
+                        </options>
+                    </constraints>
+                    <control type="spinner" format="string" />
+                </setting>
+
+                <setting id="prefs.track" type="string" label="48420" help="">
+                    <level>0</level>
+                    <default />
+                    <constraints>
+                        <allowempty>true</allowempty>
+                        <options>
+                            <option label="90200"><![CDATA[]]></option>
+                            <option label="90201">ar</option>
+                            <option label="90202">bn</option>
+                            <option label="90203">de</option>
+                            <option label="90204">en</option>
+                            <option label="90205">es</option>
+                            <option label="90206">fr</option>
+                            <option label="90207">he</option>
+                            <option label="90208">hi</option>
+                            <option label="90209">id</option>
+                            <option label="90210">it</option>
+                            <option label="90211">ja</option>
+                            <option label="90212">ko</option>
+                            <option label="90213">ml</option>
+                            <option label="90214">nl</option>
+                            <option label="90215">pa</option>
+                            <option label="90216">pl</option>
+                            <option label="90217">pt</option>
+                            <option label="90218">ro</option>
+                            <option label="90219">ru</option>
+                            <option label="90220">tr</option>
+                            <option label="90221">uk</option>
+                            <option label="90222">vi</option>
+                            <option label="90223">zh</option>
+                        </options>
+                    </constraints>
+                    <control type="list" format="string" />
                 </setting>
 
             </group>
@@ -263,6 +321,52 @@
                         <dependency type="enable" on="property" name="infobool" operator="is">System.AddonIsEnabled(service.sponsorblock)</dependency>
                         <dependency type="visible" setting="features.sponsorblock" operator="is">true</dependency>
                     </dependencies>
+                </setting>-->
+
+            </group>
+
+            <group id="javascript" label="49200">
+
+                <setting id="selectRuntimes" type="action" label="49210">
+                    <level>0</level>
+                    <data>RunScript($ID,selectRuntimes)</data>
+                    <!--<control type="button" format="action" />-->
+                    <control type="button" format="action">
+                        <close>true</close>
+                    </control>
+                </setting>
+
+                <setting id="javascript.runtimes" type="list[string]" label="49211">
+                    <level>0</level>
+                    <default>deno</default>
+                    <visible>false</visible>
+                    <control type="edit" format="string" />
+                </setting>
+
+                <setting id="javascript.runtimes.text" type="string" label="49211">
+                    <level>0</level>
+                    <default>Deno</default>
+                    <enable>false</enable>
+                    <control type="edit" format="string" />
+                </setting>
+
+                <!--<setting id="javascript.runtimes" type="list[string]" label="49211">
+                    <level>0</level>
+                    <default>deno</default>
+                    <enable>false</enable>
+                    <constraints>
+                        <options>
+                            <option label="49216">bun</option>
+                            <option label="49217">deno</option>
+                            <option label="49218">node</option>
+                            <option label="49219">quickjs</option>
+                        </options>
+                        <delimiter>,</delimiter>
+                        <minimumitems>1</minimumitems>
+                    </constraints>
+                    <control type="list" format="string">
+                        <multiselect>true</multiselect>
+                    </control>
                 </setting>-->
 
             </group>

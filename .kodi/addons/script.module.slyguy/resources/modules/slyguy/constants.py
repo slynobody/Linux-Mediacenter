@@ -15,6 +15,16 @@ ADDON_FANART   = ADDON.getAddonInfo('fanart')
 ADDON_DEV      = bool(int(os.environ.get('SLYGUY_DEV', '0')))
 #################
 
+# easier for users to find / add urls.txt etc
+if not os.path.exists(ADDON_PROFILE):
+    os.makedirs(ADDON_PROFILE)
+    with open(os.path.join(ADDON_PROFILE, 'help.txt'), 'w') as f:
+        f.write("""My addon settings are stored in the script.module.slyguy\settings.db file
+
+Put your smart url actions in a "urls.txt" file in this directory (supporters only)
+https://www.matthuisman.nz/2022/06/slyguy-addons-smart-url-actions.html
+""")
+
 REPO_ADDON_ID = 'repository.slyguy'
 DEPENDENCIES_ADDON_ID = 'slyguy.dependencies'
 TRAILERS_ADDON_ID = 'slyguy.trailers'
@@ -32,7 +42,7 @@ REDIRECT_HOSTS = ['i.mjh.nz', 'r.mjh.nz', 'c.mjh.nz', 'jmp2.uk']
 DONOR_URL = 'https://d.slyguy.uk/donors/{id}'
 DONOR_CHECK_TIME = (60*60*1) #1 hour
 DONOR_TIMEOUT = 172800 #48 hours
-SUPPORT_REMINDER = 604800 # 1 week
+SUPPORT_REMINDER = 432000 # 5 days
 SUPPORT_TIMEOUT = 5
 SUPPORT_URL = 'https://ko-fi.com/matthuisman'
 UPDATE_TIME_LIMIT = 86400 #24 hours
@@ -74,8 +84,6 @@ ROUTE_SETUP_MERGE      = '_setup_merge'
 ROUTE_IA_INSTALL       = '_ia_install'
 ROUTE_IA_HELPER        = '_ia_helper'
 ROUTE_CLEAR_CACHE      = '_clear_cache'
-ROUTE_SERVICE          = '_service'
-ROUTE_SERVICE_INTERVAL = (60*5)
 NO_RESUME_TAG          = '_noresume'
 NO_RESUME_SUFFIX       = '.pvr'
 ROUTE_URL_TAG          = '_url'

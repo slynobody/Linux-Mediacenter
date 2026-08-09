@@ -3,7 +3,6 @@
 '''
     Provides: Globals, Settings, sleep, jsonRPC
 '''
-from __future__ import unicode_literals
 
 import base64
 import json
@@ -11,8 +10,7 @@ from locale import getdefaultlocale
 from sys import argv
 from os.path import join as OSPJoin
 
-from kodi_six import xbmc, xbmcgui, xbmcvfs
-from kodi_six.utils import py2_decode
+import xbmc, xbmcgui, xbmcvfs
 from xbmcaddon import Addon
 
 from .singleton import Singleton
@@ -43,14 +41,13 @@ class Globals(Singleton):
     OS_OSX = 4
     OS_ANDROID = 8
     OS_LE = 16
+    OS_WEBOS = 32
 
     is_addon = 'inputstream.adaptive'
     na = 'not available'
     watchlist = 'watchlist'
     library = 'library'
     DBVersion = 1.4
-    PayCol = 'FFE95E01'
-    PrimeCol = 'FF00A8E0'
     tmdb = base64.b64decode('YjM0NDkwYzA1NmYwZGQ5ZTNlYzlhZjIxNjdhNzMxZjQ=').decode()
     tvdb = base64.b64decode('ZWRhZTYwZGMtMWI0NC00YmFjLThkYjctNjVjMGFhZjUyNThi').decode()
     langID = {'movie': 30165, 'series': 30166, 'season': 30167, 'episode': 30173, 'tvshow': 30166, 'video': 30173, 'event': 30174, 'live': 30174}
@@ -63,14 +60,11 @@ class Globals(Singleton):
     """ Allow the usage of dot notation for data inside the _globals dictionary, without explicit function call """
 
     def __init__(self):
-        try:
-            from urllib.parse import urlparse
-        except ImportError:
-            from urlparse import urlparse
+        from urllib.parse import urlparse
 
         # argv[0] can contain the entire path, so we limit ourselves to the base url
         pid = urlparse(argv[0])
-        self._globals['pluginid'] = '{}://{}/'.format(pid.scheme, pid.netloc)
+        self._globals['pluginid'] = f'{pid.scheme}://{pid.netloc}/'
         self._globals['pluginhandle'] = int(argv[1]) if (1 < len(argv)) and argv[0] else -1
 
         self._globals['monitor'] = xbmc.Monitor()
@@ -79,11 +73,11 @@ class Globals(Singleton):
         # self._globals['dialogprogress'] = xbmcgui.DialogProgress()
         self._globals['hasExtRC'] = xbmc.getCondVisibility('System.HasAddon(script.chromium_remotecontrol)')
 
-        self._globals['DATA_PATH'] = py2_decode(translatePath(self._globals['addon'].getAddonInfo('profile')))
+        self._globals['DATA_PATH'] = translatePath(self._globals['addon'].getAddonInfo('profile'))
         self._globals['CONFIG_PATH'] = OSPJoin(self._globals['DATA_PATH'], 'config')
         self._globals['LOG_PATH'] = OSPJoin(self._globals['DATA_PATH'], 'log')
-        self._globals['HOME_PATH'] = py2_decode(translatePath('special://home'))
-        self._globals['PLUGIN_PATH'] = py2_decode(self._globals['addon'].getAddonInfo('path'))
+        self._globals['HOME_PATH'] = translatePath('special://home')
+        self._globals['PLUGIN_PATH'] = self._globals['addon'].getAddonInfo('path')
 
         self._globals['DefaultFanart'] = OSPJoin(self._globals['PLUGIN_PATH'], 'fanart.png')
         self._globals['ThumbIcon'] = OSPJoin(self._globals['PLUGIN_PATH'], 'icon.png')
@@ -113,6 +107,8 @@ class Globals(Singleton):
             self._globals['platform'] |= self.OS_OSX
         if xbmc.getCondVisibility('system.platform.android'):
             self._globals['platform'] |= self.OS_ANDROID
+        if xbmc.getCondVisibility('system.platform.webos'):
+            self._globals['platform'] |= self.OS_WEBOS
         if (xbmcvfs.exists('/etc/os-release')) and ('libreelec' in xbmcvfs.File('/etc/os-release').read()):
             self._globals['platform'] |= self.OS_LE
 
@@ -125,9 +121,9 @@ class Globals(Singleton):
                                          'validateCaptcha', 'pollingForm', 'auth-select-device-form', 'verifyOtp']
 
         self._globals['CONTEXTMENU_MULTIUSER'] = [
-            (getString(30130, self._globals['addon']).split('…')[0], 'RunPlugin({}?mode=LogIn)'.format(self.pluginid)),
-            (getString(30131, self._globals['addon']).split('…')[0], 'RunPlugin({}?mode=removeUser)'.format(self.pluginid)),
-            (getString(30132, self._globals['addon']), 'RunPlugin({}?mode=renameUser)'.format(self.pluginid))
+            (getString(30130, self._globals['addon']).split('…')[0], f'RunPlugin({self.pluginid}?mode=LogIn)'),
+            (getString(30131, self._globals['addon']).split('…')[0], f'RunPlugin({self.pluginid}?mode=removeUser)'),
+            (getString(30132, self._globals['addon']), f'RunPlugin({self.pluginid}?mode=renameUser)')
         ]
 
     def __getattr__(self, name):
@@ -163,14 +159,14 @@ class Settings(Singleton):
                       ['useshowfanart', 'disptvshow', 'paycont', 'logging', 'json_dump', 'json_dump_collisions', 'sub_stretch', 'log_http', 'remotectrl',
                        'remote_vol', 'multiuser', 'wl_export', 'audio_description', 'pv_episode_thumbnails', 'tld_episode_thumbnails', 'use_h265', 'enable_atmos',
                        'profiles', 'show_pass', 'enable_uhd', 'show_recents', 'preload_seasons', 'preload_all_seasons', 'wvl1_device', 'search_history',
-                       'hide_trailers', 'export_not_aired'],
+                       'hide_trailers', 'export_not_aired', 'show_cats'],
                   _bool_false: ['json_dump_raw', 'ssl_verif', 'proxy_mpdalter']}
 
     def __getattr__(self, name):
         if name in ['MOVIE_PATH', 'TV_SHOWS_PATH']:
             export = self._g.DATA_PATH
             if self._gs('enablelibraryfolder') == 'true':
-                export = py2_decode(translatePath(self._gs('customlibraryfolder')))
+                export = translatePath(self._gs('customlibraryfolder'))
             export = OSPJoin(export, 'Movies' if 'MOVIE_PATH' == name else 'TV')
             return export + '\\' if '\\' in export else export + '/'
         elif 'Language' == name:
@@ -202,6 +198,12 @@ class Settings(Singleton):
             return getConfig('proxyaddress')
         elif 'wvl1_device' == name and getConfig('autoWV', 0) == 0:
             return detectWidevine()
+        elif 'paycol' == name:
+            paycol = self._gs('paycol')
+            return paycol if paycol else 'FFE95E01'
+        elif 'primecol' == name:
+            primecol = self._gs('primecol')
+            return primecol if primecol else 'FF00A8E0'
 
         value = None
         for cmd in self._ret_types:

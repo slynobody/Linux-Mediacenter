@@ -20,6 +20,18 @@ class Item(Object):
     __menus__ = []
 
     @classmethod
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        menus = []
+        seen = set()
+        for base in reversed(cls.__mro__[:-1]):
+            if (("__menus__" in base.__dict__) and (base not in seen)):
+                menus.extend(base.__menus__)
+                seen.add(base)
+        if menus or "__menus__" not in cls.__dict__:
+            cls.__menus__ = menus
+
+    @classmethod
     def __condition__(cls, args, expected):
         result = getSetting(*args) if (len(args) > 1) else getCondition(*args)
         return (result == expected)
@@ -174,19 +186,14 @@ class Queries(Items):
 # ------------------------------------------------------------------------------
 # Videos
 
-class Video(Item):
+class BaseVideo(Item):
 
     __menus__ = [
         (
             43210, "RunScript({addonId},playWithYouTube,{videoId})",
             (("context.withyoutube", bool), True)
         ),
-        (60201, "RunScript({addonId},goToChannel,{channelId})"),
-        (
-            60202,
-            "RunScript({addonId},addChannelToFeed,{channelId},{channel})",
-            (("home.feed", bool), True)
-        )
+        (60201, "RunScript({addonId},goToChannel,{channelId})")
     ]
 
     __thumbnail__ = "DefaultAddonVideo.png"
@@ -222,7 +229,7 @@ class Video(Item):
     def labels(self, *args, **kwargs):
         if self.live:
             kwargs["playcount"] = 0
-        return super(Video, self).labels(*args, **kwargs)
+        return super(BaseVideo, self).labels(*args, **kwargs)
 
     def makeItem(self, path):
         return ListItem(
@@ -246,9 +253,30 @@ class Video(Item):
         return self.makeItem(buildUrl(url, action="play", videoId=self.videoId))
 
 
+class Video(BaseVideo):
+
+    __menus__ = [
+        (
+            60202,
+            "RunScript({addonId},addChannelToFeed,{channelId},{channel})",
+            (("home.feed", bool), True)
+        )
+    ]
+
 class Videos(Contents):
 
     __ctor__ = Video
+
+
+class FeedVideo(BaseVideo):
+
+    __menus__ = [
+        (60303, "RunScript({addonId},refreshFeed)")
+    ]
+
+class FeedVideos(Contents):
+
+    __ctor__ = FeedVideo
 
 
 # ------------------------------------------------------------------------------

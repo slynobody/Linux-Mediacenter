@@ -1,7 +1,7 @@
 <settings version="2">
     <setting id="adaptivestream.type">fixed-res</setting>
-    <setting id="adaptivestream.res.max">1080p</setting>
-    <setting id="adaptivestream.res.secure.max">1080p</setting>
+    <setting id="adaptivestream.res.max">4K</setting>
+    <setting id="adaptivestream.res.secure.max">4K</setting>
     <setting id="adaptivestream.bandwidth.init.auto" default="true">true</setting>
     <setting id="adaptivestream.bandwidth.init" default="true">4000</setting>
     <setting id="adaptivestream.bandwidth.min" default="true">0</setting>
@@ -17,6 +17,6 @@
     <setting id="DECRYPTERPATH" default="true">special://home/cdm</setting>
     <setting id="overrides.ignore.screen.res.change" default="true">false</setting>
     <setting id="overrides.ignore.screen.res" default="true">false</setting>
-    <setting id="debug.save.manifest" default="true">false</setting>
-    <setting id="debug.save.license" default="true">false</setting>
+    <setting id="debug.save.manifest">true</setting>
+    <setting id="debug.save.license">true</setting>
 </settings>

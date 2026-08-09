@@ -8,7 +8,7 @@ from slyguy import dialog, signals
 from slyguy.language import _
 from slyguy.log import log
 from slyguy.constants import *
-from slyguy.util import get_kodi_string, set_kodi_string, kodi_rpc, get_qr_img
+from slyguy.util import get_kodi_string, set_kodi_string, get_qr_img, restart_service, get_system
 
 from .types import BaseSettings, Bool, Dict, Number, Text, Enum, Categories, Action, STORAGE
 
@@ -43,14 +43,11 @@ def is_donor():
 def _set_donor(donor_id):
     set_kodi_string('_slyguy_donor', '1')
     settings.set('donor_id_chk', donor_id)
-    signals.emit(signals.ON_DONOR_SET, donor_id=donor_id)
 
 
 def _unset_donor():
     set_kodi_string('_slyguy_donor', '0')
-    old_donor_id = settings.get('donor_id_chk')
     settings.remove('donor_id_chk')
-    signals.emit(signals.ON_DONOR_UNSET, donor_id=old_donor_id)
 
 
 def is_wv_secure():
@@ -79,11 +76,6 @@ def hdcp_level():
         return int(get_kodi_string('hdcp_level', HDCP_NONE))
     else:
         return hdcp_level
-
-
-def restart_service():
-    kodi_rpc('Addons.SetAddonEnabled', {'addonid': COMMON_ADDON_ID, 'enabled': False})
-    kodi_rpc('Addons.SetAddonEnabled', {'addonid': COMMON_ADDON_ID, 'enabled': True})
 
 
 def check_donor(force=False):
@@ -167,7 +159,8 @@ def set_drm_level(*args, **kwargs):
 
         if not wv_level:
             wv_mode = 'fallback'
-            wv_level = WV_L3
+            # assume L1 for webos otherwise L3
+            wv_level = WV_L1 if get_system() == 'WebOS' else WV_L3
 
         if not hdcp_level:
             hdcp_mode = 'fallback'
@@ -216,7 +209,7 @@ class Donor(Text):
         else:
             value = _(value, _color='red')
 
-        if expires:
+        if expires and self.value:
             value = _(_.VALID_TO, supporter_id=value, expires=expires.to('local').format('D MMMM YYYY'))
 
         label = u'{}: {}'.format(self._label, value)
@@ -248,6 +241,7 @@ if ADDON_DEV:
     WV_LEVEL_OPTIONS.append([_.WV_LEVEL_L1, WV_L1])
 
 
+
 class CommonSettings(BaseSettings):
     # PLAYER / QUALITY
     QUALITY_MODE = Enum('quality_mode', legacy_ids=['default_quality'], label=_.QUALITY_SELECT_MODE, default=QUALITY_ASK, disabled_value=QUALITY_SKIP, enable=is_donor, disabled_reason=_.SUPPORTER_ONLY,
@@ -276,13 +270,13 @@ class CommonSettings(BaseSettings):
     AUDIO_DESCRIPTION = Bool('audio_description', default=True, owner=COMMON_ADDON_ID, category=Categories.PLAYER_LANGUAGE)
     SUBS_FORCED = Bool('subs_forced', default=True, owner=COMMON_ADDON_ID, category=Categories.PLAYER_LANGUAGE)
     SUBS_NON_FORCED = Bool('subs_non_forced', default=True, owner=COMMON_ADDON_ID, category=Categories.PLAYER_LANGUAGE)
-    DEFAULT_LANGUAGE = Text('default_language', default='default,original,en', owner=COMMON_ADDON_ID, disabled_value='', enable=is_donor, disabled_reason=_.SUPPORTER_ONLY, category=Categories.PLAYER_LANGUAGE)
+    DEFAULT_LANGUAGE = Text('default_language', default='default,original,en', owner=COMMON_ADDON_ID, disabled_value='default,original,en', enable=is_donor, disabled_reason=_.SUPPORTER_ONLY, category=Categories.PLAYER_LANGUAGE)
     DEFAULT_SUBTITLE = Text('default_subtitle', default='original,interface,en', owner=COMMON_ADDON_ID, disabled_value='', enable=is_donor, disabled_reason=_.SUPPORTER_ONLY, category=Categories.PLAYER_LANGUAGE)
 
     # PLAYER / ADVANCED
+    REINSTALL_WV = Action("RunPlugin(plugin://{}/?_=_ia_install)".format(COMMON_ADDON_ID), visible=get_system() not in ('Android', 'WebOS'), category=Categories.PLAYER_ADVANCED)
     REMOVE_FRAMERATE = Bool('remove_framerate', default=False, owner=COMMON_ADDON_ID, category=Categories.PLAYER_ADVANCED)
     #CONVERT_FRAMERATE = Bool('convert_framerate', disable=False)
-    REINSTALL_WV = Action("RunPlugin(plugin://{}/?_=_ia_install)".format(COMMON_ADDON_ID), visible=not IS_ANDROID, category=Categories.PLAYER_ADVANCED)
     LIVE_PLAY_TYPE = Enum('live_play_type', options=[[_.PLAY_FROM_ASK, PLAY_FROM_ASK], [_.PLAY_FROM_LIVE_CONTEXT, PLAY_FROM_LIVE], [_.PLAY_FROM_BEGINNING, PLAY_FROM_START]],
                     loop=True, default=PLAY_FROM_ASK, owner=COMMON_ADDON_ID, category=Categories.PLAYER_ADVANCED)
     USE_IA_HLS_LIVE = Bool('use_ia_hls_live', default=True, owner=COMMON_ADDON_ID, category=Categories.PLAYER_ADVANCED)
@@ -296,10 +290,10 @@ class CommonSettings(BaseSettings):
     VERIFY_SSL = Bool('verify_ssl', default=True, owner=COMMON_ADDON_ID, category=Categories.NETWORK)
     HTTP_TIMEOUT = Number('http_timeout', default=15, owner=COMMON_ADDON_ID, category=Categories.NETWORK)
     HTTP_RETRIES = Number('http_retries', default=1, owner=COMMON_ADDON_ID, category=Categories.NETWORK)
-    PROXY_SERVER = Text('proxy_server', owner=COMMON_ADDON_ID, enable=is_donor, disabled_reason=_.SUPPORTER_ONLY, default_label=_.DEFAULT, category=Categories.NETWORK)
     DNS_SERVER = Text('dns_server', owner=COMMON_ADDON_ID, enable=is_donor, disabled_reason=_.SUPPORTER_ONLY, default_label=_.DEFAULT, category=Categories.NETWORK)
     IP_MODE = Enum('ip_mode', options=[[_.PREFER_IPV4, IPMode.PREFER_IPV4], [_.PREFER_IPV6, IPMode.PREFER_IPV6], [_.ONLY_IPV4, IPMode.ONLY_IPV4], [_.ONLY_IPV6, IPMode.ONLY_IPV6]],
                     default=IPMode.PREFER_IPV4, owner=COMMON_ADDON_ID, category=Categories.NETWORK, enable=is_donor, disabled_reason=_.SUPPORTER_ONLY)
+    PROXY_SERVER = Text('proxy_server', owner=COMMON_ADDON_ID, enable=is_donor, disabled_reason=_.SUPPORTER_ONLY, default_label=_.DEFAULT, category=Categories.NETWORK)
 
     # INTERFACE
     BOOKMARKS = Bool('bookmarks', default=True, owner=COMMON_ADDON_ID, category=Categories.INTERFACE)
@@ -319,7 +313,8 @@ class CommonSettings(BaseSettings):
     # SYSTEM
     FAST_UPDATES = Bool('fast_updates', default=True, enable=is_donor, disabled_value=False, disabled_reason=_.SUPPORTER_ONLY, override=False, owner=COMMON_ADDON_ID, category=Categories.SYSTEM)
     PROXY_ENABLED = Bool('proxy_enabled', default=True, before_save=lambda val: val or dialog.yes_no(_.CONFIRM_DISABLE_PROXY), owner=COMMON_ADDON_ID, category=Categories.SYSTEM)
-    PROXY_PORT = Number('proxy_port', default=None, default_label=_.AUTO, override=False, visible=lambda: settings.PROXY_ENABLED.value, owner=COMMON_ADDON_ID, after_save=lambda val: restart_service(), after_clear=restart_service, category=Categories.SYSTEM)
+    PROXY_PORT = Number('proxy_port', default=None, default_label=_.AUTO, override=False, visible=lambda: settings.PROXY_ENABLED.value, owner=COMMON_ADDON_ID,
+            after_save=lambda val: restart_service(COMMON_ADDON_ID), after_clear=lambda: restart_service(COMMON_ADDON_ID), category=Categories.SYSTEM, bulk_clear=False)
 
     # ROOT
     DONOR_ID = Donor('donor_id', override=False, confirm_clear=True, owner=COMMON_ADDON_ID, category=Categories.ROOT, image=get_qr_img(SUPPORT_URL))
@@ -328,6 +323,7 @@ class CommonSettings(BaseSettings):
 
     # HIDDEN
     DONOR_ID_CHK = Text('donor_id_chk', visible=False, override=False, owner=COMMON_ADDON_ID)
+    DONOR_EXPIRES = Number('donor_expires', visible=False, override=False, owner=COMMON_ADDON_ID)
     ADDONS_MD5 = Text('addon_md5', visible=False, override=False, owner=COMMON_ADDON_ID)
     LAST_DONOR_CHECK = Number('last_donor_check', visible=False, override=False, owner=COMMON_ADDON_ID)
     LAST_SUPPORT_REMINDER = Number('last_support_reminder', visible=False, override=False, owner=COMMON_ADDON_ID)
