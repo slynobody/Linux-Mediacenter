@@ -128,19 +128,19 @@ class SessionAccess(SessionCookie, SessionHTTPRequests):
         if not email:
             raise WebsiteParsingError('E-mail field not found')
         # Verify the password (with parental control api)
-        try:
-            response = self.post_safe('profile_hub',
-                                      data={'destination': 'contentRestrictions',
-                                            'guid': G.LOCAL_DB.get_active_profile_guid(),
-                                            'password': password,
-                                            'task': 'auth'})
-            if response.get('status') != 'ok':
-                raise LoginError(common.get_local_string(12344))  # 12344=Passwords entered did not match.
-        except exceptions.HTTPError as exc:
-            if exc.response.status_code == 500:
-                # This endpoint raise HTTP error 500 when the password is wrong
-                raise LoginError(common.get_local_string(12344)) from exc
-            raise
+        #try:
+        #    response = self.post_safe('profile_hub',
+        #                              data={'destination': 'contentRestrictions',
+        #                                    'guid': G.LOCAL_DB.get_active_profile_guid(),
+        #                                    'password': password,
+        #                                    'task': 'auth'})
+        #    if response.get('status') != 'ok':
+        #        raise LoginError(common.get_local_string(12344))  # 12344=Passwords entered did not match.
+        #except exceptions.HTTPError as exc:
+        #    if exc.response.status_code == 500:
+        #        # This endpoint raise HTTP error 500 when the password is wrong
+        #        raise LoginError(common.get_local_string(12344)) from exc
+        #    raise
         common.set_credentials({'email': email, 'password': password})
         LOG.info('Login successful')
         ui.show_notification(common.get_local_string(30109))
